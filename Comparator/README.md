@@ -1,8 +1,8 @@
-# Palomar Comparator entry
+# Comparator entry
 
 `AllResults` is the single README-wide entry. It contains a Mathlib-only
 `Challenge.lean`, a production-backed `Solution.lean`, a Comparator
-configuration, and Palomar metadata.
+configuration, and project metadata.
 
 The entry compares 22 theorem holes and the two intentional definition holes
 for the Choi--Lam and Motzkin separation constants. Comparator permits only

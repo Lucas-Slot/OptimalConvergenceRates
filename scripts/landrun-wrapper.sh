@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Normalize Comparator's optional outer `--` before the sandboxed command.
 # Landrun needs exactly one such delimiter, which this wrapper emits below.
-landrun_binary=${PALOMAR_LANDRUN_BIN:?PALOMAR_LANDRUN_BIN must name the pinned Landrun binary}
+landrun_binary=${COMPARATOR_LANDRUN_BIN:?COMPARATOR_LANDRUN_BIN must name the pinned Landrun binary}
 landrun_options=()
 
 # Landrun's --unrestricted-* flags each switch off a whole class of Landlock

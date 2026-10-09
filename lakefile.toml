@@ -18,5 +18,5 @@ rev = "v4.28.0"
 name = "OptimalConvergenceRates"
 
 [[lean_lib]]
-name = "Palomar"
+name = "Comparator"
 

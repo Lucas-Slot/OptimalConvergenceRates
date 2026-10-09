@@ -1,6 +1,6 @@
 # README-wide optimal convergence-rate results
 
-This Palomar Comparator entry covers all 22 theorems presented in the repository
+This Comparator entry covers all 22 theorems presented in the repository
 README. Its standalone `Challenge.lean` imports only Mathlib and includes the
 repository-local definitions needed to state those results.
 

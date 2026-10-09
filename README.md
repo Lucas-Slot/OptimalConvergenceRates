@@ -11,6 +11,47 @@ The announcement writes `k` for a relaxation order whose certificates have degre
 This changes fixed constants, but not any of the asymptotic rates below. In the displayed
 formulas, `QM` denotes the quadratic module and `PO` the preordering.
 
+## Building and navigating the project
+
+The repository pins its Lean toolchain in `lean-toolchain`. With
+[Elan](https://github.com/leanprover/elan) installed, run the following from the
+repository root:
+
+```sh
+lake exe cache get
+lake build OptimalConvergenceRates
+```
+
+The first command downloads available Mathlib build artifacts; the second checks the complete
+production library. `lake build` is equivalent here because `OptimalConvergenceRates` is the
+default target. Use `lake build Comparator` to also compile the production-backed Comparator
+solution.
+
+[`OptimalConvergenceRates.lean`](OptimalConvergenceRates.lean) is the aggregate production
+module. For the announced results, start from the seven `MainResults.lean` files linked below;
+the supporting definitions, estimates, and proofs are organized in the surrounding result
+folders. The Comparator surface is under [`Comparator/AllResults`](Comparator/AllResults):
+`Challenge.lean` is the Mathlib-only statement interface, while `Solution.lean` imports the
+production `MainResults` modules that implement it.
+
+### What the Comparator checks
+
+A normal Lake build checks that the production development type-checks. The pinned Comparator
+additionally checks the 22 advertised theorems and two intentional definition targets against
+the standalone challenge interface. Its configuration is
+[`Comparator/AllResults/comparator.json`](Comparator/AllResults/comparator.json). The check
+permits only `propext`, `Quot.sound`, and `Classical.choice`, and replays exported proofs with
+NanoDa's independent kernel.
+
+Run the full local Comparator verification with:
+
+```sh
+./scripts/verify-comparator.sh
+```
+
+This downloads and builds pinned verification tools, so it is substantially slower than
+`lake build`. The corresponding GitHub Actions workflow is intentionally manual-only.
+
 ## Contents
 
 1. [Archimedean, upper degree bound](#1-archimedean-upper-degree-bound)

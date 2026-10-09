@@ -2,11 +2,11 @@
 set -euo pipefail
 
 repository_root=$(cd "$(dirname "$0")/.." && pwd)
-if [ -n "${PALOMAR_COMPARATOR_CACHE:-}" ]; then
-  cache_root=$PALOMAR_COMPARATOR_CACHE
+if [ -n "${COMPARATOR_CACHE:-}" ]; then
+  cache_root=$COMPARATOR_CACHE
   remove_cache=false
 else
-  cache_root=$(mktemp -d "${TMPDIR:-/tmp}/palomar-preflight.XXXXXX")
+  cache_root=$(mktemp -d "${TMPDIR:-/tmp}/comparator.XXXXXX")
   remove_cache=true
 fi
 if $remove_cache; then
@@ -17,9 +17,7 @@ bin_dir="$cache_root/bin"
 comparator_dir="$cache_root/comparator"
 lean4export_dir="$cache_root/lean4export"
 nanoda_dir="$cache_root/nanoda"
-pipeline_dir="$cache_root/palomar-submission"
 
-pipeline_commit=3561d237dcc4b28482558ad28a64d767d7cc8615
 comparator_commit=575674928e239f5bc452aab72d1dd7b0f1326494
 lean4export_commit=d065b0009aed0520e9e99752847a33b337661690
 lean4export_tag=v4.28.0
@@ -27,20 +25,15 @@ landrun_commit=811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
 nanoda_commit=68d5ca9db226849b41a6fff59d796ff19d0a8840
 
 configs=(
-  Palomar/AllResults/comparator.json
+  Comparator/AllResults/comparator.json
 )
 
-for required_command in cargo git go lake python3; do
+for required_command in cargo git go lake; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "error: $required_command is required to run Comparator" >&2
     exit 1
   fi
 done
-
-if ! python3 -c 'import yaml' 2>/dev/null; then
-  echo "error: install scripts/palomar-preflight-requirements.txt first" >&2
-  exit 1
-fi
 
 mkdir -p "$cache_root" "$bin_dir"
 
@@ -57,10 +50,6 @@ checkout_exact() {
 
 checkout_exact https://github.com/leanprover/lean4export.git \
   "$lean4export_dir" "$lean4export_commit"
-checkout_exact https://github.com/PalomarRegistry/PalomarSubmission.git \
-  "$pipeline_dir" "$pipeline_commit"
-
-python3 "$pipeline_dir/scripts/verification_profile.py" --disk-path "$cache_root"
 
 project_toolchain=$(tr -d '[:space:]' < "$repository_root/lean-toolchain")
 lean4export_toolchain=$(tr -d '[:space:]' < "$lean4export_dir/lean-toolchain")
@@ -73,11 +62,6 @@ if [ "$project_toolchain" != "leanprover/lean4:$lean4export_tag" ]; then
   echo "error: project toolchain does not match lean4export release $lean4export_tag" >&2
   exit 1
 fi
-
-python3 "$repository_root/scripts/verify-palomar-source.py" \
-  --root "$repository_root" \
-  --policy "$repository_root/scripts/palomar-preflight-policy.json" \
-  --official-pipeline "$pipeline_dir"
 
 checkout_exact https://github.com/leanprover/comparator.git \
   "$comparator_dir" "$comparator_commit"
@@ -98,7 +82,7 @@ for config in "${configs[@]}"; do
   GIT_CONFIG_NOSYSTEM=1 \
   GIT_TERMINAL_PROMPT=0 \
   LEAN_ABORT_ON_PANIC=1 \
-  PALOMAR_LANDRUN_BIN="$bin_dir/landrun" \
+  COMPARATOR_LANDRUN_BIN="$bin_dir/landrun" \
   COMPARATOR_LEAN4EXPORT="$lean4export_dir/.lake/build/bin/lean4export" \
   COMPARATOR_NANODA="$nanoda_dir/target/release/nanoda_bin" \
   COMPARATOR_LANDRUN="$repository_root/scripts/landrun-wrapper.sh" \

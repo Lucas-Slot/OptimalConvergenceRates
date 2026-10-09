@@ -1,6 +1,6 @@
 {
-  "challenge_module": "Palomar.AllResults.Challenge",
-  "solution_module": "Palomar.AllResults.Solution",
+  "challenge_module": "Comparator.AllResults.Challenge",
+  "solution_module": "Comparator.AllResults.Solution",
   "theorem_names": [
     "OptimalConvergenceRates.GeneralArchimedean.generalArchimedeanUpperRate",
     "OptimalConvergenceRates.GeneralArchimedean.generalArchimedeanEpsilonCertificate",
