@@ -475,6 +475,7 @@ set_option linter.hashCommand false in
 
 /-- Linear independence of active constraint gradients at every feasible point. -/
 def CQC {n m : ℕ} (g : Fin m → MvPolynomial (Fin n) ℝ) : Prop :=
+  letI : NormedSpace ℝ ℝ := NormedField.toNormedSpace
   ∀ x ∈ KrivineStengle.basicClosedSet g,
     LinearIndependent ℝ
       (fun i : {i : Fin m // MvPolynomial.eval x (g i) = 0} ↦

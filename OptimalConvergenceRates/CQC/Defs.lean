@@ -11,6 +11,7 @@ namespace OptimalConvergenceRates
 feasible point, the gradients of the active members of the specified
 generator family are linearly independent. -/
 def CQC {n m : ℕ} (g : Fin m → MvPolynomial (Fin n) ℝ) : Prop :=
+  letI : NormedSpace ℝ ℝ := NormedField.toNormedSpace
   ∀ x ∈ KrivineStengle.basicClosedSet g,
     LinearIndependent ℝ
       (fun i : {i : Fin m // MvPolynomial.eval x (g i) = 0} ↦
