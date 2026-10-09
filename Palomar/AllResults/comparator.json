@@ -1,0 +1,38 @@
+{
+  "challenge_module": "Palomar.AllResults.Challenge",
+  "solution_module": "Palomar.AllResults.Solution",
+  "theorem_names": [
+    "OptimalConvergenceRates.GeneralArchimedean.generalArchimedeanUpperRate",
+    "OptimalConvergenceRates.GeneralArchimedean.generalArchimedeanEpsilonCertificate",
+    "OptimalConvergenceRates.GeneralArchimedean.sharpArchimedeanRate",
+    "OptimalConvergenceRates.GeneralArchimedean.sharpArchimedeanDegreeLowerBound",
+    "OptimalConvergenceRates.GeneralCompact.generalCompactUpperRate",
+    "OptimalConvergenceRates.GeneralCompact.generalCompactEpsilonCertificate",
+    "OptimalConvergenceRates.GeneralCompact.sharpCompactRate",
+    "OptimalConvergenceRates.GeneralCompact.sharpCompactDegreeLowerBound",
+    "OptimalConvergenceRates.QuarticConvergence.putinarCubeQuarticRate_membership",
+    "OptimalConvergenceRates.QuarticConvergence.putinarCubeQuarticDegreeBound",
+    "OptimalConvergenceRates.QuarticConvergence.schmudgenCubeQuarticDegreeBound",
+    "OptimalConvergenceRates.improvedLowerBoundMembershipBoxQM",
+    "OptimalConvergenceRates.improved_lasserre_box_qm_gap",
+    "OptimalConvergenceRates.lowerBoundMembershipBoxPreoMotzkin_sixth",
+    "OptimalConvergenceRates.upperBoundMembershipBoxPreoMotzkin_sixth",
+    "OptimalConvergenceRates.lowerBoundMembershipBoxPreoChoiLam_quarter",
+    "OptimalConvergenceRates.lowerBoundMembershipBoxPreoChoiLam_quarter_contra",
+    "OptimalConvergenceRates.putinarQuarticRate",
+    "OptimalConvergenceRates.putinarQuarticDegreeBound",
+    "OptimalConvergenceRates.MFCQQuadraticLowerBound.certificate_lower_bound",
+    "OptimalConvergenceRates.MFCQQuadraticLowerBound.certificate_order_lower_bound",
+    "OptimalConvergenceRates.MFCQQuadraticLowerBound.hierarchy_error_lower_bound"
+  ],
+  "definition_names": [
+    "OptimalConvergenceRates.schmInteriorLowerBoundConst4",
+    "OptimalConvergenceRates.Motzkin.motzkinLowerBoundConst"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

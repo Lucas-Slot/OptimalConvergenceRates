@@ -1,0 +1,7 @@
+import OptimalConvergenceRates.GeneralArchimedean.MainResults
+import OptimalConvergenceRates.GeneralCompact.MainResults
+import OptimalConvergenceRates.QuarticConvergence.MainResults
+import OptimalConvergenceRates.LowerDegreeBoundsPutinar.MainResults
+import OptimalConvergenceRates.LowerDegreeBoundsSchmudgen.MainResults
+import OptimalConvergenceRates.CQC.MainResults
+import OptimalConvergenceRates.MFCQQuadraticLowerBound.MainResults
