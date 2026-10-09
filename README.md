@@ -1,15 +1,10 @@
-# Lean companion to the announced results
+# Lean companion to "Optimal degree bounds for sum-of-squares representations"
 
+This repository serves as a Lean formalization of the claims made in 
 > **TODO:** Insert a PDF or arXiv link to a document containing a summary of all results.
 
-This document lists every formalized theorem in the order used by that result summary.
-Each entry gives the mathematical statement, its TeX name, the public Lean location, and
-the corresponding declaration(s) from `MainResults.lean`.
-
-The announcement writes `k` for a relaxation order whose certificates have degree at most
-`2k`. Most of the Lean development instead uses `r` for the complete certificate degree.
-This changes fixed constants, but not any of the asymptotic rates below. In the displayed
-formulas, `QM` denotes the quadratic module and `PO` the preordering.
+Below is a list of every formalized theorem in the order used in that announcement.
+Each entry gives the mathematical statement, its Lean formalization, and the location of its formalization within this repo.
 
 ## Building and navigating the project
 
@@ -64,6 +59,12 @@ This downloads and builds pinned verification tools, so it is substantially slow
 8. [Hypercube, lower degree bound III](#8-hypercube-lower-degree-bound-iii)
 9. [LICQ upper bound](#9-licq-upper-bound)
 10. [MFCQ quadratic lower bound](#10-mfcq-quadratic-lower-bound)
+
+## Notes
+The announcement writes `k` for a relaxation order whose certificates have degree at most
+`2k`. Most of the Lean development instead uses `r` for the complete certificate degree.
+This changes fixed constants, but not any of the asymptotic rates below. In the displayed
+formulas, `QM` denotes the quadratic module and `PO` the preordering.
 
 ## 1. Archimedean, upper degree bound
 
