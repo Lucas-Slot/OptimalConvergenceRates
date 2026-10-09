@@ -45,7 +45,7 @@ Run the full local Comparator verification with:
 ```
 
 This downloads and builds pinned verification tools, so it is substantially slower than
-`lake build`. The corresponding GitHub Actions workflow is intentionally manual-only.
+`lake build`.
 
 ## Contents
 
