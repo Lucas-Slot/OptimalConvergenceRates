@@ -263,10 +263,6 @@ holds for the larger Schmüdgen preordering.
 - **Lean declarations:** `putinarCubeQuarticRate_membership`,
   `putinarCubeQuarticDegreeBound`, `schmudgenCubeQuarticDegreeBound`
 
-> **Normalization note.** Lean keeps the norm dependence homogeneous: the inverse bound
-> contains `(‖p‖∞ / ε)^(1/4)`. For fixed `n` and `d`, the degree factors in the Lean
-> statement are absorbed into the constants used in the announcement.
-
 ```lean
 theorem putinarCubeQuarticRate_membership {n : ℕ} (hn : 0 < n) :
     ∃ (A : ℝ) (c : ℕ),
