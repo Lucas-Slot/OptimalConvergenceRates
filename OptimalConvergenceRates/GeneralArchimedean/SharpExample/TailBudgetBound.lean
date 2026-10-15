@@ -74,7 +74,7 @@ theorem sharpTailMomentBudget_le_penalty
       apply Finset.sum_le_sum
       intro alpha halpha
       by_cases hcut : bivarTotal alpha + u + v <= 2 * D
-      · rw [if_pos hcut]
+      · rw [ite_eq_left hcut]
         have hlower := sharpTailPolynomial_support_degree q halpha
         have hdec := hdecay (bivarTotal alpha) (u + v) hlower
           (by omega) huv
@@ -114,7 +114,7 @@ theorem sharpTailMomentBudget_le_penalty
                 dsimp [A]
                 ring
           _ <= Amax * E := hprod
-      · rw [if_neg hcut]
+      · rw [ite_eq_right hcut]
         exact mul_nonneg hAmax hE
     _ = ((sharpTailPolynomial D q).support.card : Real) * (Amax * E) := by
       simp

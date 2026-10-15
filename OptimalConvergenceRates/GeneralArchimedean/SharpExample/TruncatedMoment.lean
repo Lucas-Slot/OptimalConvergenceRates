@@ -14,17 +14,18 @@ namespace OptimalConvergenceRates.GeneralArchimedean
 directly applicable to certificate identities. -/
 def sharpTruncatedMoment (eta : Real) (D : Nat) :
     MvPolynomial (Fin 2) Real →ₗ[Real] Real :=
-  (Finsupp.lsum Real)
+  (Finsupp.lsum Real
     (fun alpha : Fin 2 →₀ Nat =>
       (LinearMap.lsmul Real Real)
         (if alpha.sum (fun _ e => e) <= 2 * D then
           sharpMoment eta alpha
-        else 0))
+        else 0))).comp
+    (AddMonoidAlgebra.coeffLinearEquiv Real).toLinearMap
 
 @[simp] theorem sharpTruncatedMoment_apply (eta : Real) (D : Nat)
     (p : MvPolynomial (Fin 2) Real) :
     sharpTruncatedMoment eta D p =
-      p.sum fun alpha c =>
+      p.coeff.sum fun alpha c =>
         (if alpha.sum (fun _ e => e) <= 2 * D then
           sharpMoment eta alpha
         else 0) * c :=

@@ -100,7 +100,7 @@ theorem cos_sphereAngularDistance {n : ℕ} (y x : sphereSet n) :
 theorem continuous_sphereAngularDistance_right {n : ℕ} (x : sphereSet n) :
     Continuous (fun y : sphereSet n ↦ sphereAngularDistance y x) := by
   apply Real.continuous_arccos.comp
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro i hi
   exact ((continuous_apply i).comp continuous_subtype_val).mul continuous_const
 
@@ -397,7 +397,7 @@ on the algebraic sphere. -/
 theorem continuous_sphereChordalSq_right {n : ℕ} (x : Fin n → ℝ) :
     Continuous (fun y : sphereSet n ↦ sphereChordalSq y.1 x) := by
   unfold sphereChordalSq
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro i _
   exact (((continuous_apply i).comp continuous_subtype_val).sub
     continuous_const).pow 2
@@ -466,7 +466,7 @@ theorem preimage_sphereChordalCap_eq_closedBall {n : ℕ}
     (euclideanSphereHomeomorphSphereSet n) ⁻¹' sphereChordalCap base r =
       Metric.closedBall ((euclideanSphereHomeomorphSphereSet n).symm base) r := by
   ext y
-  simp only [Set.mem_preimage, sphereChordalCap, Set.mem_setOf_eq,
+  simp only [Set.mem_preimage, sphereChordalCap, Set.mem_ofPred_eq,
     Metric.mem_closedBall]
   rw [← sq_le_sq₀ dist_nonneg hr]
   rw [← sphereChordalSq_euclideanSphereCoordinates_eq_dist_sq]

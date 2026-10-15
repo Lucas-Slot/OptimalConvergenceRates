@@ -54,7 +54,7 @@ def choiLamSphereZeroDirection (i : Fin 4) : Fin 5 → ℝ :=
 theorem choiLamSphereZeroDirection_mem (i : Fin 4) :
     choiLamSphereZeroDirection i ∈ sphereSet 5 := by
   unfold sphereSet sphereQuadratic
-  simp only [Set.mem_setOf_eq, map_sum, map_pow, eval_X]
+  simp only [Set.mem_ofPred_eq, map_sum, map_pow, eval_X]
   rw [Fin.sum_univ_castSucc]
   rw [choiLamSphereZeroDirection_last,
     zero_pow (by norm_num : (2 : ℕ) ≠ 0), add_zero]

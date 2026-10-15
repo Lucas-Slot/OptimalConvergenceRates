@@ -11,7 +11,7 @@ namespace OptimalConvergenceRates
 namespace Motzkin
 
 def motzkinCoeffNorm (p : MvPolynomial (Fin 3) ℝ) : ℝ :=
-  ∑ α ∈ p.support, |MvPolynomial.coeff α p|
+  ∑ α ∈ p.support, |legacyMvCoeff α p|
 
 /-- Euclidean norm of the componentwise coefficient L1 norms.
 
@@ -68,37 +68,39 @@ theorem motzkinCoeffNorm_add_le (p q : MvPolynomial (Fin 3) ℝ) :
   classical
   unfold motzkinCoeffNorm
   have hp_union :
-      ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α p| =
-        ∑ α ∈ p.support, |MvPolynomial.coeff α p| := by
+      ∑ α ∈ p.support ∪ q.support, |legacyMvCoeff α p| =
+        ∑ α ∈ p.support, |legacyMvCoeff α p| := by
     rw [← Finset.sum_subset Finset.subset_union_left]
     intro α _hα hnot
-    have hc : MvPolynomial.coeff α p = 0 := notMem_support_iff.mp hnot
+    have hc : legacyMvCoeff α p = 0 := notMem_support_iff.mp hnot
     simp [hc]
   have hq_union :
-      ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α q| =
-        ∑ α ∈ q.support, |MvPolynomial.coeff α q| := by
+      ∑ α ∈ p.support ∪ q.support, |legacyMvCoeff α q| =
+        ∑ α ∈ q.support, |legacyMvCoeff α q| := by
     rw [← Finset.sum_subset Finset.subset_union_right]
     intro α _hα hnot
-    have hc : MvPolynomial.coeff α q = 0 := notMem_support_iff.mp hnot
+    have hc : legacyMvCoeff α q = 0 := notMem_support_iff.mp hnot
     simp [hc]
   calc
-    ∑ α ∈ (p + q).support, |MvPolynomial.coeff α (p + q)|
-        ≤ ∑ α ∈ (p + q).support, (|MvPolynomial.coeff α p| +
-          |MvPolynomial.coeff α q|) := by
+    ∑ α ∈ (p + q).support, |legacyMvCoeff α (p + q)|
+        ≤ ∑ α ∈ (p + q).support, (|legacyMvCoeff α p| +
+          |legacyMvCoeff α q|) := by
           apply Finset.sum_le_sum
           intro α _hα
-          rw [MvPolynomial.coeff_add]
+          change |AddMonoidAlgebra.coeff (p + q) α| ≤
+            |AddMonoidAlgebra.coeff p α| + |AddMonoidAlgebra.coeff q α|
+          rw [AddMonoidAlgebra.coeff_add]
           exact abs_add_le _ _
     _ ≤ ∑ α ∈ p.support ∪ q.support,
-          (|MvPolynomial.coeff α p| + |MvPolynomial.coeff α q|) := by
+          (|legacyMvCoeff α p| + |legacyMvCoeff α q|) := by
           apply Finset.sum_le_sum_of_subset_of_nonneg MvPolynomial.support_add
           intro α _hα _hnot
           exact add_nonneg (abs_nonneg _) (abs_nonneg _)
-    _ = ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α p| +
-          ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α q| := by
+    _ = ∑ α ∈ p.support ∪ q.support, |legacyMvCoeff α p| +
+          ∑ α ∈ p.support ∪ q.support, |legacyMvCoeff α q| := by
           rw [← Finset.sum_add_distrib]
-    _ = ∑ α ∈ p.support, |MvPolynomial.coeff α p| +
-          ∑ α ∈ q.support, |MvPolynomial.coeff α q| := by
+    _ = ∑ α ∈ p.support, |legacyMvCoeff α p| +
+          ∑ α ∈ q.support, |legacyMvCoeff α q| := by
           rw [hp_union, hq_union]
 
 theorem motzkinCoeffNorm_add4_le (a b c d : MvPolynomial (Fin 3) ℝ) :
@@ -139,6 +141,7 @@ theorem motzkinCoeffNorm_neg (p : MvPolynomial (Fin 3) ℝ) :
   rw [hsupp]
   apply Finset.sum_congr rfl
   intro α _hα
+  change |AddMonoidAlgebra.coeff (-p) α| = |AddMonoidAlgebra.coeff p α|
   rw [MvPolynomial.coeff_neg]
   simp
 
@@ -166,14 +169,16 @@ theorem motzkinCoeffNorm_C_mul_le (c : ℝ) (p : MvPolynomial (Fin 3) ℝ) :
       exact fun hp => hα (by simp [hp])
     calc
       ∑ α ∈ (MvPolynomial.C c * p).support,
-          |MvPolynomial.coeff α (MvPolynomial.C c * p)|
-          = ∑ α ∈ (MvPolynomial.C c * p).support, |c| * |MvPolynomial.coeff α p| := by
+          |legacyMvCoeff α (MvPolynomial.C c * p)|
+          = ∑ α ∈ (MvPolynomial.C c * p).support, |c| * |legacyMvCoeff α p| := by
             apply Finset.sum_congr rfl
             intro α _hα
+            change |AddMonoidAlgebra.coeff (MvPolynomial.C c * p) α| =
+              |c| * |AddMonoidAlgebra.coeff p α|
             rw [MvPolynomial.coeff_C_mul, abs_mul]
-      _ = |c| * ∑ α ∈ (MvPolynomial.C c * p).support, |MvPolynomial.coeff α p| := by
+      _ = |c| * ∑ α ∈ (MvPolynomial.C c * p).support, |legacyMvCoeff α p| := by
             rw [Finset.mul_sum]
-      _ ≤ |c| * ∑ α ∈ p.support, |MvPolynomial.coeff α p| := by
+      _ ≤ |c| * ∑ α ∈ p.support, |legacyMvCoeff α p| := by
             apply mul_le_mul_of_nonneg_left _ (abs_nonneg c)
             exact Finset.sum_le_sum_of_subset_of_nonneg hsupp (fun α _hα _hnot => abs_nonneg _)
 
@@ -208,31 +213,31 @@ theorem motzkinCoeffNorm_mul_le (p q : MvPolynomial (Fin 3) ℝ) :
   calc
     motzkinCoeffNorm
         (∑ x ∈ p.support, ∑ y ∈ q.support,
-          MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-            MvPolynomial.monomial y (MvPolynomial.coeff y q))
+          MvPolynomial.monomial x (legacyMvCoeff x p) *
+            MvPolynomial.monomial y (legacyMvCoeff y q))
         ≤ ∑ x ∈ p.support, motzkinCoeffNorm
-            (∑ y ∈ q.support, MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)) :=
+            (∑ y ∈ q.support, MvPolynomial.monomial x (legacyMvCoeff x p) *
+              MvPolynomial.monomial y (legacyMvCoeff y q)) :=
           motzkinCoeffNorm_sum_le p.support fun x =>
-            ∑ y ∈ q.support, MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)
+            ∑ y ∈ q.support, MvPolynomial.monomial x (legacyMvCoeff x p) *
+              MvPolynomial.monomial y (legacyMvCoeff y q)
     _ ≤ ∑ x ∈ p.support, ∑ y ∈ q.support, motzkinCoeffNorm
-            (MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)) := by
+            (MvPolynomial.monomial x (legacyMvCoeff x p) *
+              MvPolynomial.monomial y (legacyMvCoeff y q)) := by
           exact Finset.sum_le_sum fun x _ => motzkinCoeffNorm_sum_le q.support fun y =>
-            MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)
+            MvPolynomial.monomial x (legacyMvCoeff x p) *
+              MvPolynomial.monomial y (legacyMvCoeff y q)
     _ ≤ ∑ x ∈ p.support, ∑ y ∈ q.support,
-          |MvPolynomial.coeff x p| * |MvPolynomial.coeff y q| := by
+          |legacyMvCoeff x p| * |legacyMvCoeff y q| := by
           apply Finset.sum_le_sum
           intro x _hx
           apply Finset.sum_le_sum
           intro y _hy
-          rw [MvPolynomial.monomial_mul]
+          rw [MvPolynomial.monomial_mul_monomial]
           simpa [abs_mul] using motzkinCoeffNorm_monomial_le (x + y)
-            (MvPolynomial.coeff x p * MvPolynomial.coeff y q)
-    _ = ∑ x ∈ p.support, |MvPolynomial.coeff x p| *
-          (∑ y ∈ q.support, |MvPolynomial.coeff y q|) := by
+            (legacyMvCoeff x p * legacyMvCoeff y q)
+    _ = ∑ x ∈ p.support, |legacyMvCoeff x p| *
+          (∑ y ∈ q.support, |legacyMvCoeff y q|) := by
           apply Finset.sum_congr rfl
           intro x _hx
           rw [Finset.mul_sum]

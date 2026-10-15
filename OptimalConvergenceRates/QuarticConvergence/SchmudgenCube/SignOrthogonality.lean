@@ -69,7 +69,7 @@ theorem sum_cubeSignCharacter_mul (J K : Finset (Fin n)) :
       intro i _
       exact hfactor i]
     simp
-  · rw [if_neg hJK]
+  · rw [ite_eq_right hJK]
     have hex : ∃ i : Fin n, (i ∈ J) ≠ (i ∈ K) := by
       by_contra h
       apply hJK

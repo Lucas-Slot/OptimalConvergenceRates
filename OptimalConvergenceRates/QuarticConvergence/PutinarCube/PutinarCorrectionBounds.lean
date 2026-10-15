@@ -28,7 +28,7 @@ theorem eval_putinarSplitSetProduct_nonneg_le
   · apply Finset.prod_nonneg
     intro i hi
     exact (putinarSplit_bounds_on_hypercube k hk i x hx).2.2.1
-  · apply Finset.prod_le_prod
+  · apply Finset.prod_le_prod₀
     · intro i hi
       exact (putinarSplit_bounds_on_hypercube k hk i x hx).2.2.1
     · intro i hi
@@ -74,7 +74,7 @@ theorem eval_putinarCorrectionForMultiplier_nonneg_le
     apply Finset.sum_nonneg
     intro J hJ
     by_cases hcard : 2 ≤ J.card
-    · simp only [hcard, if_pos, map_mul, MvPolynomial.eval_C]
+    · simp only [hcard, ite_eq_left, map_mul, MvPolynomial.eval_C]
       exact mul_nonneg (pow_nonneg hmu _)
         (eval_putinarSplitSetProduct_nonneg_le k hk (I \ J) x hx).1
     · simp [hcard]
@@ -82,7 +82,7 @@ theorem eval_putinarCorrectionForMultiplier_nonneg_le
     apply Finset.sum_le_sum
     intro J hJ
     by_cases hcard : 2 ≤ J.card
-    · simp only [hcard, if_pos, map_mul, MvPolynomial.eval_C]
+    · simp only [hcard, ite_eq_left, map_mul, MvPolynomial.eval_C]
       have hs := eval_putinarSplitSetProduct_nonneg_le
         k hk (I \ J) x hx
       calc
@@ -147,7 +147,7 @@ theorem eval_putinarConversionCorrection_le_of_weighted
   apply Finset.sum_le_sum
   intro J hJ
   by_cases hcard : 2 ≤ J.card
-  · simp only [hcard, if_pos]
+  · simp only [hcard, ite_eq_left]
     exact mul_le_mul_of_nonneg_left (hweighted I hI J hJ hcard)
       (pow_nonneg (by unfold putinarPairMu delta; positivity) _)
   · simp [hcard]

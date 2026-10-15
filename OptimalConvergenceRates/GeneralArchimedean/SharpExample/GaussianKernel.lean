@@ -249,7 +249,7 @@ theorem bivarGaussianKernel_offDiagonal_sum_lt_one
     have h2 : (e b.1).2 = (e c.1).2 := by omega
     exact Subtype.ext (he (Prod.ext h1 h2))
   have hsource : Summable source := by
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     exact Set.toFinite _
   have htarget : Summable target := by
     exact (summable_bilateralGeometric₂ (Real.exp_pos _).le
@@ -318,7 +318,7 @@ theorem bivarGaussianKernel_offDiagonal_sum_lt_half
     have h1 : (e b.1).1 = (e c.1).1 := by omega
     have h2 : (e b.1).2 = (e c.1).2 := by omega
     exact Subtype.ext (he (Prod.ext h1 h2))
-  have hsource : Summable source := summable_of_finite_support (Set.toFinite _)
+  have hsource : Summable source := summable_of_hasFiniteSupport (Set.toFinite _)
   have htarget : Summable target :=
     (summable_bilateralGeometric₂ (Real.exp_pos _).le
       (Real.exp_lt_one_iff.mpr (by norm_num))).subtype _

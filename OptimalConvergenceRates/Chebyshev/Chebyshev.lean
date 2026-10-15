@@ -195,27 +195,27 @@ theorem chebyshevT_orthogonality (a b : ℕ) :
         (Polynomial.Chebyshev.T ℝ (m : ℤ)).eval x
           ∂Polynomial.Chebyshev.measureT := by
     intro n m
-    rw [Polynomial.Chebyshev.integral_measureT_eq_integral_cos_of_continuous (by fun_prop)]
+    rw [Polynomial.Chebyshev.integral_measureT_eq_integral_cos]
     congr 1; ext θ
     simp [Polynomial.Chebyshev.T_real_cos]
   rw [key a b]
   -- Now case-split
   by_cases hab : a ≠ b
   · -- a ≠ b: integral = 0
-    rw [if_pos hab]
+    rw [ite_eq_left hab]
     rw [Polynomial.Chebyshev.integral_eval_T_real_mul_eval_T_real_measureT_of_ne hab,
         mul_zero]
-  · push_neg at hab; subst hab
-    rw [if_neg (not_not.mpr rfl)]
+  · push Not at hab; subst hab
+    rw [ite_eq_right (not_not.mpr rfl)]
     by_cases ha : a = 0
     · -- a = b = 0: integral = π
       subst ha
-      rw [if_pos rfl]
+      rw [ite_eq_left rfl]
       simp only [Nat.cast_zero] at *
       rw [Polynomial.Chebyshev.integral_eval_T_real_mul_self_measureT_zero]
       rw [div_mul_cancel₀ _ (ne_of_gt Real.pi_pos)]
     · -- a = b ≠ 0: integral = π/2
-      rw [if_neg ha]
+      rw [ite_eq_right ha]
       rw [Polynomial.Chebyshev.integral_T_real_mul_self_measureT_of_ne_zero ha]
       field_simp
 
@@ -237,7 +237,7 @@ theorem chebyshevMulti_bounded (κ : Fin n → ℕ) (x : Fin n → ℝ)
     |MvPolynomial.eval x (chebyshevMulti κ)| ≤ 1 := by
   simp only [chebyshevMulti, map_prod]
   rw [abs_prod]
-  apply Finset.prod_le_one (fun i _ => abs_nonneg _)
+  apply Finset.prod_le_one₀ (fun i _ => abs_nonneg _)
   intro i _
   rw [eval_embedUnivariate]
   have hi : x i ∈ Set.Icc (-1 : ℝ) 1 := hx i trivial
@@ -398,7 +398,7 @@ theorem chebyshevMulti_totalDegree_le {n : ℕ} (κ : Fin n → ℕ) :
   unfold chebyshevMulti multiDegree
   calc (∏ i, embedUnivariate i (chebyshevT (κ i))).totalDegree
       ≤ ∑ i, (embedUnivariate i (chebyshevT (κ i))).totalDegree :=
-        MvPolynomial.totalDegree_finset_prod _ _
+        MvPolynomial.totalDegree_finsetProd _ _
     _ ≤ ∑ i, (chebyshevT (κ i)).natDegree :=
         Finset.sum_le_sum (fun i _ => totalDegree_embedUnivariate i _)
     _ = ∑ i, κ i := by simp [natDegree_chebyshevT]
@@ -532,7 +532,7 @@ theorem chebyCoeffUni_aux_chebyshevT (m j k : ℕ) (hj : j ≤ m) :
     on the monomial decomposition of p. -/
 noncomputable def chebyCoeff (n r : ℕ) (p : MvPolynomial (Fin n) ℝ)
     (κ : Fin n → ℕ) : ℝ :=
-  (p : (Fin n →₀ ℕ) →₀ ℝ).sum fun α c =>
+  (AddMonoidAlgebra.coeff p).sum fun α c =>
     c * ∏ i : Fin n, chebyCoeffUni_aux r
       (Polynomial.X ^ (α i) : Polynomial ℝ) (κ i)
 
@@ -549,7 +549,7 @@ theorem chebyCoeff_C_mul {n : ℕ} (r : ℕ) (a : ℝ)
     (p : MvPolynomial (Fin n) ℝ) (κ : Fin n → ℕ) :
     chebyCoeff n r (MvPolynomial.C a * p) κ =
       a * chebyCoeff n r p κ := by
-  simp only [chebyCoeff, MvPolynomial.C_mul']
+  simp only [chebyCoeff, MvPolynomial.C_mul', AddMonoidAlgebra.coeff_smul]
   rw [Finsupp.sum_smul_index (fun α => by simp)]
   simp only [Finsupp.sum]
   rw [Finset.mul_sum]
@@ -564,7 +564,7 @@ theorem chebyCoeffUni_aux_gt (m : ℕ) (p : Polynomial ℝ) (k : ℕ)
   | succ m ih =>
     simp only [chebyCoeffUni_aux]
     have hk_ne : k ≠ m + 1 := by omega
-    rw [if_neg hk_ne]
+    rw [ite_eq_right hk_ne]
     exact ih _ k (by omega)
 
 /-- The remainder `p - C c * T_{m+1}` has `natDegree ≤ m` when `c` cancels the
@@ -616,13 +616,13 @@ private theorem uni_cheby_reconstruction (m : ℕ) (p : Polynomial ℝ)
     -- Key: chebyCoeffUni_aux (m+1) p (m+1) = c
     have h_last : chebyCoeffUni_aux (m + 1) p (m + 1) = c := by
       change (if (m + 1) = (m + 1) then _ else _) = c
-      rw [if_pos rfl]
+      rw [ite_eq_left rfl]
     -- Key: for k ≤ m, chebyCoeffUni_aux (m+1) p k = chebyCoeffUni_aux m p' k
     have h_rest : ∀ k, k ≤ m →
         chebyCoeffUni_aux (m + 1) p k = chebyCoeffUni_aux m p' k := by
       intro k hk
       simp only [chebyCoeffUni_aux]
-      rw [if_neg (by omega : k ≠ m + 1)]
+      rw [ite_eq_right (by omega : k ≠ m + 1)]
     -- Prove RHS = LHS
     -- RHS = ∑ k in range(m+2), C(chebyCoeffUni_aux (m+1) p k) * T_k
     --     = (∑ k in range(m+1), C(chebyCoeffUni_aux (m+1) p k) * T_k) + C(c)*T_{m+1}
@@ -678,7 +678,7 @@ theorem chebyCoeffUni_aux_X_pow_gt_deg (m a k : ℕ)
         Polynomial.coeff_eq_zero_of_natDegree_lt
           (by rw [natDegree_X_pow_real]; omega)
       simp [this]
-    · rw [if_neg hk_eq]
+    · rw [ite_eq_right hk_eq]
       by_cases ha_le : a ≤ m
       · have hcoeff :
             (Polynomial.X ^ a : Polynomial ℝ).coeff (m + 1) = 0 :=
@@ -699,7 +699,7 @@ theorem exists_gt_of_sum_gt {n : ℕ} (α : Fin n →₀ ℕ)
     (h : (α.sum fun _ e => e) < ∑ i, κ i) :
     ∃ i : Fin n, α i < κ i := by
   by_contra hall
-  push_neg at hall
+  push Not at hall
   have hle : ∑ i, κ i ≤ ∑ i, (α i : ℕ) :=
     Finset.sum_le_sum (fun i _ => hall i)
   have heq : ∑ i ∈ Finset.univ, (α i : ℕ) = α.sum fun _ e => e := by
@@ -722,7 +722,7 @@ theorem chebyCoeff_zero_of_degree_lt {n : ℕ} (r : ℕ)
     rw [Finsupp.sum, ← Finset.sum_subset (Finset.subset_univ α.support)]
     intro i _ hi; exact Finsupp.notMem_support_iff.mp hi
   have ⟨i, hi⟩ : ∃ i : Fin n, α i < κ i := by
-    by_contra hall; push_neg at hall
+    by_contra hall; push Not at hall
     have : ∑ i : Fin n, κ i ≤ ∑ i : Fin n, (α i : ℕ) :=
       Finset.sum_le_sum (fun i _ => hall i)
     omega
@@ -730,7 +730,7 @@ theorem chebyCoeff_zero_of_degree_lt {n : ℕ} (r : ℕ)
       (Polynomial.X ^ (α i) : Polynomial ℝ) (κ i) = 0 := by
     by_cases hα_i_le : α i ≤ r
     · exact chebyCoeffUni_aux_X_pow_gt_deg r (α i) (κ i) hα_i_le hi
-    · push_neg at hα_i_le
+    · push Not at hα_i_le
       exact chebyCoeffUni_aux_gt r _ (κ i) (by omega)
   have : ∏ j : Fin n, chebyCoeffUni_aux r
       (Polynomial.X ^ (α j) : Polynomial ℝ) (κ j) = 0 :=
@@ -782,15 +782,15 @@ theorem chebyshev_expansion {n : ℕ} (r : ℕ) (p : MvPolynomial (Fin n) ℝ)
   --   ∑ κ ∈ MI, C(coeff α p * ∏ i h(α i)(κ i)) * chebyshevMulti κ
   have monomial_expand :
       ∀ α ∈ p.support,
-      MvPolynomial.monomial α (MvPolynomial.coeff α p) =
+      MvPolynomial.monomial α (p.coeff α) =
       ∑ κ ∈ multiIndices n r,
-        MvPolynomial.C (MvPolynomial.coeff α p *
+        MvPolynomial.C (p.coeff α *
           ∏ i, h (α i) (κ i)) *
         chebyshevMulti κ := by
     intro α hα
     -- monomial α c = C c * ∏ i, X_i^(α i)
-    have hmon : MvPolynomial.monomial α (MvPolynomial.coeff α p) =
-        MvPolynomial.C (MvPolynomial.coeff α p) *
+    have hmon : MvPolynomial.monomial α (p.coeff α) =
+        MvPolynomial.C (p.coeff α) *
           ∏ i : Fin n,
             (MvPolynomial.X i : MvPolynomial (Fin n) ℝ) ^ (α i) := by
       rw [MvPolynomial.monomial_eq, Finsupp.prod]
@@ -838,7 +838,7 @@ theorem chebyshev_expansion {n : ℕ} (r : ℕ) (p : MvPolynomial (Fin n) ℝ)
           Nat.lt_succ_iff.mp (Finset.mem_range.mp
             (Fintype.mem_piFinset.mp hκ_pi i))
         have hdeg : r < multiDegree κ := by
-          by_contra hnd; push_neg at hnd
+          by_contra hnd; push Not at hnd
           exact hκ_not_mi (multiIndices_mem_iff.mpr ⟨hnd, hκ_le⟩)
         have hsum_lt : (α.sum fun _ e => e) < ∑ i, κ i := by
           have := hα_sum_le_r α hα
@@ -865,12 +865,12 @@ theorem chebyshev_expansion {n : ℕ} (r : ℕ) (p : MvPolynomial (Fin n) ℝ)
   -- = ∑ κ ∈ MI, ∑ α, C(coeff α p * ∏ h) * T_κ
   congr 1; ext κ
   -- Need: ∑ α, C(coeff α p * ∏ h) * T_κ = C(chebyCoeff n r p κ) * T_κ
-  rw [← Finset.sum_mul]
-  congr 1
-  -- Need: ∑ α, C(coeff α p * ∏ h) = C(chebyCoeff n r p κ)
-  rw [← map_sum]
-  -- Need: C(∑ α, coeff α p * ∏ h) = C(chebyCoeff n r p κ)
-  rfl
+  rw [← Finset.sum_mul, ← map_sum]
+  have hcoeff :
+      ∑ α ∈ p.support, p.coeff α * ∏ i, h (α i) (κ i) =
+        chebyCoeff n r p κ := by
+    simp [chebyCoeff, Finsupp.sum, h, MvPolynomial.finsupp_support_eq_support]
+  rw [hcoeff]
 
 /-- `chebyCoeff` of a monomial reduces to a product of univariate extractions. -/
 private theorem chebyCoeff_monomial {n : ℕ} (r : ℕ) (α : Fin n →₀ ℕ) (c : ℝ)
@@ -878,7 +878,7 @@ private theorem chebyCoeff_monomial {n : ℕ} (r : ℕ) (α : Fin n →₀ ℕ) 
     chebyCoeff n r (MvPolynomial.monomial α c) κ =
     c * ∏ i : Fin n, chebyCoeffUni_aux r (Polynomial.X ^ (α i)) (κ i) := by
   simp only [chebyCoeff]
-  rw [← MvPolynomial.single_eq_monomial]
+  rw [← MvPolynomial.single_eq_monomial, AddMonoidAlgebra.coeff_single]
   rw [Finsupp.sum_single_index]
   · simp
 
@@ -915,12 +915,12 @@ theorem chebyCoeff_chebyshev {n : ℕ} (r : ℕ) (κ μ : Fin n → ℕ)
     -- Step 3: Product of ite
     by_cases h : μ = κ
     · subst h; simp
-    · rw [if_neg h]
+    · rw [ite_eq_right h]
       have : ∃ i, μ i ≠ κ i := by
-        by_contra hall; push_neg at hall
+        by_contra hall; push Not at hall
         exact h (funext hall)
       obtain ⟨i, hi⟩ := this
-      exact Finset.prod_eq_zero (Finset.mem_univ i) (if_neg hi)
+      exact Finset.prod_eq_zero (Finset.mem_univ i) (ite_eq_right hi)
   -- Step 4: Prove hprod
   -- Abbreviations for polynomial coefficients
   set c : Fin n → ℕ → ℝ := fun i k => (chebyshevT (μ i)).coeff k with hc_def
@@ -961,10 +961,11 @@ theorem chebyCoeff_chebyshev {n : ℕ} (r : ℕ) (κ μ : Fin n → ℕ)
     rw [Finset.prod_subset (Finset.subset_univ _)]
     · apply Finset.prod_congr rfl
       intro i _
-      simp [Finsupp.equivFunOnFinite]
+      change MvPolynomial.X i ^ f i = MvPolynomial.X i ^ f i
+      rfl
     · intro i _ hi
       rw [Finsupp.mem_support_iff, not_not] at hi
-      simp [Finsupp.equivFunOnFinite] at hi
+      change f i = 0 at hi
       simp [hi]
   have term_eval : ∀ f ∈ Fintype.piFinset S,
       chebyCoeff n r (MvPolynomial.C (∏ i, c i (f i)) *
@@ -1083,7 +1084,7 @@ theorem chebyshevMulti_orthogonality {n : ℕ} (α β : Fin n → ℕ) :
   by_cases hab : α = β
   · -- α = β: product of (if α_i = 0 then 1 else 1/2)
     subst hab
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     simp only [ne_eq, not_true_eq_false, ite_false]
     -- Now: ∏ i, (if α i = 0 then 1 else 1/2) = 2^{-w(α)}
     -- Rewrite the product of ite into a product over the nonzero set
@@ -1097,9 +1098,9 @@ theorem chebyshevMulti_orthogonality {n : ℕ} (α β : Fin n → ℕ) :
       congr 1
     rw [hprod, zpow_neg, zpow_natCast, one_div, inv_pow]
   · -- α ≠ β: some index i has α i ≠ β i, so that factor = 0
-    rw [if_neg hab]
+    rw [ite_eq_right hab]
     obtain ⟨i, hi⟩ := Function.ne_iff.mp hab
-    exact Finset.prod_eq_zero (Finset.mem_univ i) (by rw [if_pos hi])
+    exact Finset.prod_eq_zero (Finset.mem_univ i) (by rw [ite_eq_left hi])
 
 /-! ## Helper lemmas for chebyCoeff_inner -/
 
@@ -1137,7 +1138,7 @@ private theorem chebyInnerMulti_linearComb_left {n : ℕ} {ι : Type*}
   -- (∑ c_i * eval(p_i θ)) * eval(g θ) = ∑ c_i * (eval(p_i θ) * eval(g θ))
   simp_rw [Finset.sum_mul, mul_assoc]
   -- Pull finite sum through integral
-  rw [integral_finset_sum S (fun i _ =>
+  rw [integral_finsetSum S (fun i _ =>
     (chebyInnerMulti_integrand_integrable (p i) g).const_mul (c i))]
   -- Pull constant c_i through each integral, distribute (1/π)^n
   simp_rw [integral_const_mul, mul_sum]
@@ -1154,7 +1155,7 @@ private theorem chebyInnerMulti_linearComb_right {n : ℕ} {ι : Type*}
   simp_rw [map_sum, map_mul, MvPolynomial.eval_C]
   -- eval(f θ) * (∑ d_j * eval(q_j θ)) = ∑ d_j * (eval(f θ) * eval(q_j θ))
   simp_rw [Finset.mul_sum, mul_left_comm]
-  rw [integral_finset_sum S (fun j _ =>
+  rw [integral_finsetSum S (fun j _ =>
     (chebyInnerMulti_integrand_integrable f (q j)).const_mul (d j))]
   simp_rw [integral_const_mul, mul_sum]
   congr 1; ext j; ring
@@ -1188,10 +1189,10 @@ theorem chebyInnerMulti_eq_parseval {n : ℕ} (r : ℕ)
   -- Collapse the sum using the Kronecker delta
   rw [Finset.sum_eq_single κ]
   · -- The κ-term
-    rw [if_pos rfl]; ring
+    rw [ite_eq_left rfl]; ring
   · -- Off-diagonal: μ ≠ κ → term vanishes
     intro μ _ hμκ
-    rw [if_neg (Ne.symm hμκ), mul_zero]
+    rw [ite_eq_right (Ne.symm hμκ), mul_zero]
   · -- κ ∉ multiIndices n r is contradicted by hκ
     intro habs; exact absurd hκ habs
 
@@ -1213,9 +1214,9 @@ theorem chebyCoeff_inner {n : ℕ} (r : ℕ) (p : MvPolynomial (Fin n) ℝ)
       chebyCoeff n r (chebyshevMulti κ) μ * chebyCoeff n r p μ =
     (2 : ℝ) ^ (-(hammingWeight κ : ℤ)) * chebyCoeff n r p κ := by
     rw [Finset.sum_eq_single κ]
-    · rw [chebyCoeff_chebyshev r κ κ hκ hκ, if_pos rfl, mul_one]
+    · rw [chebyCoeff_chebyshev r κ κ hκ hκ, ite_eq_left rfl, mul_one]
     · intro μ hμ hμκ
-      rw [chebyCoeff_chebyshev r μ κ hμ hκ, if_neg (Ne.symm hμκ), mul_zero, zero_mul]
+      rw [chebyCoeff_chebyshev r μ κ hμ hκ, ite_eq_right (Ne.symm hμκ), mul_zero, zero_mul]
     · intro h; exact absurd hκ h
   rw [h_sum]
   -- 2^{w(κ)} * 2^{-w(κ)} * c = c
@@ -1248,9 +1249,9 @@ theorem chebyCoeff_expansion_coeff (r : ℕ) (c : (Fin n → ℕ) → ℝ) (μ :
   rw [Finset.sum_eq_single μ
     (fun κ hκ hκμ => by
       rw [chebyCoeff_chebyshev r μ κ hμ hκ]
-      rw [if_neg hκμ]; ring)
+      rw [ite_eq_right hκμ]; ring)
     (fun h => absurd hμ h)]
-  rw [chebyCoeff_chebyshev r μ μ hμ hμ, if_pos rfl]; ring
+  rw [chebyCoeff_chebyshev r μ μ hμ hμ, ite_eq_left rfl]; ring
 
 /-- multiDegree κ ≤ d implies κ ∈ multiIndices n d -/
 theorem multiDegree_le_mem {d : ℕ} {κ : Fin n → ℕ} (h : multiDegree κ ≤ d) :

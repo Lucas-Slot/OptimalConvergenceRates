@@ -54,7 +54,7 @@ theorem sphereAxialReflectionRaw_mem_sphereSet {n : ℕ}
     apply Finset.sum_congr rfl
     intro i _
     ring
-  simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, mem_setOf_eq]
+  simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, mem_ofPred_eq]
   let a := ∑ j, y j * x j
   calc
     (∑ i, sphereAxialReflectionRaw x y i ^ 2) =
@@ -134,7 +134,7 @@ theorem continuous_sphereAxialReflection {n : ℕ} (x : sphereSet n) :
   change Continuous (fun y : sphereSet n ↦
     2 * (∑ j, y.1 j * x.1 j) * x.1 i - y.1 i)
   have hdot : Continuous (fun y : sphereSet n ↦ ∑ j, y.1 j * x.1 j) := by
-    apply continuous_finset_sum
+    apply continuous_finsetSum
     intro j _
     exact ((continuous_apply j).comp continuous_subtype_val).mul continuous_const
   exact ((continuous_const.mul hdot).mul continuous_const).sub
@@ -261,9 +261,12 @@ theorem sphereAxialReflection_measurePreserving {n : ℕ} (x : sphereSet n) :
           (sphereAxialReflectionLinearIsometry x) :
         sphereSet n → sphereSet n) = sphereAxialReflection x := by
     funext y
-    simpa [sphereSetLinearIsometryHomeomorph, euclideanSphereAxialReflection] using
-      euclideanSphereAxialReflection_commutes x
-        ((euclideanSphereHomeomorphSphereSet n).symm y)
+    change (euclideanSphereHomeomorphSphereSet n)
+        (euclideanUnitSphereMap (sphereAxialReflectionLinearIsometry x)
+          ((euclideanSphereHomeomorphSphereSet n).symm y)) =
+      sphereAxialReflection x y
+    exact euclideanSphereAxialReflection_commutes x
+      ((euclideanSphereHomeomorphSphereSet n).symm y)
   rw [hmaps] at h
   exact h
 /-- A unit axis perpendicular to a given sphere point exists in dimension at
@@ -276,7 +279,7 @@ theorem exists_sphereAxis_dot_eq_zero {n : ℕ} (hn : 2 ≤ n)
     simpa [sphereSet, sphereQuadratic, pow_two] using x.2
   obtain ⟨i, hi⟩ : ∃ i, x.1 i ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hsum : ∑ i, x.1 i ^ 2 = 0 := by simp [h]
     linarith
   have hcard : 1 < Fintype.card (Fin n) := by
@@ -286,7 +289,7 @@ theorem exists_sphereAxis_dot_eq_zero {n : ℕ} (hn : 2 ≤ n)
   let b : Fin n → ℝ := fun k ↦
     if k = i then x.1 j else if k = j then -x.1 i else 0
   have hbjne : b j ≠ 0 := by
-    simp only [b, if_neg hji, if_pos, neg_ne_zero]
+    simp only [b, ite_eq_right hji, ite_eq_left, neg_ne_zero]
     exact hi
   have hdotb : ∑ k, x.1 k * b k = 0 := by
     have hbexpand (k : Fin n) :
@@ -315,7 +318,7 @@ theorem exists_sphereAxis_dot_eq_zero {n : ℕ} (hn : 2 ≤ n)
     exact lt_of_lt_of_le hterm hle
   let a0 : Fin n → ℝ := fun k ↦ b k / Real.sqrt q
   have ha0 : a0 ∈ sphereSet n := by
-    simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, mem_setOf_eq]
+    simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, mem_ofPred_eq]
     calc
       (∑ k, a0 k ^ 2) = (∑ k, b k ^ 2) / (Real.sqrt q) ^ 2 := by
         simp_rw [a0, div_pow, Finset.sum_div]
@@ -344,7 +347,7 @@ theorem exists_sphereAxialReflection_eq_of_add_ne_zero {n : ℕ}
     simpa [s] using hi
   obtain ⟨i, hi⟩ : ∃ i, s i ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hs (funext h)
   have hqpos : 0 < q := by
     have hterm : 0 < s i ^ 2 := sq_pos_of_ne_zero hi
@@ -384,7 +387,7 @@ theorem exists_sphereAxialReflection_eq_of_add_ne_zero {n : ℕ}
   have hsqrt_ne : Real.sqrt q ≠ 0 := ne_of_gt (Real.sqrt_pos.2 hqpos)
   have hsqrt_sq : (Real.sqrt q) ^ 2 = q := Real.sq_sqrt hqpos.le
   have ha0 : a0 ∈ sphereSet n := by
-    simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, mem_setOf_eq]
+    simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, mem_ofPred_eq]
     calc
       (∑ i, a0 i ^ 2) = (∑ i, s i ^ 2) / (Real.sqrt q) ^ 2 := by
         simp_rw [a0, div_pow, Finset.sum_div]

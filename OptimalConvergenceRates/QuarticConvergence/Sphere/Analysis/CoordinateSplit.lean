@@ -451,7 +451,7 @@ theorem exists_coordinateFrame_of_ne_zero {n : ℕ} {v : Fin (n + 1) → ℝ}
       T (splitNormalDirection n) = v := by
   obtain ⟨p, hp⟩ : ∃ p, v p ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hv (funext h)
   exact ⟨pivotCoordinateFrame v p hp, pivotCoordinateFrame_splitNormalDirection v p hp⟩
 

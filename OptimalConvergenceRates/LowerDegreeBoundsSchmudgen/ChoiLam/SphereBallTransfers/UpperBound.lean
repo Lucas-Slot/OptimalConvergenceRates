@@ -20,11 +20,14 @@ private noncomputable def liftBoxToSphere :
   MvPolynomial.rename xIndexInSphere
 
 private def sphereBoxGeneratorSOS (i : Fin 4) : MvPolynomial (Fin 5) ℝ :=
-  match i with
-  | ⟨0, _⟩ => (X 1) ^ 2 + (X 2) ^ 2 + (X 3) ^ 2 + (X 4) ^ 2
-  | ⟨1, _⟩ => (X 0) ^ 2 + (X 2) ^ 2 + (X 3) ^ 2 + (X 4) ^ 2
-  | ⟨2, _⟩ => (X 0) ^ 2 + (X 1) ^ 2 + (X 3) ^ 2 + (X 4) ^ 2
-  | _ => (X 0) ^ 2 + (X 1) ^ 2 + (X 2) ^ 2 + (X 4) ^ 2
+  if i = 0 then
+    (X 1) ^ 2 + (X 2) ^ 2 + (X 3) ^ 2 + (X 4) ^ 2
+  else if i = 1 then
+    (X 0) ^ 2 + (X 2) ^ 2 + (X 3) ^ 2 + (X 4) ^ 2
+  else if i = 2 then
+    (X 0) ^ 2 + (X 1) ^ 2 + (X 3) ^ 2 + (X 4) ^ 2
+  else
+    (X 0) ^ 2 + (X 1) ^ 2 + (X 2) ^ 2 + (X 4) ^ 2
 
 private theorem liftBoxToSphere_choiLamPerturbed (epsilon : ℝ) :
     liftBoxToSphere (choiLamPerturbed epsilon) =
@@ -45,9 +48,9 @@ private theorem sphereChoiLamPerturbed_eq_lift_add_relation (epsilon : ℝ) :
 private theorem liftBoxToSphere_generator_congruent (i : Fin 4) :
     liftBoxToSphere (BoxSemialgebraicGenerator i) =
       sphereBoxGeneratorSOS i - sphereRelation 5 := by
-  unfold liftBoxToSphere BoxSemialgebraicGenerator sphereBoxGeneratorSOS
+  unfold liftBoxToSphere BoxSemialgebraicGenerator
     sphereRelation sphereQuadratic xIndexInSphere
-  fin_cases i <;> simp [Fin.sum_univ_five] <;> ring_nf
+  fin_cases i <;> simp [sphereBoxGeneratorSOS, Fin.sum_univ_five] <;> ring
 
 private theorem sphereBoxGeneratorSOS_isSOS (i : Fin 4) :
     IsSOS (sphereBoxGeneratorSOS i) := by
@@ -75,23 +78,20 @@ private theorem totalDegree_add_le_two {p q : MvPolynomial (Fin 5) ℝ}
 
 private theorem sphereBoxGeneratorSOS_totalDegree_le_two (i : Fin 4) :
     (sphereBoxGeneratorSOS i).totalDegree ≤ 2 := by
+  have hfour (a b c d : Fin 5) :
+      (((X a : MvPolynomial (Fin 5) ℝ) ^ 2 + X b ^ 2 + X c ^ 2 + X d ^ 2).totalDegree ≤ 2) := by
+    apply totalDegree_add_le_two
+    · apply totalDegree_add_le_two
+      · apply totalDegree_add_le_two
+        · exact X_sq_totalDegree_le_two a
+        · exact X_sq_totalDegree_le_two b
+      · exact X_sq_totalDegree_le_two c
+    · exact X_sq_totalDegree_le_two d
   fin_cases i
-  · change (((X 1 : MvPolynomial (Fin 5) ℝ) ^ 2 + X 2 ^ 2 + X 3 ^ 2 + X 4 ^ 2).totalDegree ≤ 2)
-    repeat first
-      | exact X_sq_totalDegree_le_two _
-      | apply totalDegree_add_le_two
-  · change (((X 0 : MvPolynomial (Fin 5) ℝ) ^ 2 + X 2 ^ 2 + X 3 ^ 2 + X 4 ^ 2).totalDegree ≤ 2)
-    repeat first
-      | exact X_sq_totalDegree_le_two _
-      | apply totalDegree_add_le_two
-  · change (((X 0 : MvPolynomial (Fin 5) ℝ) ^ 2 + X 1 ^ 2 + X 3 ^ 2 + X 4 ^ 2).totalDegree ≤ 2)
-    repeat first
-      | exact X_sq_totalDegree_le_two _
-      | apply totalDegree_add_le_two
-  · change (((X 0 : MvPolynomial (Fin 5) ℝ) ^ 2 + X 1 ^ 2 + X 2 ^ 2 + X 4 ^ 2).totalDegree ≤ 2)
-    repeat first
-      | exact X_sq_totalDegree_le_two _
-      | apply totalDegree_add_le_two
+  · simpa [sphereBoxGeneratorSOS] using hfour 1 2 3 4
+  · simpa [sphereBoxGeneratorSOS] using hfour 0 2 3 4
+  · simpa [sphereBoxGeneratorSOS] using hfour 0 1 3 4
+  · simpa [sphereBoxGeneratorSOS] using hfour 0 1 2 4
 
 private theorem liftBoxToSphere_totalDegree_le (p : MvPolynomial (Fin 4) ℝ) :
     (liftBoxToSphere p).totalDegree ≤ p.totalDegree := by
@@ -179,7 +179,7 @@ private theorem sphereBoxGeneratorSOSProd_totalDegree_le_eight (J : Finset (Fin 
   calc
     (∏ i ∈ J, sphereBoxGeneratorSOS i).totalDegree
         ≤ ∑ i ∈ J, (sphereBoxGeneratorSOS i).totalDegree :=
-          MvPolynomial.totalDegree_finset_prod J _
+          MvPolynomial.totalDegree_finsetProd J _
     _ ≤ ∑ _i ∈ J, 2 := by
           apply Finset.sum_le_sum
           intro i _

@@ -329,9 +329,9 @@ theorem prod_BoxUniPreordering_in_BoxPreordering (n : ℕ)
       (∏ i ∈ t, embedUnivariate i (σ₀ i))
       (∏ i ∈ Finset.univ \ t,
         (embedUnivariate i (σ₁ i) * BoxSemialgebraicGenerator i))
-    have hb2a := MvPolynomial.totalDegree_finset_prod
+    have hb2a := MvPolynomial.totalDegree_finsetProd
       t (fun i => embedUnivariate i (σ₀ i))
-    have hb2b := MvPolynomial.totalDegree_finset_prod
+    have hb2b := MvPolynomial.totalDegree_finsetProd
       (Finset.univ \ t) (fun i =>
         embedUnivariate i (σ₁ i) * BoxSemialgebraicGenerator i)
     -- Bound 2: totalDeg(embed p) ≤ natDeg p

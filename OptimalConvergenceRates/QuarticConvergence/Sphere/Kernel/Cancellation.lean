@@ -71,7 +71,7 @@ theorem normalizedSphereMeasure_sphereChordalCap_sphereAxialReflection
         μ (sphereAxialReflection a ⁻¹'
           sphereChordalCap (sphereAxialReflection a x) r) :=
       (Measure.measure_preimage_of_map_eq_self hpres.map_eq
-        hmeas.nullMeasurableSet).symm
+        hpres.aemeasurable hmeas.nullMeasurableSet).symm
     _ = μ (sphereChordalCap x r) := by
       rw [preimage_sphereChordalCap_sphereAxialReflection]
 
@@ -133,7 +133,7 @@ theorem normalizedSphereMeasure_sphereAngularCap_sphereAxialReflection
         μ (sphereAxialReflection a ⁻¹'
           sphereAngularCap (sphereAxialReflection a x) r) :=
       (Measure.measure_preimage_of_map_eq_self hpres.map_eq
-        hmeas.nullMeasurableSet).symm
+        hpres.aemeasurable hmeas.nullMeasurableSet).symm
     _ = μ (sphereAngularCap x r) := by
       rw [preimage_sphereAngularCap_sphereAxialReflection]
 

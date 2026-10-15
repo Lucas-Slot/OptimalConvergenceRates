@@ -902,7 +902,7 @@ theorem jackson_coeff_approx {k d r : ℕ} (hk : k ≤ d) (hd : d ≤ r) :
   -- If (kθ)² ≥ 1 then trivial since 1 - λ_k ≤ 1 ≤ (kθ)²
   by_cases hbig : 1 ≤ ((k : ℝ) * θ) ^ 2
   · linarith
-  push_neg at hbig
+  push Not at hbig
   have hkθ_lt_one : (k : ℝ) * θ < 1 := by
     rwa [sq_lt_one_iff_abs_lt_one, abs_of_pos hkθ_pos] at hbig
   have hθ_lt_one : θ < 1 :=
@@ -914,8 +914,10 @@ theorem jackson_coeff_approx {k d r : ℕ} (hk : k ≤ d) (hd : d ≤ r) :
   have hcos_lb : 1 - ((k : ℝ) * θ) ^ 2 / 2 ≤ Real.cos ((k : ℝ) * θ) :=
     Real.one_sub_sq_div_two_le_cos
   -- (B) sin(kθ) > kθ - (kθ)³/4
-  have hsin_lb : (k : ℝ) * θ - ((k : ℝ) * θ) ^ 3 / 4 < Real.sin ((k : ℝ) * θ) :=
-    Real.sin_gt_sub_cube hkθ_pos hkθ_le_one
+  have hsin_lb : (k : ℝ) * θ - ((k : ℝ) * θ) ^ 3 / 4 < Real.sin ((k : ℝ) * θ) := by
+    have hsin6 := Real.sin_gt_sub_cube hkθ_pos
+    have hcubepos : 0 < ((k : ℝ) * θ) ^ 3 := pow_pos hkθ_pos 3
+    linarith
   -- (C) sin(θ) < θ
   have hsin_ub : Real.sin θ < θ := Real.sin_lt hθ_pos
   -- (D) cos(θ) ≥ 1 - θ²/2
@@ -1011,7 +1013,7 @@ theorem jacksonKernelPoly_eval (r : ℕ) (x y : ℝ) :
     (jacksonKernelPoly r y).eval x = jacksonKernelUni r x y := by
   unfold jacksonKernelPoly jacksonKernelUni
   simp only [Polynomial.eval_add, Polynomial.eval_mul,
-    Polynomial.eval_C, Polynomial.eval_finset_sum]
+    Polynomial.eval_C, Polynomial.eval_finsetSum]
   congr 1; congr 1
   apply Finset.sum_congr rfl
   intro k _; ring
@@ -1103,7 +1105,7 @@ private theorem jackson_reproducing_1d (r μ : ℕ) (hμ : μ ≤ r) (x : ℝ) :
   -- Only k = μ survives in the sum
   rw [Finset.sum_eq_single μ]
   · -- The μ-term: a_μ * T_μ(x) * ortho(μ,μ)
-    rw [hortho μ hμ, if_neg (not_not.mpr rfl)]
+    rw [hortho μ hμ, ite_eq_right (not_not.mpr rfl)]
     unfold jacksonNormCoeff
     by_cases hμ0 : μ = 0
     · simp [hμ0, jacksonCoeff]
@@ -1111,7 +1113,7 @@ private theorem jackson_reproducing_1d (r μ : ℕ) (hμ : μ ≤ r) (x : ℝ) :
   · -- For k ≠ μ: ortho(k,μ) = 0
     intro k hk hkμ
     have hk_le : k ≤ r := Nat.lt_succ_iff.mp (Finset.mem_range.mp hk)
-    rw [hortho k hk_le, if_pos hkμ, mul_zero]
+    rw [hortho k hk_le, ite_eq_left hkμ, mul_zero]
   · -- μ ∉ range(r+1) is impossible
     intro h; exact absurd (Finset.mem_range.mpr (by omega)) h
 

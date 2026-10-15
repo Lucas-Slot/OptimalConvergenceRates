@@ -37,7 +37,7 @@ theorem sylowTwo_fixedField_eq_bot (P : Sylow 2 Gal(E/R)) :
     calc
       Module.finrank R (fixedField (P : Subgroup Gal(E/R))) =
           (fixedField (P : Subgroup Gal(E/R))).fixingSubgroup.index :=
-        IntermediateField.finrank_eq_fixingSubgroup_index _
+        IntermediateField.finrank_eq_fixingSubgroup_index E _
       _ = P.index := by
         rw [IntermediateField.fixingSubgroup_fixedField]
   apply IntermediateField.finrank_eq_one_iff.mp

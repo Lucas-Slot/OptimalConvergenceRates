@@ -54,4 +54,5 @@ jobs:
       - name: Run pinned Comparator checks
         env:
           COMPARATOR_CACHE: ${{ runner.temp }}/comparator-preflight
+          COMPARATOR_USE_LANDRUN: "true"
         run: ./scripts/verify-comparator.sh

@@ -140,7 +140,7 @@ theorem univariateRestriction_natDegree_le
   -- aeval g (monomial v c) = C c * ∏ i in v.support, g(i) ^ v(i)
   rw [MvPolynomial.aeval_monomial, Polynomial.algebraMap_eq]
   -- natDegree(C c * prod) ≤ natDegree(prod)
-  calc (Polynomial.C (MvPolynomial.coeff v f) *
+  calc (Polynomial.C (f.coeff v) *
         Finsupp.prod v fun i k => g i ^ k).natDegree
       ≤ (Finsupp.prod v fun i k => g i ^ k).natDegree :=
         Polynomial.natDegree_C_mul_le _ _
@@ -251,7 +251,7 @@ theorem chebyshev_extremal_pointwise
       rw [abs_of_nonneg hx_nn] at hT_nn
       exact abs_of_nonneg hT_nn
     · -- x < 0, so |x| = -x ≥ 1
-      push_neg at hx_nn
+      push Not at hx_nn
       rw [abs_of_neg hx_nn]
       -- Show |T_d(x)| = T_d(-x)
       -- From T_eval_neg: T_d(-x) = negOnePow(d) * T_d(x)
@@ -278,7 +278,7 @@ theorem chebyshev_extremal_pointwise
 theorem scaledHypercube_eq_ScaledHypercube (hr : 0 ≤ r) :
     scaledHypercube n r = ScaledHypercube r n := by
   ext x
-  simp only [scaledHypercube, Set.mem_setOf_eq, ScaledHypercube, Set.mem_pi, Set.mem_univ,
+  simp only [scaledHypercube, Set.mem_ofPred_eq, ScaledHypercube, Set.mem_pi, Set.mem_univ,
              true_implies, Set.mem_Icc]
   constructor
   · intro hle i
@@ -516,7 +516,7 @@ theorem polySupNormScaled_mono (f : MvPolynomial (Fin n) ℝ) {r s : ℝ}
     have hcomp : IsCompact (scaledHypercube n s) := by
       have : scaledHypercube n s = Set.pi Set.univ (fun _ => Set.Icc (-s) s) := by
         ext x
-        simp only [scaledHypercube, Set.mem_setOf_eq, Set.mem_pi, Set.mem_univ, true_implies,
+        simp only [scaledHypercube, Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies,
                     Set.mem_Icc]
         constructor
         · intro hle i
@@ -1026,7 +1026,7 @@ theorem multivariate_markov_k2_interior_weak
     unfold directionalDeriv2
     rw [Polynomial.derivative_of_natDegree_zero hF'_deg, Polynomial.eval_zero, abs_zero]
     apply mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 8) (by positivity)) (polySupNorm_nonneg f)
-  · push_neg at hd1
+  · push Not at hd1
     have hy_hyp : y ∈ Hypercube n := (linftyNorm_mem_hypercube_iff y).mpr hy
     have hny_hyp : -y ∈ Hypercube n := by
       rw [Hypercube_mem_iff]; intro i
@@ -1141,7 +1141,7 @@ theorem multivariate_markov_k2_exterior_weak
     rw [Polynomial.derivative_of_natDegree_zero hF'_deg, Polynomial.eval_zero, abs_zero]
     apply mul_nonneg (mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 8) (by positivity))
       (abs_nonneg _)) (polySupNorm_nonneg f)
-  · push_neg at hd1
+  · push Not at hd1
     have hy_le : linftyNorm y ≤ s := le_trans hy hs
     have hny_le : linftyNorm (-y) ≤ s := by
       rw [show (-y) = (-1 : ℝ) • y from by ext i; simp]

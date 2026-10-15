@@ -52,7 +52,7 @@ private lemma one_sub_prod_le_sum_one_sub {ι : Type*} {s : Finset ι} {f : ι �
     have h1' := fun j hj => h1 j (Finset.mem_insert_of_mem hj)
     have hfa1 := h1 a (Finset.mem_insert_self a s)
     have hprod_nonneg := Finset.prod_nonneg h0'
-    have hprod_le := Finset.prod_le_one h0' h1'
+    have hprod_le := Finset.prod_le_one₀ h0' h1'
     nlinarith [ih h0' h1', mul_le_mul_of_nonneg_right hfa1 (sub_nonneg.mpr hprod_le)]
 
 /-- Lemma 7: For κ ∈ ℕ^n_d and r ≥ πd, we have |1 - λ_κ^r| ≤ nπ²d²/r² -/
@@ -60,7 +60,7 @@ theorem eigenvalue_bound {d r : ℕ} (κ : Fin n → ℕ)
     (hκ : κ ∈ multiIndices n d) (hr : Real.pi * d ≤ r) :
     |1 - jacksonCoeffMulti κ r| ≤ n * Real.pi ^ 2 * d ^ 2 / (r : ℝ) ^ 2 := by
   have hd_le_r : d ≤ r := by
-    by_contra h; push_neg at h
+    by_contra h; push Not at h
     by_cases hd0 : d = 0; · omega
     have hd_pos : (0 : ℝ) < d := Nat.cast_pos.mpr (Nat.pos_of_ne_zero hd0)
     have hdr : (r : ℝ) < (d : ℝ) := by exact_mod_cast h
@@ -72,7 +72,7 @@ theorem eigenvalue_bound {d r : ℕ} (κ : Fin n → ℕ)
   have hle1 : ∀ i : Fin n, jacksonCoeff (κ i) r ≤ 1 := fun i => jackson_coeff_le_one _ _
   have hpos : ∀ i : Fin n, 0 ≤ jacksonCoeff (κ i) r := fun i => (jackson_coeff_pos (hκr i)).le
   have hmulti_le1 : jacksonCoeffMulti κ r ≤ 1 := by
-    unfold jacksonCoeffMulti; exact Finset.prod_le_one (fun i _ => hpos i) (fun i _ => hle1 i)
+    unfold jacksonCoeffMulti; exact Finset.prod_le_one₀ (fun i _ => hpos i) (fun i _ => hle1 i)
   rw [abs_of_nonneg (sub_nonneg.mpr hmulti_le1)]
   have hprod_bound : 1 - jacksonCoeffMulti κ r ≤
       ∑ i : Fin n, (1 - jacksonCoeff (κ i) r) := by
@@ -118,7 +118,7 @@ theorem inverse_eigenvalue_bound {d r : ℕ} (κ : Fin n → ℕ)
       _ ≤ r := hr
   have hev := eigenvalue_bound κ hκ hπd
   have hd_le_r : d ≤ r := by
-    by_contra h; push_neg at h
+    by_contra h; push Not at h
     by_cases hd0 : d = 0; · omega
     have hd_pos : (0 : ℝ) < d := Nat.cast_pos.mpr (Nat.pos_of_ne_zero hd0)
     linarith [le_mul_of_one_le_left hd_pos.le
@@ -272,7 +272,7 @@ private theorem chebyCoeff_const_eq_zero (r : ℕ) (a : ℝ) (κ : Fin n → ℕ
   have : MvPolynomial.C a = MvPolynomial.C a * chebyshevMulti (0 : Fin n → ℕ) := by
     simp [chebyshevMulti, chebyshevT_zero, embedUnivariate]
   rw [this, chebyCoeff_C_mul, chebyCoeff_chebyshev r κ 0 hκ_mem h0_mem]
-  rw [if_neg (Ne.symm hκ)]
+  rw [ite_eq_right (Ne.symm hκ)]
   simp
 
 /-- Adding a constant to p does not change K_r⁻¹(p) - p.
@@ -331,7 +331,7 @@ private theorem kernelOperatorInv_sub_add_const (r : ℕ) (p : MvPolynomial (Fin
           MvPolynomial.C a * chebyshevMulti (0 : Fin n → ℕ) := by
         simp [chebyshevMulti, chebyshevT_zero, embedUnivariate]
       rw [this, chebyCoeff_C_mul, chebyCoeff_chebyshev r 0 0 h0_mem h0_mem,
-          if_pos rfl, mul_one]
+          ite_eq_left rfl, mul_one]
     -- jacksonCoeffMulti 0 r = ∏ i, jacksonCoeff 0 r = ∏ i, 1 = 1
     have hj0 : jacksonCoeffMulti (0 : Fin n → ℕ) r = 1 := by
       unfold jacksonCoeffMulti
@@ -668,7 +668,7 @@ theorem P2_outline_verification (r d : ℕ) (f : MvPolynomial (Fin n) ℝ)
         · intro κ hκ_r hκ_not_d
           have hκ_ne0 := (Finset.mem_filter.mp hκ_r).2
           have hκ_deg_gt : d < multiDegree κ := by
-            by_contra h; push_neg at h
+            by_contra h; push Not at h
             exact hκ_not_d (Finset.mem_filter.mpr ⟨multiDegree_le_mem h, hκ_ne0⟩)
           rw [chebyCoeff_zero_of_degree_lt r g κ (by omega), abs_zero, zero_mul]
       -- Step E: Bound |chebyCoeff(g,κ)| ≤ 2^{w/2} * polySupNorm g

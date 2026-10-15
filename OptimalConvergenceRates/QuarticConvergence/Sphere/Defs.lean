@@ -7,7 +7,7 @@
 import OptimalConvergenceRates.BasicNotions.SphereSOS
 import OptimalConvergenceRates.BasicNotions.Defs
 import Mathlib.Algebra.MvPolynomial.PDeriv
-import Mathlib.Analysis.Seminorm
+import Mathlib.Analysis.Normed.Module.Seminorm.Basic
 
 open MvPolynomial Finset
 open scoped BigOperators
@@ -29,7 +29,7 @@ def sphereNorthPole (hn : 0 < n) : Fin n → ℝ :=
 /-- The coordinate north pole satisfies the algebraic unit-sphere equation. -/
 theorem sphereNorthPole_mem_sphereSet (hn : 0 < n) :
     sphereNorthPole hn ∈ sphereSet n := by
-  simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, Set.mem_setOf_eq]
+  simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X, Set.mem_ofPred_eq]
   rw [Finset.sum_eq_single ⟨0, hn⟩]
   · simp [sphereNorthPole]
   · intro i _ hi
@@ -130,8 +130,8 @@ theorem eval_le_spherePolyMax (p : MvPolynomial (Fin n) ℝ) (x : Fin n → ℝ)
 /-- On a positive-dimensional sphere, the minimum is at most the maximum. -/
 theorem spherePolyMin_le_spherePolyMax (hn : 0 < n)
     (p : MvPolynomial (Fin n) ℝ) : spherePolyMin p ≤ spherePolyMax p := by
-  exact csInf_le_csSup (sphereValueSet_compact p).bddBelow
-    (sphereValueSet_compact p).bddAbove (sphereValueSet_nonempty hn p)
+  exact csInf_le_csSup (sphereValueSet_nonempty hn p)
+    (sphereValueSet_compact p).bddBelow (sphereValueSet_compact p).bddAbove
 
 /-- Pointwise control by the restriction sup norm. -/
 theorem sphereSupNorm_eval_le (p : MvPolynomial (Fin n) ℝ) (x : Fin n → ℝ)
@@ -344,7 +344,7 @@ theorem totalDegree_pderiv_le_pred (i : Fin n)
   by_cases hsi : s i = 0
   · simp [hsi]
   · calc
-      (monomial (s - Finsupp.single i 1) (coeff s p * ↑(s i))).totalDegree
+      (monomial (s - Finsupp.single i 1) (p.coeff s * ↑(s i))).totalDegree
           ≤ (s - Finsupp.single i 1).sum fun _ e ↦ e :=
         MvPolynomial.totalDegree_monomial_le _ _
       _ ≤ p.totalDegree - 1 := by

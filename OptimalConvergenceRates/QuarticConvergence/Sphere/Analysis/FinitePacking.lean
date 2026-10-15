@@ -46,7 +46,7 @@ theorem SphereAtomFamily.finite_cap_indices {n : ℕ} {F : MvPolynomial (Fin n) 
       {i | i ∈ u ∧ i ∈ atoms.active ∧
         sphereChordalSq x (atoms.center i).1 ≤ atoms.radius i ^ 2} = t := by
     ext i
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [htfinite.mem_toFinset]
     constructor
     · exact fun hi ↦ hi.1
@@ -122,7 +122,7 @@ theorem SphereAtomFamily.cap_indices_ncard_le {n : ℕ}
       {i | i ∈ atoms.active ∧
         sphereChordalSq x (atoms.center i).1 ≤ atoms.radius i ^ 2} := by
     ext i
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [hfinite.mem_toFinset]
     tauto
   rw [heq] at hoverlap
@@ -385,7 +385,7 @@ theorem finiteSphereDistanceShellData_exists {n : ℕ} {A : ℝ} {k : ℕ}
         d i < (2 : ℝ) ^ (label i + 1) * atoms.radius i := by
     intro i hfar
     dsimp only [label]
-    rw [dif_pos hfar]
+    rw [dite_eq_left hfar]
     exact Classical.choose_spec (hbracket i hfar)
   let Q : ℕ := 1 + ∑ i : Fin atoms.N, label i
   have hlabel_lt : ∀ i, label i < Q := by
@@ -609,13 +609,13 @@ theorem FiniteSphereAtomTruncation.sum_cap_measure_le_overlap_mul_outer
               sphereChordalSq z.1 (atoms.center i).1 ≤ atoms.radius i ^ 2) := by
         intro i hi
         simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi ⊢
-        simpa only [sphereChordalCap, Set.mem_setOf_eq] using hi.2
+        simpa only [sphereChordalCap, Set.mem_ofPred_eq] using hi.2
       have hcard :
           (s.filter (fun i ↦
             z ∈ sphereChordalCap (atoms.center i) (atoms.radius i))).card ≤
               atoms.overlapBound :=
         (Finset.card_le_card hfilter).trans (atoms.cap_overlap_card z.1 z.2)
-      simpa only [Set.indicator_apply, hz, if_true, Finset.sum_boole] using
+      simpa only [Set.indicator_apply, hz, ite_true, Finset.sum_boole] using
         (show ((s.filter (fun i ↦
           z ∈ sphereChordalCap (atoms.center i) (atoms.radius i))).card : ℝ) ≤
             (atoms.overlapBound : ℝ) by exact_mod_cast hcard)
@@ -636,19 +636,21 @@ theorem FiniteSphereAtomTruncation.sum_cap_measure_le_overlap_mul_outer
             (fun _ : sphereSet n ↦ (1 : ℝ)) z ∂normalizedSphereMeasure n := by
       apply Finset.sum_congr rfl
       intro i hi
-      simpa only [Pi.one_apply] using
-        (integral_indicator_one
-          (μ := normalizedSphereMeasure n)
-          (measurableSet_sphereChordalCap (atoms.center i) (atoms.radius i))).symm
+      have hone : (fun _ : sphereSet n ↦ (1 : ℝ)) = (1 : sphereSet n → ℝ) := by
+        funext z
+        rfl
+      rw [hone, integral_indicator_one
+        (μ := normalizedSphereMeasure n)
+        (measurableSet_sphereChordalCap (atoms.center i) (atoms.radius i))]
     _ = ∫ z : sphereSet n,
         ∑ i ∈ s, (sphereChordalCap (atoms.center i) (atoms.radius i)).indicator
           (fun _ : sphereSet n ↦ (1 : ℝ)) z ∂normalizedSphereMeasure n := by
-      rw [integral_finset_sum s (fun i _ ↦ hcapIntegrable i)]
+      rw [integral_finsetSum s (fun i _ ↦ hcapIntegrable i)]
     _ ≤ ∫ z : sphereSet n,
         u.indicator (fun _ : sphereSet n ↦ (atoms.overlapBound : ℝ)) z
           ∂normalizedSphereMeasure n :=
       integral_mono
-        (integrable_finset_sum s (fun i _ ↦ hcapIntegrable i))
+        (integrable_finsetSum s (fun i _ ↦ hcapIntegrable i))
         houterIntegrable hpoint
     _ = (atoms.overlapBound : ℝ) * (normalizedSphereMeasure n).real u := by
       rw [integral_indicator_const _ hu, smul_eq_mul]
@@ -1442,7 +1444,7 @@ theorem exists_uniform_scale_far_shell_card_budget {n : ℕ} (hn : 3 ≤ n) (B :
     intro z hz
     have hzsq :
         sphereChordalSq z.1 (atoms.center i).1 ≤ atoms.radius i ^ 2 := by
-      simpa only [sphereChordalCap, Set.mem_setOf_eq] using hz
+      simpa only [sphereChordalCap, Set.mem_ofPred_eq] using hz
     have hzroot :
         Real.sqrt (sphereChordalSq (atoms.center i).1 z.1) ≤ atoms.radius i := by
       rw [Real.sqrt_le_iff]
@@ -1778,13 +1780,23 @@ def zeroFiniteSphereAtomPackage {n : ℕ} (hn : 0 < n) (E C : ℝ) (hC : 0 ≤ C
     exact Fin.elim0 i
   scale_far_shell_card_budget := by
     intro x hx j q
+    have hN : (zeroFiniteSphereAtomTruncation hn C hC k).N = 0 := rfl
+    have huniv :
+        (Finset.univ : Finset (Fin (zeroFiniteSphereAtomTruncation hn C hC k).N)) = ∅ := by
+      rw [hN]
+      simp
+    rw [huniv]
     simp
   cross_constant_budget := by
-    simp only [CharP.cast_eq_zero, zero_mul]
-    positivity
+    have hoverlap : (zeroFiniteSphereAtomTruncation hn C hC k).overlapBound = 0 := rfl
+    have hjet : (zeroFiniteSphereAtomTruncation hn C hC k).jetBound = 0 := rfl
+    rw [hoverlap, hjet]
+    simpa using (div_nonneg hC (by norm_num : (0 : ℝ) ≤ 4))
   square_constant_budget := by
-    simp only [CharP.cast_eq_zero, mul_zero, add_zero]
-    positivity
+    have hoverlap : (zeroFiniteSphereAtomTruncation hn C hC k).overlapBound = 0 := rfl
+    have hjet : (zeroFiniteSphereAtomTruncation hn C hC k).jetBound = 0 := rfl
+    rw [hoverlap, hjet]
+    simpa using (div_nonneg hC (by norm_num : (0 : ℝ) ≤ 4))
 
 /-- The complete finite package is nonempty for the zero polynomial. -/
 theorem zero_hasFiniteSphereAtomPackage {n : ℕ} (hn : 0 < n) (E C : ℝ)

@@ -60,7 +60,7 @@ theorem putinarCubeQuarticGapLower_of_small (r : ℕ) (hr : 0 < r)
       norm_num
     rw [hrootPow] at hpow
     linarith
-  · push_neg at hlSmall
+  · push Not at hlSmall
     linarith
 
 end QuarticConvergence

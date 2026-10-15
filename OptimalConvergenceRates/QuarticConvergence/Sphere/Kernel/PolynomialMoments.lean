@@ -79,8 +79,11 @@ theorem sphereLinearIsometryCoordinates_dot {n : ℕ}
     ((EuclideanSpace.equiv (Fin n) ℝ).symm y)
   rw [PiLp.inner_apply, PiLp.inner_apply] at h
   simp only [RCLike.inner_apply, starRingEnd_apply, star_trivial] at h
-  simpa only [sphereLinearIsometryCoordinates,
-    ContinuousLinearEquiv.apply_symm_apply, mul_comm] using h
+  change (∑ i, (L ((EuclideanSpace.equiv (Fin n) ℝ).symm z)).ofLp i *
+    (L ((EuclideanSpace.equiv (Fin n) ℝ).symm y)).ofLp i) =
+      ∑ i, ((EuclideanSpace.equiv (Fin n) ℝ).symm z).ofLp i *
+        ((EuclideanSpace.equiv (Fin n) ℝ).symm y).ofLp i
+  simpa only [mul_comm] using h
 
 /-- Linear-form moments depend only on the orthogonal orbit of their
 coefficient vector. -/
@@ -181,7 +184,7 @@ theorem sphereCoefficientNormSq_pos {n : ℕ} {z : Fin n → ℝ} (hz : z ≠ 0)
     0 < sphereCoefficientNormSq z := by
   obtain ⟨i, hi⟩ : ∃ i, z i ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hz (funext h)
   have hterm : 0 < z i ^ 2 := sq_pos_of_ne_zero hi
   have hle : z i ^ 2 ≤ ∑ j, z j ^ 2 :=
@@ -202,7 +205,7 @@ theorem normalizedSphereCoefficient_mem {n : ℕ} {z : Fin n → ℝ}
   have hqpos : 0 < sphereCoefficientNormSq z :=
     sphereCoefficientNormSq_pos hz
   simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X,
-    Set.mem_setOf_eq]
+    Set.mem_ofPred_eq]
   calc
     (∑ i, normalizedSphereCoefficient z i ^ 2) =
         (∑ i, z i ^ 2) / (Real.sqrt (sphereCoefficientNormSq z)) ^ 2 := by
@@ -333,7 +336,7 @@ theorem sphereCoefficientNormSq_eq_one_of_mem {n : ℕ}
     {x : Fin n → ℝ} (hx : x ∈ sphereSet n) :
     sphereCoefficientNormSq x = 1 := by
   simpa only [sphereCoefficientNormSq, sphereSet, sphereQuadratic,
-    map_sum, map_pow, eval_X, Set.mem_setOf_eq] using hx
+    map_sum, map_pow, eval_X, Set.mem_ofPred_eq] using hx
 
 /-- Evaluating the sphere-reduced line polynomial at a sphere point recovers
 the actual squared-norm line polynomial. -/
@@ -394,11 +397,11 @@ theorem sphereMomentLinePolynomial_coeff {n m j : ℕ}
       (Nat.choose m j : ℝ) *
         mixedSphereLinearFormMoment (m - j) j x z := by
   classical
-  rw [sphereMomentLinePolynomial, Polynomial.finset_sum_coeff]
+  rw [sphereMomentLinePolynomial, Polynomial.finsetSum_coeff]
   rw [Finset.sum_eq_single j, Polynomial.coeff_C_mul_X_pow,
-    if_pos rfl]
+    ite_eq_left rfl]
   · intro b hb hbj
-    rw [Polynomial.coeff_C_mul_X_pow, if_neg hbj.symm]
+    rw [Polynomial.coeff_C_mul_X_pow, ite_eq_right hbj.symm]
   · intro hnot
     exact (hnot (Finset.mem_range.mpr (Nat.lt_succ_iff.mpr hj))).elim
 
@@ -410,7 +413,7 @@ theorem sphereMomentLinePolynomial_eval {n m : ℕ} (hn : 0 < n)
       sphereLinearFormMoment m (x + t • z) := by
   rw [sphereMomentLinePolynomial]
   unfold sphereLinearFormMoment
-  rw [Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_finsetSum]
   simp only [Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_pow,
     Polynomial.eval_X]
   calc
@@ -433,7 +436,7 @@ theorem sphereMomentLinePolynomial_eval {n m : ℕ} (hn : 0 < n)
             ((∑ i, x i * y.1 i) ^ (m - j) *
               (∑ i, z i * y.1 i) ^ j)
           ∂normalizedSphereMeasure n := by
-      rw [integral_finset_sum]
+      rw [integral_finsetSum]
       intro j _hj
       exact (integrable_mixedSphereLinearFormMoment hn
         (m - j) j x z).const_mul _
@@ -895,7 +898,8 @@ theorem monomial_mem_linearFormPowSpan {n : ℕ} (s : Fin n →₀ ℕ) :
   have hu : u.toFinsupp = s := by
     simp [u]
   have hcard : u.card = s.degree := by
-    simpa only [u, Finsupp.degree_apply] using Finsupp.card_toMultiset s
+    simpa only [u, Finsupp.degree_apply, Finsupp.sum, Function.id_def] using
+      Finsupp.card_toMultiset s
   have hprod :
       (u.map (fun i ↦ (MvPolynomial.X i : MvPolynomial (Fin n) ℝ))).prod =
         MvPolynomial.monomial s (1 : ℝ) := by
@@ -996,7 +1000,7 @@ theorem exists_degree_le_integral_mul_sphereDotPolynomial_pow
       _ = ∫ y : sphereSet n,
           ∑ j, c j * ((∑ i, x i * y.1 i) ^ m *
             (∑ i, z j i * y.1 i) ^ d) ∂normalizedSphereMeasure n := by
-        rw [integral_finset_sum]
+        rw [integral_finsetSum]
         · apply Finset.sum_congr rfl
           intro j _hj
           rw [mixedSphereLinearFormMoment, integral_const_mul]
@@ -1151,17 +1155,17 @@ theorem eval_polynomialZonalMomentPolynomial {n : ℕ}
                   (∑ i, x i * y.1 i) ^ m)
           ∂normalizedSphereMeasure n := by
       symm
-      rw [integral_finset_sum]
+      rw [integral_finsetSum]
       · apply Finset.sum_congr rfl
         intro d _hd
-        rw [integral_finset_sum]
+        rw [integral_finsetSum]
         · apply Finset.sum_congr rfl
           intro m _hm
           rw [integral_const_mul]
         · intro m _hm
           exact hint d m
       · intro d _hd
-        exact integrable_finset_sum _ (fun m _hm ↦ hint d m)
+        exact integrable_finsetSum _ (fun m _hm ↦ hint d m)
     _ = ∫ y : sphereSet n, MvPolynomial.eval y.1 v *
           P.eval (∑ i, x i * y.1 i)
           ∂normalizedSphereMeasure n := by

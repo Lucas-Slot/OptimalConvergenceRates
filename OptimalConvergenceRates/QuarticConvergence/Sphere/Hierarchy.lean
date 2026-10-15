@@ -123,13 +123,13 @@ theorem sphereSOSBound_add_const (hne : (sphereSet n).Nonempty)
   by_cases hold : (sphereSOSFeasible f r).Nonempty
   · have hnew : (sphereSOSFeasible (f + MvPolynomial.C c) r).Nonempty :=
       (sphereSOSFeasible_add_const_nonempty_iff f r c).mpr hold
-    rw [sphereSOSBound, dif_pos hnew, sphereSOSBound, dif_pos hold]
+    rw [sphereSOSBound, dite_eq_left hnew, sphereSOSBound, dite_eq_left hold]
     norm_cast
     exact sphereSOSFeasible_sSup_add_const hne f r c hold
   · have hnew : ¬(sphereSOSFeasible (f + MvPolynomial.C c) r).Nonempty := by
       intro h
       exact hold ((sphereSOSFeasible_add_const_nonempty_iff f r c).mp h)
-    rw [sphereSOSBound, dif_neg hnew, sphereSOSBound, dif_neg hold]
+    rw [sphereSOSBound, dite_eq_right hnew, sphereSOSBound, dite_eq_right hold]
     simp
 
 
@@ -149,7 +149,7 @@ theorem sphereSOSBound_ge_feasible (hne : (sphereSet n).Nonempty)
     (l : WithBot ℝ) ≤ sphereSOSBound f r := by
   unfold sphereSOSBound
   have hnonempty : (sphereSOSFeasible f r).Nonempty := ⟨l, hl⟩
-  rw [dif_pos hnonempty]
+  rw [dite_eq_left hnonempty]
   exact WithBot.coe_le_coe.mpr (le_csSup (sphereSOSFeasible_bddAbove hne f r) hl)
 
 /-- The sphere SOS lower bound is monotone in its root-degree order. -/
@@ -184,7 +184,7 @@ theorem sphereSOSBound_error_of_certificate (hne : (sphereSet n).Nonempty)
   have hnonempty : (sphereSOSFeasible f r).Nonempty := ⟨_, hfeasible⟩
   let b := sSup (sphereSOSFeasible f r)
   have hbound : sphereSOSBound f r = (b : WithBot ℝ) := by
-    simp only [sphereSOSBound, dif_pos hnonempty, b]
+    simp only [sphereSOSBound, dite_eq_left hnonempty, b]
   have hlower := sphereSOSBound_ge_feasible hne f r hfeasible
   have hupper := sphereSOSBound_le_spherePolyMin hne f r
   rw [hbound, WithBot.coe_le_coe] at hlower hupper

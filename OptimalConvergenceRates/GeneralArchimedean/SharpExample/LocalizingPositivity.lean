@@ -175,7 +175,7 @@ theorem sharpMomentFunctional_sq_nonneg {η : ℝ} (hη : 0 < η)
         simpa [I, e, c] using
           (Finset.sum_attach q.support (fun α ↦ monomial α (q.coeff α)))]
   simp_rw [pow_two, Finset.sum_mul, Finset.mul_sum, map_sum,
-    monomial_mul, sharpMomentFunctional_monomial]
+    monomial_mul_monomial, sharpMomentFunctional_monomial]
   simpa only [e, c, mul_assoc, mul_left_comm, mul_comm] using hq
 
 /-- Expansion of a monomial-shifted square under the moment functional. -/
@@ -189,7 +189,7 @@ theorem signed_sharpMomentFunctional_monomial_mul_sq
   conv_lhs =>
     rw [as_sum q]
   simp_rw [pow_two, Finset.sum_mul, Finset.mul_sum, map_sum,
-    monomial_mul, sharpMomentFunctional_monomial]
+    monomial_mul_monomial, sharpMomentFunctional_monomial]
   rw [Finset.mul_sum]
   apply Finset.sum_congr rfl
   intro α _hα
@@ -321,7 +321,13 @@ theorem sharpMomentFunctional_a_sq_nonneg {η : ℝ} (hη : 0 < η)
       (monomial (bivarExponent 1 0) 1 * q ^ 2) := by
     simp only [pow_zero, one_mul] at h
     exact (mul_nonneg (by norm_num) hD).trans h
-  simpa [obstructionA, bivarExponent] using hnon
+  have ha : monomial (bivarExponent 1 0) (1 : ℝ) = obstructionA := by
+    rw [show bivarExponent 1 0 = Finsupp.single (0 : Fin 2) 1 by
+      ext k
+      fin_cases k <;> simp [bivarExponent]]
+    rfl
+  rw [ha] at hnon
+  exact hnon
 
 /-- The `b` localizer is positive on every square. -/
 theorem sharpMomentFunctional_b_sq_nonneg {η : ℝ} (hη : 0 < η)
@@ -335,7 +341,13 @@ theorem sharpMomentFunctional_b_sq_nonneg {η : ℝ} (hη : 0 < η)
       (monomial (bivarExponent 0 1) 1 * q ^ 2) := by
     simp only [Nat.zero_mul, pow_zero, one_mul] at h
     exact (mul_nonneg (by norm_num) hD).trans h
-  simpa [obstructionB, bivarExponent] using hnon
+  have hb : monomial (bivarExponent 0 1) (1 : ℝ) = obstructionB := by
+    rw [show bivarExponent 0 1 = Finsupp.single (1 : Fin 2) 1 by
+      ext k
+      fin_cases k <;> simp [bivarExponent]]
+    rfl
+  rw [hb] at hnon
+  exact hnon
 
 /-- The crucial shifted localizer `-(ab+η²)` is positive. -/
 theorem sharpMomentFunctional_neg_ab_etaSq_sq_nonneg
@@ -379,7 +391,7 @@ theorem sharpMomentFunctional_neg_ab_etaSq_sq_nonneg
         Finsupp.single (1 : Fin 2) 1) 1 =
       monomial (Finsupp.single (0 : Fin 2) 1) 1 *
         monomial (Finsupp.single (1 : Fin 2) 1) 1
-    rw [monomial_mul]
+    rw [monomial_mul_monomial]
     simp
   rw [hzero, one_mul, hab] at hcompare
   have hc : sharpMomentFunctional η (C (η ^ 2) * q ^ 2) =

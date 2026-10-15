@@ -145,7 +145,6 @@ theorem schmudgenExplicitRate_lasserreGap {n : ℕ} (hn : 0 < n) :
   have hupper := lasserre_bound_box_preo_le_polyMin p r
   rw [hb, WithBot.coe_le_coe] at hlower hupper
   refine ⟨b, hb, by linarith, ?_⟩
-  dsimp only [delta]
   linarith
 
 end QuarticConvergence

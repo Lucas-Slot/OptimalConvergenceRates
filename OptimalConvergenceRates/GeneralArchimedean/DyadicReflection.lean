@@ -93,7 +93,7 @@ theorem prod_le_selected_of_nonneg_le_one
     ∏ j ∈ s, f j ≤ f i := by
   rw [← Finset.prod_erase_mul _ _ hi]
   have herase : ∏ j ∈ s.erase i, f j ≤ 1 :=
-    Finset.prod_le_one (fun j hj => hf0 j (Finset.mem_of_mem_erase hj))
+    Finset.prod_le_one₀ (fun j hj => hf0 j (Finset.mem_of_mem_erase hj))
       (fun j hj => hf1 j (Finset.mem_of_mem_erase hj))
   have hfi : 0 ≤ f i := hf0 i hi
   nlinarith

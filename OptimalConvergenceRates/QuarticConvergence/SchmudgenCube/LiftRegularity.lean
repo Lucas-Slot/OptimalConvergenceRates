@@ -118,13 +118,16 @@ theorem mvPolynomialEvalFDeriv_eq_directionalDeriv
     rw [hasDerivAt_pi]
     intro i
     convert (hasDerivAt_const (x := (0 : ℝ)) (x i)).add
-      ((hasDerivAt_id (x := (0 : ℝ))).mul_const (u i)) using 1; simp
+      ((hasDerivAt_id (x := (0 : ℝ))).mul_const (u i)) using 1
+    · funext t
+      rfl
+    · simp
   have hchain := (hasFDerivAt_mvPolynomial_eval P x).comp_hasDerivAt_of_eq
     0 hpath (by simp)
   have hchain' : HasDerivAt
       (fun t : ℝ ↦ MvPolynomial.eval (x + t • u) P)
       (mvPolynomialEvalFDeriv P x u) 0 := by
-    simpa only [Function.comp_apply] using hchain
+    simpa only [Function.comp_apply] using! hchain
   exact hchain'.unique hline
 
 /-- The square-root coordinate of the standard circle chart has zero
@@ -133,7 +136,10 @@ theorem hasDerivAt_sqrt_one_sub_sq_zero :
     HasDerivAt (fun t : ℝ ↦ Real.sqrt (1 - t ^ 2)) 0 0 := by
   have hinner : HasDerivAt (fun t : ℝ ↦ 1 - t ^ 2) 0 0 := by
     convert (hasDerivAt_const (x := (0 : ℝ)) (1 : ℝ)).sub
-      ((hasDerivAt_id (x := (0 : ℝ))).pow 2) using 1; norm_num
+      ((hasDerivAt_id (x := (0 : ℝ))).pow 2) using 1
+    · funext t
+      rfl
+    · norm_num
   convert hinner.sqrt (by norm_num) using 1; norm_num
 
 /-- The standard great-circle chart through `x` in direction `u` has
@@ -146,7 +152,10 @@ theorem hasDerivAt_greatCirclePath_zero
   rw [hasDerivAt_pi]
   intro i
   convert ((hasDerivAt_id (x := (0 : ℝ))).mul_const (u i)).add
-    (hasDerivAt_sqrt_one_sub_sq_zero.mul_const (x i)) using 1; simp
+    (hasDerivAt_sqrt_one_sub_sq_zero.mul_const (x i)) using 1
+  · funext t
+    rfl
+  · simp
 
 /-- Differentiating polynomial evaluation along the great-circle chart gives
 the algebraic directional derivative. -/
@@ -162,7 +171,7 @@ theorem hasDerivAt_eval_greatCirclePath_zero
       (fun t : ℝ ↦ MvPolynomial.eval
         (fun i ↦ t * u i + Real.sqrt (1 - t ^ 2) * x i) P)
       (mvPolynomialEvalFDeriv P x u) 0 := by
-    simpa only [Function.comp_apply] using hchain
+    simpa only [Function.comp_apply] using! hchain
   rw [mvPolynomialEvalFDeriv_eq_directionalDeriv] at hchain'
   exact hchain'
 

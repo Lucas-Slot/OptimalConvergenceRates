@@ -30,10 +30,10 @@ theorem continuous_matrix_det {X k : Type*} [TopologicalSpace X]
     (hA : ∀ i j, Continuous (fun x ↦ A x i j)) :
     Continuous (fun x ↦ (A x).det) := by
   simp_rw [Matrix.det_apply']
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro σ _
   apply continuous_const.mul
-  apply continuous_finset_prod
+  apply continuous_finsetProd
   intro i _
   exact hA (σ i) i
 
@@ -45,7 +45,7 @@ theorem continuous_polynomialGramAt
   apply continuous_pi
   intro k
   simp only [polynomialGramAt, Matrix.mul_apply, Matrix.transpose_apply]
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro j _
   exact (continuous_eval (MvPolynomial.pderiv j (h i))).mul
     (continuous_eval (MvPolynomial.pderiv j (h k)))
@@ -83,7 +83,7 @@ theorem continuous_normalRecoveryAt
   apply continuous_pi
   intro i
   simp only [normalRecoveryAt, Matrix.mul_apply, Matrix.transpose_apply]
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro k _
   exact (continuous_eval (MvPolynomial.pderiv j (h k))).mul
     (continuous_adjugate_polynomialGramAt_entry h k i)

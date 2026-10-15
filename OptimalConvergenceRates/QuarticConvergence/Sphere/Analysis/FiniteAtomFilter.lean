@@ -288,7 +288,7 @@ center varies.  This is a finite algebraic property of the explicit kernel. -/
 def ZonalKernelCoeffContinuous {n : ℕ} (p k : ℕ) : Prop :=
   ∀ α : ExpLE n (2 * (p * k)),
     Continuous (fun y : sphereSet n ↦
-      MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1))
+      legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1))
 
 /-- Kernel coefficient continuity follows from the coefficientwise topology
 on multivariate power series and the explicit polynomial kernel formula. -/
@@ -313,13 +313,13 @@ theorem zonalKernelCoeffContinuous {n : ℕ} (p k : ℕ) :
       ((continuous_apply j).comp continuous_subtype_val)
   have hdot : Continuous (fun y : sphereSet n ↦
       ∑ j, MvPowerSeries.C (R := ℝ) (y.1 j) * MvPowerSeries.X j) := by
-    exact continuous_finset_sum _ fun j _ ↦ (hcoordinate j).mul continuous_const
+    exact continuous_finsetSum _ fun j _ ↦ (hcoordinate j).mul continuous_const
   have hsum : Continuous (fun y : sphereSet n ↦
       ∑ i ∈ Finset.range ((sphereDirichletPolynomial k).natDegree + 1),
         MvPowerSeries.C (R := ℝ) ((sphereDirichletPolynomial k).coeff i) *
           (∑ j, MvPowerSeries.C (R := ℝ) (y.1 j) *
             MvPowerSeries.X j) ^ i) := by
-    exact continuous_finset_sum _ fun i _ ↦ continuous_const.mul (hdot.pow i)
+    exact continuous_finsetSum _ fun i _ ↦ continuous_const.mul (hdot.pow i)
   exact (hsum.pow p).pow 2
 
 /-- Continuous sphere functions satisfy the coefficientwise integrability
@@ -1066,7 +1066,7 @@ theorem normalizedFunctionZonalKernelValue_iterate_eq_integral_convolution
       normalizedZonalKernelSection p k base zy.1 zy.2) := by
     have hdot : Continuous (fun zy : sphereSet n × sphereSet n ↦
         ∑ i, zy.1.1 i * zy.2.1 i) := by
-      apply continuous_finset_sum
+      apply continuous_finsetSum
       intro i _
       exact (((continuous_apply i).comp continuous_subtype_val).comp
         continuous_fst).mul (((continuous_apply i).comp
@@ -1136,7 +1136,7 @@ theorem half_centerChordalDistance_le_of_mem_cap {n : ℕ}
     Real.sqrt (sphereChordalSq x.1 center.1) / 2 ≤
       Real.sqrt (sphereChordalSq x.1 y.1) := by
   have hy' : sphereChordalSq y.1 center.1 ≤ radius ^ 2 := by
-    simpa only [sphereChordalCap, Set.mem_setOf_eq] using hy
+    simpa only [sphereChordalCap, Set.mem_ofPred_eq] using hy
   have hyroot : Real.sqrt (sphereChordalSq y.1 center.1) ≤ radius := by
     rw [Real.sqrt_le_iff]
     exact ⟨hradius, hy'⟩
@@ -2037,7 +2037,7 @@ theorem FiniteRetainedRootData.abs_booleanFilterError_le_far
   have hx : x ∉ sphereChordalCap (atoms.center i) (atoms.radius i) := by
     intro hxmem
     have hxmem' : sphereChordalSq x.1 (atoms.center i).1 ≤ atoms.radius i ^ 2 := by
-      simpa only [sphereChordalCap, Set.mem_setOf_eq] using hxmem
+      simpa only [sphereChordalCap, Set.mem_ofPred_eq] using hxmem
     have hxroot : Real.sqrt (sphereChordalSq x.1 (atoms.center i).1) ≤
         atoms.radius i := by
       rw [Real.sqrt_le_iff]
@@ -2392,7 +2392,7 @@ theorem not_mem_sphereChordalCap_of_two_mul_radius_le_sqrt
     x ∉ sphereChordalCap center radius := by
   intro hx
   have hsq : sphereChordalSq x.1 center.1 ≤ radius ^ 2 := by
-    simpa only [sphereChordalCap, Set.mem_setOf_eq] using hx
+    simpa only [sphereChordalCap, Set.mem_ofPred_eq] using hx
   have hsqrt : Real.sqrt (sphereChordalSq x.1 center.1) ≤ radius := by
     rw [Real.sqrt_le_iff]
     exact ⟨hradius.le, hsq⟩
@@ -3311,8 +3311,13 @@ theorem finiteRetainedRootManuscriptInput {n : ℕ} (hn : 3 ≤ n) :
     cross_constant_budget := ?_
     square_constant_budget := ?_ }⟩⟩
   · intro i x y
-    simpa [atoms, regular, normalizedZonalFilterError, sphereSymmetricIncrement,
-      packingNormalizedZonalFilterError, packingSphereSymmetricIncrement] using
+    have hincrement :
+        sphereSymmetricIncrement (fun z ↦ atoms.root i z.1) x =
+          packingSphereSymmetricIncrement (fun z ↦ atoms.root i z.1) x := by
+      rfl
+    rw [hincrement]
+    simpa [atoms, regular, normalizedZonalFilterError,
+      packingNormalizedZonalFilterError] using
         package.filter_increment_oscillation i x y
   · simpa [atoms] using package.scale_far_shell_distance
   · simpa [atoms] using package.scale_far_shell_card_budget

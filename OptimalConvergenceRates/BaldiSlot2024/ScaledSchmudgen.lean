@@ -71,7 +71,7 @@ private theorem ScaledBoxGeneratorProd_one (J : Finset (Fin n)) :
 theorem ScaledBoxPreordering_one : ScaledBoxPreordering 1 n r = BoxPreordering n r := by
   ext p
   unfold ScaledBoxPreordering BoxPreordering
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   constructor
   · rintro ⟨σ, hsos, hdeg, hsum⟩
     refine ⟨σ, hsos, fun J => ?_, ?_⟩
@@ -173,7 +173,7 @@ theorem polyScale_totalDegree_le (c : ℝ) (p : MvPolynomial (Fin n) ℝ) :
     change (∏ i ∈ v.support, (MvPolynomial.C c * MvPolynomial.X i) ^ v i).totalDegree ≤ _
     calc (∏ i ∈ v.support, (MvPolynomial.C c * MvPolynomial.X i) ^ v i).totalDegree
         ≤ ∑ i ∈ v.support, ((MvPolynomial.C c * MvPolynomial.X i) ^ v i).totalDegree :=
-          MvPolynomial.totalDegree_finset_prod _ _
+          MvPolynomial.totalDegree_finsetProd _ _
       _ ≤ ∑ i ∈ v.support, v i := by
           apply Finset.sum_le_sum
           intro i _
@@ -187,7 +187,7 @@ theorem polyScale_totalDegree_le (c : ℝ) (p : MvPolynomial (Fin n) ℝ) :
                 rw [MvPolynomial.totalDegree_C, MvPolynomial.totalDegree_X]
             _ = v i := by ring
   have hsum_eq : ∑ i ∈ v.support, v i = v.sum (fun _ e => e) := by simp [Finsupp.sum]
-  calc (MvPolynomial.coeff v p • Finsupp.prod v fun i k =>
+  calc (legacyMvCoeff v p • Finsupp.prod v fun i k =>
           (MvPolynomial.C c * MvPolynomial.X i) ^ k).totalDegree
       ≤ (Finsupp.prod v fun i k =>
           (MvPolynomial.C c * MvPolynomial.X i) ^ k).totalDegree :=

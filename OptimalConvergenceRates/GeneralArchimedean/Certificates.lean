@@ -338,8 +338,17 @@ def mul {g : Fin m → MvPolynomial (Fin n) ℝ}
         (fun z => (∑ I ∈ (Finset.univ : Finset (Fin m)).powerset,
           c.sigma I * ∏ i ∈ I, g i) * z) d.identity
     _ = _ := by
-      simpa [KrivineStengle.generatorProduct] using
+      have hproduct :=
         KrivineStengle.productCoefficient_sum g c.sigma d.sigma
+      change
+        (∑ I ∈ Finset.univ.powerset,
+          c.sigma I * KrivineStengle.generatorProduct g I) *
+            (∑ J ∈ Finset.univ.powerset,
+              d.sigma J * KrivineStengle.generatorProduct g J) =
+          ∑ K ∈ Finset.univ.powerset,
+            KrivineStengle.productCoefficient g c.sigma d.sigma K *
+              KrivineStengle.generatorProduct g K at hproduct
+      simpa [KrivineStengle.generatorProduct] using hproduct
 
 /-- The fixed coefficient-growth factor contributed by squarefree
 products of the generators when two preordering certificates are
@@ -388,13 +397,17 @@ theorem coeffSize_mul_le {g : Fin m → MvPolynomial (Fin n) ℝ}
                 (∏ i ∈ IJ.1 ∩ IJ.2, g i) ^ 2) := by
       apply Finset.sum_le_sum
       intro K hK
-      simpa [KrivineStengle.productCoefficient, subsets, pairs] using
-        coeffL1Norm_sum_le
-          (pairs.filter
-            (fun IJ => KrivineStengle.subsetParity IJ.1 IJ.2 = K))
-          (fun IJ =>
-            (c.sigma IJ.1 * d.sigma IJ.2) *
-              (∏ i ∈ IJ.1 ∩ IJ.2, g i) ^ 2)
+      change coeffL1Norm
+        (∑ IJ ∈ pairs.filter
+            (fun IJ => KrivineStengle.subsetParity IJ.1 IJ.2 = K),
+          (c.sigma IJ.1 * d.sigma IJ.2) *
+            (∏ i ∈ IJ.1 ∩ IJ.2, g i) ^ 2) ≤ _
+      exact coeffL1Norm_sum_le
+        (pairs.filter
+          (fun IJ => KrivineStengle.subsetParity IJ.1 IJ.2 = K))
+        (fun IJ =>
+          (c.sigma IJ.1 * d.sigma IJ.2) *
+            (∏ i ∈ IJ.1 ∩ IJ.2, g i) ^ 2)
     _ ≤ ∑ K ∈ subsets,
           ∑ IJ ∈ pairs.filter
               (fun IJ => KrivineStengle.subsetParity IJ.1 IJ.2 = K),

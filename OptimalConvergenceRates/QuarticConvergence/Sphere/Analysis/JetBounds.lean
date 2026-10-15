@@ -39,8 +39,8 @@ def normalizedNonnegativeC6_of_bound {n : ℕ} {u : (Fin n → ℝ) → ℝ}
     exact mul_nonneg (inv_nonneg.mpr hM.le) (hu x)
   contDiff := hsmooth.const_smul M⁻¹
   compact_support := by
-    simpa only [Pi.smul_apply, smul_eq_mul] using
-      hcompact.smul_left (f := fun _ ↦ M⁻¹)
+    change HasCompactSupport ((fun _ ↦ M⁻¹) * u)
+    exact hcompact.smul_left (f := fun _ ↦ M⁻¹)
   iteratedFDeriv_le_one := by
     intro j hj x
     have hsmoothAt : ContDiffAt ℝ j u x :=
@@ -141,7 +141,12 @@ theorem norm_iteratedDeriv_line_le_one {n : ℕ} {u : (Fin n → ℝ) → ℝ}
       _ ≤ 1 := by
         simpa [hnormL] using (pow_le_one₀ (norm_nonneg v) hv : ‖v‖ ^ 4 ≤ 1)
   rw [← norm_iteratedFDeriv_eq_norm_iteratedDeriv]
-  convert hcompNorm using 2
+  have hline : (fun s : ℝ => u (x + s • v)) = shifted ∘ L := by
+    funext s
+    simp only [shifted, L, Function.comp_apply,
+      ContinuousLinearMap.toSpanSingleton_apply]
+  rw [hline]
+  exact hcompNorm
 
 /-- The scalar Taylor coefficient of an affine line restriction is the
 corresponding multivariate Fréchet derivative evaluated repeatedly on the
@@ -332,7 +337,13 @@ theorem iteratedFDeriv_three_swap_zero_one {n : ℕ} {u : (Fin n → ℝ) → �
     hfd.contDiffAt.isSymmSndFDerivAt (by norm_num)
   have hsval := hs.iteratedFDeriv_cons (v := a) (w := b)
   have happ := congrArg (fun L : (Fin n → ℝ) →L[ℝ] ℝ => L c) hsval
-  simpa [iteratedFDeriv_succ_apply_right] using happ
+  have habc : Fin.init ![a, b, c] = ![a, b] := by
+    ext i
+    fin_cases i <;> rfl
+  have hbac : Fin.init ![b, a, c] = ![b, a] := by
+    ext i
+    fin_cases i <;> rfl
+  simpa [iteratedFDeriv_succ_apply_right, habc, hbac] using happ
 
 /-- The third Fréchet derivative is symmetric in its final two coordinates. -/
 theorem iteratedFDeriv_three_swap_one_two {n : ℕ} {u : (Fin n → ℝ) → ℝ}

@@ -81,7 +81,7 @@ theorem putinarCorrectionScaleFactor_nonneg
   apply Finset.sum_nonneg
   intro j hj
   by_cases htwo : 2 ≤ j
-  · simp only [htwo, if_pos]
+  · simp only [htwo, ite_eq_left]
     have hmu : 0 ≤ putinarPairMu k := by
       unfold putinarPairMu delta
       positivity
@@ -117,7 +117,7 @@ theorem eval_putinarConversionCorrection_nonneg_le_scaleFactor
     apply Finset.sum_congr rfl
     intro j hj
     by_cases htwo : 2 ≤ j
-    · simp only [htwo, if_pos]
+    · simp only [htwo, ite_eq_left]
       ring
     · simp [htwo]
 
@@ -139,7 +139,7 @@ theorem putinarCorrectionRateConstant_nonneg
   apply Finset.sum_nonneg
   intro j hj
   by_cases htwo : 2 ≤ j
-  · simp only [htwo, if_pos]
+  · simp only [htwo, ite_eq_left]
     positivity
   · simp [htwo]
 
@@ -171,7 +171,7 @@ theorem putinarCorrectionScaleFactor_scaled_eq
   apply Finset.sum_congr rfl
   intro j hj
   by_cases htwo : 2 ≤ j
-  · simp only [htwo, if_pos]
+  · simp only [htwo, ite_eq_left]
     rw [putinarPairMu_pow_mul_scaled_pow k j hk B htwo]
     ring
   · simp [htwo]

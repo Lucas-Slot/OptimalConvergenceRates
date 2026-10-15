@@ -40,8 +40,11 @@ theorem norm_sub_sub_fderiv_le_of_global_hessian_bound
     exact (hF.differentiable (by norm_num)).sub (fderiv ℝ F x).differentiable
   have hHderiv (z : E) :
       fderiv ℝ H z = fderiv ℝ F z - fderiv ℝ F x := by
-    dsimp [H]
-    simpa using (((hF.differentiable (by norm_num)).differentiableAt.hasFDerivAt).sub
+    have hH : H = F - (fderiv ℝ F x : E → G) := by
+      funext w
+      rfl
+    rw [hH]
+    exact (((hF.differentiable (by norm_num)).differentiableAt.hasFDerivAt).sub
       (fderiv ℝ F x).hasFDerivAt).fderiv
   have hHbound : ∀ z ∈ segment ℝ x y,
       ‖fderiv ℝ H z‖ ≤ (M * ‖y - x‖) := by

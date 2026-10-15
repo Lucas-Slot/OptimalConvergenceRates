@@ -244,7 +244,7 @@ theorem weightedCoeffEnvelope_plus_mem_at
       GenQuadraticModule g (t + 2 * q.totalDegree) := by
   classical
   have hterm : ∀ α ∈ q.support,
-      C (weightedMonomialBound B α (coeff α q)) + monomial α (coeff α q) ∈
+      C (weightedMonomialBound B α (q.coeff α)) + monomial α (q.coeff α) ∈
         GenQuadraticModule g (t + 2 * q.totalDegree) := by
     intro α hα
     apply GenQuadraticModule_mono
@@ -254,9 +254,9 @@ theorem weightedCoeffEnvelope_plus_mem_at
           rw [heq]
           exact MvPolynomial.le_totalDegree hα
         omega)
-    exact weighted_monomial_plus_mem_at hB hcoord α (coeff α q)
+    exact weighted_monomial_plus_mem_at hB hcoord α (q.coeff α)
   have hsum := genQuadraticModule_sum q.support
-    (fun α ↦ C (weightedMonomialBound B α (coeff α q)) + monomial α (coeff α q))
+    (fun α ↦ C (weightedMonomialBound B α (q.coeff α)) + monomial α (q.coeff α))
     hterm
   convert hsum using 1
   simp only [weightedCoeffEnvelope, map_sum, Finset.sum_add_distrib,
@@ -272,13 +272,13 @@ theorem weightedCoeffEnvelope_minus_mem_at
       GenQuadraticModule g (t + 2 * q.totalDegree) := by
   classical
   have hterm : ∀ α ∈ q.support,
-      C (weightedMonomialBound B α (coeff α q)) - monomial α (coeff α q) ∈
+      C (weightedMonomialBound B α (q.coeff α)) - monomial α (q.coeff α) ∈
         GenQuadraticModule g (t + 2 * q.totalDegree) := by
     intro α hα
-    have h := weighted_monomial_plus_mem_at hB hcoord α (-coeff α q)
-    have hsquare : (-coeff α q / 2) ^ 2 = (coeff α q / 2) ^ 2 := by ring
-    have hneg : C (weightedMonomialBound B α (coeff α q)) -
-          monomial α (coeff α q) ∈
+    have h := weighted_monomial_plus_mem_at hB hcoord α (-q.coeff α)
+    have hsquare : (-q.coeff α / 2) ^ 2 = (q.coeff α / 2) ^ 2 := by ring
+    have hneg : C (weightedMonomialBound B α (q.coeff α)) -
+          monomial α (q.coeff α) ∈
         GenQuadraticModule g (t + 2 * α.degree) := by
       simpa [weightedMonomialBound, sub_eq_add_neg, hsquare] using h
     apply GenQuadraticModule_mono
@@ -290,7 +290,7 @@ theorem weightedCoeffEnvelope_minus_mem_at
         omega)
     exact hneg
   have hsum := genQuadraticModule_sum q.support
-    (fun α ↦ C (weightedMonomialBound B α (coeff α q)) - monomial α (coeff α q))
+    (fun α ↦ C (weightedMonomialBound B α (q.coeff α)) - monomial α (q.coeff α))
     hterm
   convert hsum using 1
   simp only [weightedCoeffEnvelope, map_sum, Finset.sum_sub_distrib,

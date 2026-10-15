@@ -500,7 +500,7 @@ theorem box_preordering_degree_four_sos_too_close_quarter
       dsimp [m]
       simp
     have hsum_coeff_zero :
-        MvPolynomial.coeff m
+        legacyMvCoeff m
           (∑ J ∈ Finset.univ.powerset, σ J * BoxSemialgebraicGeneratorProd J) = 0 := by
       rw [MvPolynomial.coeff_sum]
       apply Finset.sum_eq_zero
@@ -510,9 +510,9 @@ theorem box_preordering_degree_four_sos_too_close_quarter
         omega
       · rw [hmdeg]
         omega
-    have hleft_coeff : MvPolynomial.coeff m (choiLamQuartic + MvPolynomial.C epsilon) = 1 := by
+    have hleft_coeff : legacyMvCoeff m (choiLamQuartic + MvPolynomial.C epsilon) = 1 := by
       dsimp [m]
-      rw [MvPolynomial.coeff_add, choiLamQuartic_coeff_single_zero_four_weightedJet]
+      rw [choiLamQuartic_coeff_single_zero_four_weightedJet]
       have hC : (0 : Fin 4 →₀ ℕ) ≠ Finsupp.single (0 : Fin 4) 4 := by
         intro h
         have := Finsupp.ext_iff.mp h (0 : Fin 4)

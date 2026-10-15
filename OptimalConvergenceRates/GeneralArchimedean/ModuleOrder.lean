@@ -21,7 +21,7 @@ theorem totalDegree_finset_prod_le_card_mul
   calc
     (∏ i ∈ s, p i).totalDegree ≤
         ∑ i ∈ s, (p i).totalDegree :=
-      MvPolynomial.totalDegree_finset_prod s p
+      MvPolynomial.totalDegree_finsetProd s p
     _ ≤ ∑ _i ∈ s, d :=
       Finset.sum_le_sum fun i hi => hdegree i hi
     _ = s.card * d := by simp
@@ -295,7 +295,7 @@ theorem prod {ι : Type*} {g : Fin m → MvPolynomial (Fin n) ℝ}
         calc
           (∏ i ∈ s, q i).totalDegree
               ≤ ∑ i ∈ s, (q i).totalDegree :=
-                MvPolynomial.totalDegree_finset_prod s q
+                MvPolynomial.totalDegree_finsetProd s q
           _ ≤ ∑ _i ∈ s, d :=
                 Finset.sum_le_sum fun i hi =>
                   hqdeg i (Finset.mem_insert_of_mem hi)

@@ -88,10 +88,10 @@ theorem norm_iteratedDerivativePullbackAction_sub_id_le
           ContinuousMultilinearMap.compContinuousLinearMapL
             (fun _ : Fin 1 ↦ L - ContinuousLinearMap.id ℝ E) := by
       ext A m
-      simp only [iteratedDerivativePullbackAction, ContinuousLinearMap.coe_sub',
+      simp only [iteratedDerivativePullbackAction, FunLike.coe_sub,
         ContinuousLinearMap.coe_id', Pi.sub_apply,
         ContinuousMultilinearMap.compContinuousLinearMapL_apply, id_eq,
-        ContinuousMultilinearMap.sub_apply,
+        sub_apply,
         ContinuousMultilinearMap.compContinuousLinearMap_apply]
       have h := (A.map_update_sub m 0 (L (m 0)) (m 0)).symm
       convert h using 1
@@ -134,12 +134,12 @@ theorem norm_iteratedDerivativePullbackAction_sub_id_le
             ContinuousLinearMap.id ℝ
               (ContinuousMultilinearMap ℝ (fun _ : Fin 2 ↦ E) ℝ) = S₀ + S₁ := by
       ext A m
-      simp only [iteratedDerivativePullbackAction, ContinuousLinearMap.coe_sub',
+      simp only [iteratedDerivativePullbackAction, FunLike.coe_sub,
         ContinuousLinearMap.coe_id', Pi.sub_apply,
         ContinuousMultilinearMap.compContinuousLinearMapL_apply, id_eq,
-        ContinuousMultilinearMap.sub_apply,
-        ContinuousMultilinearMap.compContinuousLinearMap_apply, ContinuousLinearMap.add_apply,
-        ContinuousMultilinearMap.add_apply, S₀, S₁]
+        sub_apply,
+        ContinuousMultilinearMap.compContinuousLinearMap_apply, add_apply,
+        add_apply, S₀, S₁]
       let lm : Fin 2 → E := fun i => L (m i)
       let mid : Fin 2 → E := Function.update lm 0 (m 0)
       have hll : Function.update lm 0 (L (m 0)) = lm := by

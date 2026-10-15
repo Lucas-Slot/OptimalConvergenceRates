@@ -45,7 +45,7 @@ theorem IsSOSUni_C_add_sq_mul (c : ℝ) (hc : 0 ≤ c) (s q : Polynomial ℝ)
 theorem continuousAt_nonneg_of_nonneg_ne {f : ℝ → ℝ} {r : ℝ}
     (hf : ContinuousAt f r) (h : ∀ x, x ≠ r → 0 ≤ f x) : 0 ≤ f r := by
   by_contra hneg
-  push_neg at hneg
+  push Not at hneg
   obtain ⟨δ, hδ_pos, hδ⟩ := Metric.continuousAt_iff.mp hf (-f r / 2) (by linarith)
   let x := r + δ / 2
   have hx_ne : x ≠ r := by
@@ -69,7 +69,7 @@ theorem continuousAt_eq_zero_of_right_nonneg_left_nonpos {f : ℝ → ℝ} {r : 
     (hleft : ∀ x, x < r → f x ≤ 0) : f r = 0 := by
   have hnonneg : 0 ≤ f r := by
     by_contra hneg
-    push_neg at hneg
+    push Not at hneg
     obtain ⟨δ, hδ_pos, hδ⟩ := Metric.continuousAt_iff.mp hf (-f r / 2) (by linarith)
     let x := r + δ / 2
     have hx_gt : r < x := by simp [x]; linarith
@@ -86,7 +86,7 @@ theorem continuousAt_eq_zero_of_right_nonneg_left_nonpos {f : ℝ → ℝ} {r : 
     exact not_le_of_gt hx_neg (hright x hx_gt)
   have hnonpos : f r ≤ 0 := by
     by_contra hpos
-    push_neg at hpos
+    push Not at hpos
     obtain ⟨δ, hδ_pos, hδ⟩ := Metric.continuousAt_iff.mp hf (f r / 2) (by linarith)
     let x := r - δ / 2
     have hx_lt : x < r := by simp [x]; linarith

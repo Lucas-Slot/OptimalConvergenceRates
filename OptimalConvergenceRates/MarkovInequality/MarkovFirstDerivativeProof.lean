@@ -269,7 +269,7 @@ private theorem common_sign_of_pairwise_mul_nonneg
   classical
   by_cases hnonneg : ∀ i : ι, 0 ≤ f i
   · exact Or.inl hnonneg
-  · push_neg at hnonneg
+  · push Not at hnonneg
     rcases hnonneg with ⟨i0, hi0⟩
     refine Or.inr ?_
     intro j
@@ -616,6 +616,7 @@ private theorem one_div_sub_right_sub_one_div_sub_left_neg
   have hxb_ne : x - b ≠ 0 := by linarith
   have hxa_ne : x - a ≠ 0 := by linarith
   field_simp [hxb_ne, hxa_ne]
+  rw [mul_zero]
   apply div_neg_of_pos_of_neg
   · linarith
   · nlinarith
@@ -660,7 +661,7 @@ private theorem node_separated_of_mem_adjacent_interval
           exact heq
         rw [hidx]
       · have hlt : k.val < j.val := lt_of_le_of_ne hk heq
-        exact le_of_lt (hτ_strict (by simpa using hlt))
+        exact le_of_lt (hτ_strict (by exact (Fin.mk_lt_mk).2 hlt))
     exact ⟨lt_of_le_of_lt hkle hx.1, lt_of_le_of_lt hkle hy.1⟩
   · left
     have hjk : j.val + 1 ≤ k.val := by omega
@@ -671,7 +672,7 @@ private theorem node_separated_of_mem_adjacent_interval
           exact heq
         rw [hidx]
       · have hlt : j.val + 1 < k.val := lt_of_le_of_ne hjk (Ne.symm heq)
-        exact le_of_lt (hτ_strict (by simpa using hlt))
+        exact le_of_lt (hτ_strict (by exact (Fin.mk_lt_mk).2 hlt))
     exact ⟨lt_of_lt_of_le hx.2 hle, lt_of_lt_of_le hy.2 hle⟩
 
 private theorem ne_node_of_mem_adjacent_interval
@@ -1590,7 +1591,7 @@ private theorem markovAuxB_eval_ne_zero_of_mem_not_first_interval
   apply mul_ne_zero
   · simp only [Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_one]
     have hneglt : -1 < x := by
-      have hnode_lt : τ 0 < τ ⟨j.val, by omega⟩ := hτ_strict (by simpa using hjfirst)
+      have hnode_lt : τ 0 < τ ⟨j.val, by omega⟩ := hτ_strict (by exact (Fin.mk_lt_mk).2 hjfirst)
       rw [hτ_left] at hnode_lt
       exact lt_trans hnode_lt hx.1
     linarith

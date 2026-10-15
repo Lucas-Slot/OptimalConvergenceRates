@@ -58,7 +58,7 @@ theorem genLasserreBoundQM_ge_feasible
     (l : WithBot ℝ) ≤ genLasserreBoundQM g f r := by
   unfold genLasserreBoundQM
   have hne : {l : ℝ | f - C l ∈ GenQuadraticModule g r}.Nonempty := ⟨l, hl⟩
-  rw [dif_pos hne]
+  rw [dite_eq_left hne]
   exact WithBot.coe_le_coe.mpr
     (le_csSup (genLasserre_feasible_bddAbove hK harch f r) hl)
 

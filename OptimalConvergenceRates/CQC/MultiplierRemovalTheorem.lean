@@ -146,9 +146,15 @@ theorem removePositiveMultiplier_log
   have hsum := genQuadraticModule_add hcert hgap
   have htarget : p + C (c * δ) ∈
       GenQuadraticModule g (r + slope * (ell + 1)) := by
-    convert hsum using 1
-    simp only [map_sub, map_add]
-    ring
+    have hpoly :
+        p + C (B * (2 * (1 - α / β) ^ (ell + 1)) + δ * α⁻¹ ^ 2) +
+            C (c * δ - (B * (2 * θ ^ (ell + 1)) + δ * α⁻¹ ^ 2)) =
+          p + C (c * δ) := by
+      dsimp [θ]
+      simp only [map_sub, map_add]
+      ring
+    rw [← hpoly]
+    simpa [slope] using hsum
   have hlogNonneg : 0 ≤ 1 + Real.log (1 / δ) := by
     have hloginv : 0 ≤ Real.log (1 / δ) := by
       apply Real.log_nonneg

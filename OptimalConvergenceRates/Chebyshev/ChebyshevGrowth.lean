@@ -283,7 +283,7 @@ private theorem chebyshevT_extremal_one_sided (d : ℕ) (p : Polynomial ℝ) (hp
     exact le_of_abs_le h0
   -- d ≥ 1
   by_contra h_neg
-  push_neg at h_neg
+  push Not at h_neg
   -- h_neg: (chebyshevT d).eval x < p.eval x
   -- Define px = p.eval x, Tx = T_d(x)
   set px := p.eval x with hpx_def
@@ -433,7 +433,7 @@ private theorem chebyshevT_extremal_one_sided (d : ℕ) (p : Polynomial ℝ) (hp
           (fun h => by rw [← h] at hr_eq; linarith)
       · exact lt_of_le_of_ne (Set.mem_Icc.mp hr_mem).2
           (fun h => by rw [h] at hr_eq; linarith)
-    · push_neg at hqk_pos
+    · push Not at hqk_pos
       have hqk_neg : q.eval (Polynomial.Chebyshev.node d k) < 0 :=
         lt_of_le_of_ne hqk_pos hqk_ne
       have hqk1_pos : 0 < q.eval (Polynomial.Chebyshev.node d (k + 1)) := by nlinarith
@@ -499,7 +499,7 @@ private theorem chebyshevT_extremal_one_sided (d : ℕ) (p : Polynomial ℝ) (hp
       · -- both < d
         ext
         by_contra hab
-        push_neg at hab
+        push Not at hab
         rcases lt_or_gt_of_ne hab with hij | hji
         · exact hroots_distinct ⟨i, h1⟩ ⟨j, h2⟩ hij heq
         · exact hroots_distinct ⟨j, h2⟩ ⟨i, h1⟩ hji heq.symm
@@ -604,7 +604,7 @@ theorem chebyshevT_extremal (d : ℕ) (p : Polynomial ℝ) (hp : p.natDegree ≤
         _ ≤ c * (chebyshevT d).eval x := by
             exact mul_le_mul_of_nonneg_left h (le_of_lt hsup_pos')
     · -- x < 0, so |x| = -x and -x ≥ 1
-      push_neg at hx_nn
+      push Not at hx_nn
       rw [abs_of_neg hx_nn] at hx ⊢
       -- Consider r(t) = p(-t) = p.comp (-X)
       set r := p.comp (-Polynomial.X) with hr_def

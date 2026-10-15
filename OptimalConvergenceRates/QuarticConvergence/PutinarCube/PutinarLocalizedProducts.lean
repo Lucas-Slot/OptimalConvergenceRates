@@ -38,7 +38,7 @@ theorem cubeVariableProduct_totalDegree_le_card (L : Finset (Fin j)) :
   calc
     (∏ i ∈ L, (X i : MvPolynomial (Fin j) ℝ)).totalDegree ≤
         ∑ i ∈ L, (X i : MvPolynomial (Fin j) ℝ).totalDegree :=
-      MvPolynomial.totalDegree_finset_prod L _
+      MvPolynomial.totalDegree_finsetProd L _
     _ = L.card := by simp
 
 /-- The ordered telescoping identity for a square-free coordinate monomial. -/

@@ -108,7 +108,8 @@ theorem slackZeroSet_eq_iUnion_signedSlackLift
       · have hy0 : 0 ≤ slackPoint z i := le_of_not_gt hy
         have hy0' : 0 ≤ z (Fin.natAdd n i) := by
           simpa [slackPoint] using hy0
-        simp [s, hy, hy0', hsquare, Real.sqrt_sq_eq_abs, slackPoint]
+        have hnot : ¬ z (Fin.natAdd n i) < 0 := not_lt.mpr hy0'
+        simp [s, hy, hy0', hnot, hsquare, Real.sqrt_sq_eq_abs, slackPoint]
   · intro hz
     simp only [Set.mem_iUnion] at hz
     obtain ⟨s, x, hx, rfl⟩ := hz

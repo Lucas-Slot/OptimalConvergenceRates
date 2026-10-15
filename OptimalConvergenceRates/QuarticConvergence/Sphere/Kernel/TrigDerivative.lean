@@ -174,7 +174,7 @@ theorem sphereGreatCirclePoint_mem {n : ℕ} (x u : Fin n → ℝ)
   have hsqrt : (Real.sqrt (1 - t ^ 2)) ^ 2 = 1 - t ^ 2 :=
     Real.sq_sqrt hsnonneg
   simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X,
-    Set.mem_setOf_eq]
+    Set.mem_ofPred_eq]
   calc
     (∑ i, (t * x i + Real.sqrt (1 - t ^ 2) * u i) ^ 2) =
         t ^ 2 * (∑ i, x i ^ 2) +
@@ -363,9 +363,9 @@ theorem coefficientPolynomialSymmetricPart_expand_contract
   intro k
   rw [Polynomial.coeff_expand (by norm_num : 0 < (2 : ℕ))]
   by_cases hk : 2 ∣ k
-  · rw [if_pos hk, Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0),
+  · rw [ite_eq_left hk, Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0),
       Nat.div_mul_cancel hk]
-  · rw [if_neg hk]
+  · rw [ite_eq_right hk]
     exact (coefficientPolynomialSymmetricPart_odd_coeff_eq_zero P hk).symm
 
 /-- Evaluating the contracted symmetric polynomial at a square is the sum of
@@ -504,7 +504,7 @@ theorem exists_axialReflection_evenRestrictionPolynomial_zero
     (mem_spherePolynomialSpace_iff v.1).1 v.2
   have hPzero : P.totalDegree = 0 := Nat.eq_zero_of_le_zero hPdeg
   have hPconst := (MvPolynomial.totalDegree_eq_zero_iff_eq_C).1 hPzero
-  let c := MvPolynomial.coeff 0 P
+  let c := legacyMvCoeff 0 P
   have hvconst : v = spherePolynomialConst n 0 c := by
     apply Subtype.ext
     change v.1 = (spherePolynomialConst n 0 c).1
@@ -517,7 +517,7 @@ theorem exists_axialReflection_evenRestrictionPolynomial_zero
     ?_, ?_, ?_⟩
   · intro _t _htLower _htUpper
     have hcabs : |c| ≤ ‖spherePolynomialConst n 0 c‖ := by
-      simpa only [spherePolynomialConst_apply, Real.norm_eq_abs] using
+      simpa only [spherePolynomialConst_apply, Real.norm_eq_abs, Submodule.norm_coe] using
         ContinuousMap.norm_coe_le_norm
           (spherePolynomialConst n 0 c).1 x
     rw [Polynomial.eval_C, abs_mul, abs_of_nonneg (by norm_num : (0 : ℝ) ≤ 2)]
@@ -560,9 +560,9 @@ theorem exists_axialReflection_evenRestrictionPolynomial_one
     rw [hxneg]
     exact hPval xneg
   have hxbound : |v.1 x| ≤ ‖v‖ := by
-    simpa only [Real.norm_eq_abs] using ContinuousMap.norm_coe_le_norm v.1 x
+    simpa only [Real.norm_eq_abs, Submodule.norm_coe] using ContinuousMap.norm_coe_le_norm v.1 x
   have hxnegbound : |v.1 xneg| ≤ ‖v‖ := by
-    simpa only [Real.norm_eq_abs] using ContinuousMap.norm_coe_le_norm v.1 xneg
+    simpa only [Real.norm_eq_abs, Submodule.norm_coe] using ContinuousMap.norm_coe_le_norm v.1 xneg
   refine ⟨q, hqdeg, ?_, ?_, ?_⟩
   · intro t htLower htUpper
     have hinterp := polynomial_two_mul_eval_eq_endpoint_interpolation r hrdeg t
@@ -650,9 +650,9 @@ theorem exists_axialReflection_evenRestrictionPolynomial_endpoint
       Polynomial.eval_C, Polynomial.eval_X]
     ring
   have hxbound : |v.1 x| ≤ ‖v‖ := by
-    simpa only [Real.norm_eq_abs] using ContinuousMap.norm_coe_le_norm v.1 x
+    simpa only [Real.norm_eq_abs, Submodule.norm_coe] using ContinuousMap.norm_coe_le_norm v.1 x
   have hxnegbound : |v.1 xneg| ≤ ‖v‖ := by
-    simpa only [Real.norm_eq_abs] using ContinuousMap.norm_coe_le_norm v.1 xneg
+    simpa only [Real.norm_eq_abs, Submodule.norm_coe] using ContinuousMap.norm_coe_le_norm v.1 xneg
   refine ⟨q, hqdegOne.trans hD, ?_, ?_, ?_⟩
   · intro t htLower htUpper
     have hnonnegLeft : 0 ≤ 1 + t := by linarith
@@ -836,9 +836,9 @@ theorem exists_axialReflection_evenRestrictionPolynomial_nonendpoint
           |v.1 ⟨zplus, hzplus⟩| + |v.1 ⟨zminus, hzminus⟩| :=
         abs_add_le _ _
       _ ≤ ‖v‖ + ‖v‖ := add_le_add
-        (by simpa only [Real.norm_eq_abs] using
+        (by simpa only [Real.norm_eq_abs, Submodule.norm_coe] using
           ContinuousMap.norm_coe_le_norm v.1 ⟨zplus, hzplus⟩)
-        (by simpa only [Real.norm_eq_abs] using
+        (by simpa only [Real.norm_eq_abs, Submodule.norm_coe] using
           ContinuousMap.norm_coe_le_norm v.1 ⟨zminus, hzminus⟩)
       _ = 2 * ‖v‖ := by ring
   · have hplus :

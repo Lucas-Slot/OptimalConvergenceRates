@@ -125,7 +125,7 @@ theorem split_bounded_appendGenerator_refutation
     rw [appendGenerator_product_eq] at hdegree
     by_cases hJ : hasLast J
     · simp only [hasLast] at hJ
-      rw [if_pos hJ] at hdegree
+      rw [ite_eq_left hJ] at hdegree
       by_cases hbase0 : base J = 0
       · simp [hbase0]
       have hmul : (base J * h).totalDegree ≤ r := by
@@ -133,7 +133,7 @@ theorem split_bounded_appendGenerator_refutation
       rw [MvPolynomial.totalDegree_mul_of_isDomain hbase0 hh] at hmul
       omega
     · simp only [hasLast] at hJ ⊢
-      rw [if_neg hJ] at hdegree
+      rw [ite_eq_right hJ] at hdegree
       simpa only [base, mul_one] using hdegree
   have hbaseMem (J : Finset (Fin (m + 1))) :
       base J ∈ GenPreordering g r := by
@@ -202,14 +202,14 @@ theorem split_bounded_appendGenerator_refutation
           intro J hJ
           have hlast : Fin.last m ∈ J := by
             exact (Finset.mem_filter.mp hJ).2
-          rw [appendGenerator_product_eq, if_pos hlast]
+          rw [appendGenerator_product_eq, ite_eq_left hlast]
           simp only [base]
           ring
         · apply Finset.sum_congr rfl
           intro J hJ
           have hlast : Fin.last m ∉ J := by
             exact (Finset.mem_filter.mp hJ).2
-          rw [appendGenerator_product_eq, if_neg hlast]
+          rw [appendGenerator_product_eq, ite_eq_right hlast]
           simp only [base]
           ring
       _ = s + h * t := by ring

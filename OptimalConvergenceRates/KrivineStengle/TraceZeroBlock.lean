@@ -57,9 +57,9 @@ private theorem traceZeroBlock_diagonalization_of_ne_zero
     (a b : F) (ha : a ≠ 0) (x : Fin 2 → F) :
     weightedSumSquares F ![a, -(a ^ 2 + b ^ 2) / a]
         (traceZeroBlockShear (b / a) x) =
-      (!![a, b; b, -a] : Matrix (Fin 2) (Fin 2) F).toQuadraticMap' x := by
+      (!![a, b; b, -a] : Matrix (Fin 2) (Fin 2) F).toQuadraticForm' x := by
   simp [weightedSumSquares_apply, Fin.sum_univ_two, smul_eq_mul,
-    traceZeroBlockShear, Matrix.toQuadraticMap',
+    traceZeroBlockShear, Matrix.toQuadraticForm', Matrix.toQuadraticForm',
     LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply',
     dotProduct, Matrix.mulVec, Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one]
@@ -71,9 +71,9 @@ set_option maxHeartbeats 800000 in
 private theorem traceZeroBlock_diagonalization_zero_left (b : F)
     (x : Fin 2 → F) :
     weightedSumSquares F ![b / 2, -(b / 2)] (traceZeroBlockRotate x) =
-      (!![0, b; b, 0] : Matrix (Fin 2) (Fin 2) F).toQuadraticMap' x := by
+      (!![0, b; b, 0] : Matrix (Fin 2) (Fin 2) F).toQuadraticForm' x := by
   simp [weightedSumSquares_apply, Fin.sum_univ_two, smul_eq_mul,
-    traceZeroBlockRotate, Matrix.toQuadraticMap',
+    traceZeroBlockRotate, Matrix.toQuadraticForm', Matrix.toQuadraticForm',
     LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply',
     dotProduct, Matrix.mulVec, Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one]
@@ -136,9 +136,9 @@ private theorem twoByTwo_diagonalization_of_left_ne_zero
     (a b c : F) (ha : a ≠ 0) (x : Fin 2 → F) :
     weightedSumSquares F ![a, c - b ^ 2 / a]
         (traceZeroBlockShear (b / a) x) =
-      (!![a, b; b, c] : Matrix (Fin 2) (Fin 2) F).toQuadraticMap' x := by
+      (!![a, b; b, c] : Matrix (Fin 2) (Fin 2) F).toQuadraticForm' x := by
   simp [weightedSumSquares_apply, Fin.sum_univ_two, smul_eq_mul,
-    traceZeroBlockShear, Matrix.toQuadraticMap',
+    traceZeroBlockShear, Matrix.toQuadraticForm', Matrix.toQuadraticForm',
     LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply',
     dotProduct, Matrix.mulVec, Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one]
@@ -151,10 +151,10 @@ private theorem twoByTwo_diagonalization_of_left_zero
     (b c : F) (hb : b ≠ 0) (x : Fin 2 → F) :
     weightedSumSquares F ![b / 2, -(b / 2)]
         ((traceZeroBlockShear (c / (2 * b))).trans traceZeroBlockRotate x) =
-      (!![0, b; b, c] : Matrix (Fin 2) (Fin 2) F).toQuadraticMap' x := by
+      (!![0, b; b, c] : Matrix (Fin 2) (Fin 2) F).toQuadraticForm' x := by
   simp [weightedSumSquares_apply, Fin.sum_univ_two, smul_eq_mul,
     LinearEquiv.trans_apply, traceZeroBlockShear, traceZeroBlockRotate,
-    Matrix.toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply,
+    Matrix.toQuadraticForm', Matrix.toQuadraticForm', LinearMap.BilinMap.toQuadraticMap_apply,
     Matrix.toLinearMap₂'_apply', dotProduct, Matrix.mulVec,
     Matrix.cons_val_zero, Matrix.cons_val_one,
     Matrix.cons_val_fin_one]

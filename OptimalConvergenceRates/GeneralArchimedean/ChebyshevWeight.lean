@@ -68,7 +68,8 @@ theorem shiftedChebyshev_coeffNonneg_and_diff (N : ℕ) :
         ring
       rw [hdiff]
       have htwo : CoeffNonneg (2 : Polynomial ℝ) := by
-        simpa using coeffNonneg_C (show (0 : ℝ) ≤ 2 by norm_num)
+        intro k
+        cases k <;> norm_num
       exact ((htwo.mul coeffNonneg_X).mul hSnext).add hD
 
 theorem shiftedChebyshev_coeffNonneg (N : ℕ) :

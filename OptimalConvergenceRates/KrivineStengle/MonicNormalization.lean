@@ -86,8 +86,8 @@ theorem monicNormalizedCoefficient_valid {n : ℕ} {F : Type*}
     (f : (MvPolynomial (Fin n) ℝ)[X]) (d j : ℕ)
     (hdegree : ActualDegreeCondition coeff x f d) :
     (monicNormalizedCoefficient f d j).Valid coeff x := by
-  simpa [monicNormalizedCoefficient, ActualDegreeCondition,
-    specializePolynomial, Polynomial.coeff_map] using hdegree.1
+  change eval₂Hom coeff x (f.coeff d) ≠ 0
+  simpa [ActualDegreeCondition, specializePolynomial, Polynomial.coeff_map] using hdegree.1
 
 theorem eval_monicNormalizedCoefficient {n : ℕ} {F : Type*}
     [Field F] (coeff : ℝ →+* F) (x : Fin n → F)

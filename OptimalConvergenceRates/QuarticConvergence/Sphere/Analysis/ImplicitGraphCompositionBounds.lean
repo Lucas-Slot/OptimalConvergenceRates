@@ -31,7 +31,7 @@ private theorem norm_iteratedFDeriv_id_le_one
   have hfd : fderiv ℝ (fun w : Fin n → ℝ ↦ w) =
       fun _ ↦ ContinuousLinearMap.id ℝ (Fin n → ℝ) := by
     funext w
-    rw [fderiv_id']
+    rw [fderiv_fun_id]
   interval_cases q
   · rw [norm_iteratedFDeriv_one, hfd]
     apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
@@ -105,7 +105,12 @@ theorem norm_iteratedFDeriv_normalCurvature_comp_graph_le
       norm_iteratedFDeriv_implicitGraphLift_le graph y hB
         (fun k hkOne hki ↦ hgraph k hkOne (hki.trans hi)) hiOne
         ((hi.trans hq).trans (by norm_num : 4 ≤ 5)))
-  simpa only [Function.comp_apply] using hcomp
+  have hfunctions :
+      (fun w ↦ implicitGraphNormalCurvatureField input (implicitGraphLift graph w)) =
+        implicitGraphNormalCurvatureField input ∘ implicitGraphLift graph := by
+    rfl
+  rw [hfunctions]
+  exact hcomp
 
 -- The lower bound on M is retained for the common chain-rule interface.
 set_option linter.unusedVariables false in
@@ -134,7 +139,12 @@ theorem norm_iteratedFDeriv_normalTangential_comp_graph_le
       norm_iteratedFDeriv_implicitGraphLift_le graph y hB
         (fun k hkOne hki ↦ hgraph k hkOne (hki.trans hi)) hiOne
         ((hi.trans hq).trans (by norm_num : 4 ≤ 5)))
-  simpa only [Function.comp_apply] using hcomp
+  have hfunctions :
+      (fun w ↦ implicitGraphNormalTangentialField input (implicitGraphLift graph w)) =
+        implicitGraphNormalTangentialField input ∘ implicitGraphLift graph := by
+    rfl
+  rw [hfunctions]
+  exact hcomp
 
 end QuarticConvergence
 end OptimalConvergenceRates

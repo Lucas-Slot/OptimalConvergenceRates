@@ -70,17 +70,20 @@ theorem matrixSignature_rankOne_succ {k : ℕ} (c : F)
     (v : Fin (k + 1) → F) (hv : v 0 = 1) :
     matrixSignature (fun i j ↦ c * v i * v j) = orderedSign c := by
   let diagonal : Fin (k + 1) → F := fun i ↦ if i = 0 then c else 0
-  rw [matrixSignature]
+  let M : Matrix (Fin (k + 1)) (Fin (k + 1)) F := fun i j ↦ c * v i * v j
+  change matrixSignature M = orderedSign c
+  unfold matrixSignature
   calc
-    signature (Matrix.toQuadraticMap' (fun i j ↦ c * v i * v j)) =
+    signature (Matrix.toQuadraticForm' M) =
         signature (weightedSumSquares F diagonal) := by
       apply signature_congr (rankOneShear v)
       intro x
       simp only [weightedSumSquares_apply, smul_eq_mul]
       rw [Fin.sum_univ_succ, rankOneShear_apply_zero v hv]
       simp [diagonal]
-      simp only [Matrix.toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply,
+      simp only [Matrix.toQuadraticForm', Matrix.toQuadraticForm', LinearMap.BilinMap.toQuadraticMap_apply,
         Matrix.toLinearMap₂'_apply', dotProduct, Matrix.mulVec]
+      simp only [M]
       let s := ∑ i, v i * x i
       have hrow (i : Fin (k + 1)) :
           (∑ j, c * v i * v j * x j) = c * v i * s := by

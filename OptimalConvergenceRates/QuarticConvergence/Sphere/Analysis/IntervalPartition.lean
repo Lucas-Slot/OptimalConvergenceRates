@@ -144,7 +144,7 @@ theorem intervalRawBumpInt_eq_one {z : ℤ} {t : ℝ}
     (ht : t ∈ Metric.closedBall (z : ℝ) 1) :
     intervalRawBumpInt z t = 1 := by
   apply intervalUnitRawBump.one_of_mem_closedBall
-  simpa [Metric.mem_closedBall, Real.dist_eq] using ht
+  simpa [intervalUnitRawBump, Metric.mem_closedBall, Real.dist_eq] using ht
 
 /-- Every real point lies in the unit core of one integer-lattice bump. -/
 theorem exists_intervalRawBump_eq_one (t : ℝ) :
@@ -337,7 +337,7 @@ theorem real_rescaledFunction_scaled_deriv_bound
   have hprod : (∏ _ : Fin j, ‖L‖) ≤ (r⁻¹) ^ j := by
     calc
       (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, r⁻¹ :=
-        Finset.prod_le_prod (fun _ _ => norm_nonneg L) (fun _ _ => hnormL)
+        Finset.prod_le_prod₀ (fun _ _ => norm_nonneg L) (fun _ _ => hnormL)
       _ = (r⁻¹) ^ j := by simp
   calc
     ‖(iteratedFDeriv ℝ j f (L t)).compContinuousLinearMap (fun _ => L)‖ * r ^ j ≤
@@ -411,7 +411,7 @@ theorem scaledIntervalCutoff_pointFinite (r t : ℝ) :
 theorem scaledIntervalCutoff_mul_square_tsum {r : ℝ} (hr : 0 < r) (t a : ℝ) :
     ∑' i : ℕ, (scaledIntervalCutoff r i t * a) ^ 2 = a ^ 2 := by
   have hsummable : Summable (fun i : ℕ => scaledIntervalCutoff r i t ^ 2) := by
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     exact (scaledIntervalCutoff_pointFinite r t).subset (by
       intro i hi
       change scaledIntervalCutoff r i t ≠ 0
@@ -450,7 +450,7 @@ namespace ScaledIntervalSquarePartition
 theorem summable_cutoff_sq {r D C : ℝ} {B : ℕ}
     (partition : ScaledIntervalSquarePartition r D C B) (t : ℝ) :
     Summable (fun i : ℕ => partition.cutoff i t ^ 2) := by
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   exact (partition.point_finite t).subset (by
     intro i hi
     change partition.cutoff i t ≠ 0

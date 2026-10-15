@@ -23,7 +23,7 @@ smooth roots will satisfy this after their compact radial extension. -/
 def ZonalKernelCoeffIntegrable {n : ℕ} (p k : ℕ) (v : sphereSet n → ℝ) : Prop :=
   ∀ α : ExpLE n (2 * (p * k)),
     Integrable (fun y : sphereSet n ↦ v y *
-      MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1))
+      legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1))
       (normalizedSphereMeasure n)
 
 /-- Integrate the finitely many coefficients of the zonal kernel against an
@@ -33,7 +33,7 @@ noncomputable def functionZonalKernelPolynomial {n : ℕ}
     (p k : ℕ) (v : sphereSet n → ℝ) : MvPolynomial (Fin n) ℝ :=
   polyOfVec (2 * (p * k)) fun α ↦
     ∫ y : sphereSet n, v y *
-      MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1)
+      legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1)
         ∂normalizedSphereMeasure n
 
 /-- The coefficient-integrated zonal transform has the kernel section's
@@ -60,7 +60,7 @@ theorem eval_functionZonalKernelPolynomial {n : ℕ}
   have heval (y : sphereSet n) :
       MvPolynomial.eval x (sphereDirichletZonalKernel p k y.1) =
         ∑ α : ExpLE n d,
-          MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1) *
+          legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1) *
             α.1.prod fun i e ↦ x i ^ e := by
     calc
       MvPolynomial.eval x (sphereDirichletZonalKernel p k y.1) =
@@ -78,18 +78,18 @@ theorem eval_functionZonalKernelPolynomial {n : ℕ}
   change MvPolynomial.eval x
       (polyOfVec d fun α ↦
         ∫ y : sphereSet n, v y *
-          MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1)
+          legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1)
             ∂normalizedSphereMeasure n) = _
   simp only [polyOfVec, map_sum, MvPolynomial.eval_monomial]
   calc
     (∑ α : ExpLE n d,
       (∫ y : sphereSet n, v y *
-        MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1)
+        legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1)
           ∂normalizedSphereMeasure n) *
         α.1.prod fun i e ↦ x i ^ e) =
       ∑ α : ExpLE n d,
         ∫ y : sphereSet n,
-          (v y * MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1)) *
+          (v y * legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1)) *
             (α.1.prod fun i e ↦ x i ^ e)
           ∂normalizedSphereMeasure n := by
       apply Finset.sum_congr rfl
@@ -97,10 +97,10 @@ theorem eval_functionZonalKernelPolynomial {n : ℕ}
       rw [integral_mul_const]
     _ = ∫ y : sphereSet n,
         ∑ α : ExpLE n d,
-          (v y * MvPolynomial.coeff α.1 (sphereDirichletZonalKernel p k y.1)) *
+          (v y * legacyMvCoeff α.1 (sphereDirichletZonalKernel p k y.1)) *
             (α.1.prod fun i e ↦ x i ^ e)
         ∂normalizedSphereMeasure n := by
-      rw [integral_finset_sum]
+      rw [integral_finsetSum]
       intro α _
       exact (hv α).mul_const _
     _ = ∫ y : sphereSet n, v y *

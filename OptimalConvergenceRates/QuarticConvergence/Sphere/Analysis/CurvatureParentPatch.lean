@@ -203,7 +203,7 @@ theorem doubledCurvaturePullback_normal_curvature {n : ℕ}
   have hpull : ContDiff ℝ 2 (Φ ∘ T) :=
     (hΦ.of_le (by norm_num)).comp T.contDiff
   rw [iteratedFDeriv_const_smul_apply hpull.contDiffAt]
-  rw [ContinuousMultilinearMap.smul_apply, smul_eq_mul]
+  rw [smul_apply, smul_eq_mul]
   have hcomp :
       iteratedFDeriv ℝ 2 (Φ ∘ T) z =
         (iteratedFDeriv ℝ 2 Φ (T z)).compContinuousLinearMap
@@ -395,7 +395,7 @@ theorem doubledCurvaturePullback_normal_fderiv {n : ℕ}
     (hΦ.of_le (by norm_num)).comp T.contDiff
   rw [iteratedFDeriv_const_smul_apply
     (i := 1) (a := (2 : ℝ)) (f := Φ ∘ T) (x := z) hpull.contDiffAt]
-  rw [ContinuousMultilinearMap.smul_apply, smul_eq_mul]
+  rw [smul_apply, smul_eq_mul]
   have hcomp :
       iteratedFDeriv ℝ 1 (Φ ∘ T) z =
         (iteratedFDeriv ℝ 1 Φ (T z)).compContinuousLinearMap
@@ -628,10 +628,12 @@ theorem bounded_normal_endpoint_signs
     have hderiv (t : ℝ) :
         deriv φ t = fderiv ℝ N (t, y) (splitNormalDirection n) := by
       have hline : HasDerivAt (fun s : ℝ ↦ (s, y)) (splitNormalDirection n) t := by
-        convert (hasDerivAt_id t).prodMk (hasDerivAt_const t y) using 1
+        simpa [splitNormalDirection] using
+          (hasDerivAt_id t).prodMk (hasDerivAt_const t y)
       have hchain :=
         (hN.differentiable (by norm_num) (t, y)).hasFDerivAt.comp_hasDerivAt t hline
-      simpa [φ] using hchain.deriv
+      change deriv (N ∘ fun s : ℝ ↦ (s, y)) t = _
+      exact hchain.deriv
     have hlower : ∀ t ∈ interior (Set.Icc (-a) a), (1 / 4 : ℝ) ≤ deriv φ t := by
       intro t ht
       rw [hderiv]
@@ -652,10 +654,12 @@ theorem bounded_normal_endpoint_signs
     have hderiv (t : ℝ) :
         deriv φ t = fderiv ℝ N (t, y) (splitNormalDirection n) := by
       have hline : HasDerivAt (fun s : ℝ ↦ (s, y)) (splitNormalDirection n) t := by
-        convert (hasDerivAt_id t).prodMk (hasDerivAt_const t y) using 1
+        simpa [splitNormalDirection] using
+          (hasDerivAt_id t).prodMk (hasDerivAt_const t y)
       have hchain :=
         (hN.differentiable (by norm_num) (t, y)).hasFDerivAt.comp_hasDerivAt t hline
-      simpa [φ] using hchain.deriv
+      change deriv (N ∘ fun s : ℝ ↦ (s, y)) t = _
+      exact hchain.deriv
     have hlower : ∀ t ∈ interior (Set.Icc (-a) a), (1 / 4 : ℝ) ≤ deriv φ t := by
       intro t ht
       rw [hderiv]
@@ -804,16 +808,19 @@ def BoundedNormalizedLocalSplitInput.toNormalizedLocalSplitInputZero
   normal_derivative_left_nonpos := by
     intro y
     apply input.normal_derivative_left_nonpos y
-    simpa using input.tangentialRadius_pos.le
+    rw [show ‖y‖ = 0 from norm_eq_zero.mpr (Subsingleton.elim _ _)]
+    exact input.tangentialRadius_pos.le
   normal_derivative_right_nonneg := by
     intro y
     apply input.normal_derivative_right_nonneg y
-    simpa using input.tangentialRadius_pos.le
+    rw [show ‖y‖ = 0 from norm_eq_zero.mpr (Subsingleton.elim _ _)]
+    exact input.tangentialRadius_pos.le
   normal_curvature := by
     intro z hz
     apply input.normal_curvature z
     refine ⟨(abs_le).2 hz, ?_⟩
-    simpa using input.tangentialRadius_pos.le
+    rw [show ‖z.2‖ = 0 from norm_eq_zero.mpr (Subsingleton.elim _ _)]
+    exact input.tangentialRadius_pos.le
 
 /-- Bounded split data tied to the parent function, rather than merely asserting that
 some abstract bounded input exists.  The equations retain the coordinate frame, amplitude

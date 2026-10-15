@@ -184,9 +184,10 @@ exponent map that doubles the third exponent. -/
 theorem zSquareSubst3_support (p : MvPolynomial (Fin 3) ℝ) :
     (zSquareSubst3 p).support = Finset.image zSquareExp3AddMonoidHom p.support := by
   rw [zSquareSubst3_eq_mapDomain]
-  change (AddMonoidAlgebra.mapDomain zSquareExp3AddMonoidHom p).support =
+  change MvPolynomial.support
+      (AddMonoidAlgebra.mapDomain zSquareExp3AddMonoidHom p) =
     Finset.image zSquareExp3AddMonoidHom p.support
-  exact Finsupp.mapDomain_support_of_injective zSquareExp3AddMonoidHom_injective p
+  exact Finsupp.mapDomain_support_of_injective zSquareExp3AddMonoidHom_injective p.coeff
 
 /-- The source weighted degree of one exponent is the ordinary total degree after
 substituting `z^2` for the third variable. -/
@@ -920,9 +921,9 @@ theorem totalDegree_aeval_le_of_linear {n m : ℕ}
   intro d hd
   rw [MvPolynomial.aeval_monomial]
   calc
-    (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (MvPolynomial.coeff d p) *
+    (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (legacyMvCoeff d p) *
         d.prod fun i k => f i ^ k).totalDegree
-        ≤ (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (MvPolynomial.coeff d p)).totalDegree +
+        ≤ (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (legacyMvCoeff d p)).totalDegree +
             (d.prod fun i k => f i ^ k).totalDegree :=
           MvPolynomial.totalDegree_mul _ _
     _ = (d.prod fun i k => f i ^ k).totalDegree := by
@@ -930,7 +931,7 @@ theorem totalDegree_aeval_le_of_linear {n m : ℕ}
           simp
     _ ≤ ∑ i ∈ d.support, (f i ^ d i).totalDegree := by
           simp only [Finsupp.prod]
-          exact MvPolynomial.totalDegree_finset_prod d.support _
+          exact MvPolynomial.totalDegree_finsetProd d.support _
     _ ≤ ∑ i ∈ d.support, d i := by
           apply Finset.sum_le_sum
           intro i _
@@ -954,9 +955,9 @@ theorem totalDegree_aeval_le_of_quadratic {n m : ℕ}
   intro d hd
   rw [MvPolynomial.aeval_monomial]
   calc
-    (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (MvPolynomial.coeff d p) *
+    (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (legacyMvCoeff d p) *
         d.prod fun i k => f i ^ k).totalDegree
-        ≤ (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (MvPolynomial.coeff d p)).totalDegree +
+        ≤ (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (legacyMvCoeff d p)).totalDegree +
             (d.prod fun i k => f i ^ k).totalDegree :=
           MvPolynomial.totalDegree_mul _ _
     _ = (d.prod fun i k => f i ^ k).totalDegree := by
@@ -964,7 +965,7 @@ theorem totalDegree_aeval_le_of_quadratic {n m : ℕ}
           simp
     _ ≤ ∑ i ∈ d.support, (f i ^ d i).totalDegree := by
           simp only [Finsupp.prod]
-          exact MvPolynomial.totalDegree_finset_prod d.support _
+          exact MvPolynomial.totalDegree_finsetProd d.support _
     _ ≤ ∑ i ∈ d.support, 2 * d i := by
           apply Finset.sum_le_sum
           intro i _
@@ -1042,15 +1043,20 @@ theorem Phi_totalDegree_le {a b c : MvPolynomial (Fin 3) ℝ} {d : ℕ}
   have hb2c : (b ^ 2 * c).totalDegree ≤ 3 * d := totalDegree_pow_two_mul_le hb hc
   have hc2a : (c ^ 2 * a).totalDegree ≤ 3 * d := totalDegree_pow_two_mul_le hc ha
   have hc2b : (c ^ 2 * b).totalDegree ≤ 3 * d := totalDegree_pow_two_mul_le hc hb
+  have hadd {p q : MvPolynomial (Fin 3) ℝ}
+      (hp : p.totalDegree ≤ 3 * d) (hq : q.totalDegree ≤ 3 * d) :
+      (p + q).totalDegree ≤ 3 * d :=
+    (MvPolynomial.totalDegree_add p q).trans (max_le hp hq)
+  have hsub {p q : MvPolynomial (Fin 3) ℝ}
+      (hp : p.totalDegree ≤ 3 * d) (hq : q.totalDegree ≤ 3 * d) :
+      (p - q).totalDegree ≤ 3 * d :=
+    (MvPolynomial.totalDegree_sub p q).trans (max_le hp hq)
   have hsum :
       (a ^ 2 * b + a ^ 2 * c + b ^ 2 * a + b ^ 2 * c + c ^ 2 * a +
-        c ^ 2 * b).totalDegree ≤ 3 * d := by
-    repeat first | apply le_trans (MvPolynomial.totalDegree_add _ _) | apply max_le
-    all_goals assumption
+        c ^ 2 * b).totalDegree ≤ 3 * d :=
+    hadd (hadd (hadd (hadd (hadd ha2b ha2c) hb2a) hb2c) hc2a) hc2b
   unfold Phi
-  repeat first | apply le_trans (MvPolynomial.totalDegree_add _ _) |
-    apply le_trans (MvPolynomial.totalDegree_sub _ _) | apply max_le
-  all_goals assumption
+  exact hsub (hadd (hadd (hadd h3a h3b) h3c) habc) hsum
 
 /-- The squared-radius form has total degree at most two. -/
 theorem sphereSq_totalDegree_le_two :
@@ -1241,12 +1247,12 @@ intended uses carry a total-degree bound preventing that case.
 -/
 def homogenize2To3 (d : ℕ) (p : MvPolynomial (Fin 2) ℝ) :
     MvPolynomial (Fin 3) ℝ :=
-  p.sum fun e c => MvPolynomial.monomial (homExp2To3 d e) c
+  p.coeff.sum fun e c => MvPolynomial.monomial (homExp2To3 d e) c
 
 /-- Homogenization as an explicit finite sum over the support. -/
 theorem homogenize2To3_as_sum_support (d : ℕ) (p : MvPolynomial (Fin 2) ℝ) :
     homogenize2To3 d p =
-      ∑ e ∈ p.support, MvPolynomial.monomial (homExp2To3 d e) (MvPolynomial.coeff e p) := by
+      ∑ e ∈ p.support, MvPolynomial.monomial (homExp2To3 d e) (legacyMvCoeff e p) := by
   unfold homogenize2To3
   rfl
 
@@ -1270,10 +1276,10 @@ theorem homogenize2To3_monomial_mul {d e : ℕ} {a b : Fin 2 →₀ ℕ} {c k : 
         ((MvPolynomial.monomial a c : MvPolynomial (Fin 2) ℝ) * MvPolynomial.monomial b k) =
       homogenize2To3 d (MvPolynomial.monomial a c : MvPolynomial (Fin 2) ℝ) *
         homogenize2To3 e (MvPolynomial.monomial b k : MvPolynomial (Fin 2) ℝ) := by
-  rw [MvPolynomial.monomial_mul]
+  rw [MvPolynomial.monomial_mul_monomial]
   rw [homogenize2To3_monomial, homogenize2To3_monomial, homogenize2To3_monomial]
   rw [homExp2To3_add ha hb]
-  rw [MvPolynomial.monomial_mul]
+  rw [MvPolynomial.monomial_mul_monomial]
 
 /-- Homogenizing zero gives zero. -/
 theorem homogenize2To3_zero (d : ℕ) :
@@ -1292,11 +1298,10 @@ theorem homogenize2To3_add (d : ℕ) (p q : MvPolynomial (Fin 2) ℝ) :
 /-- Homogenization commutes with negation. -/
 theorem homogenize2To3_neg (d : ℕ) (p : MvPolynomial (Fin 2) ℝ) :
     homogenize2To3 d (-p) = -homogenize2To3 d p := by
+  classical
   unfold homogenize2To3
-  rw [Finsupp.sum_neg_index]
-  · simp [MvPolynomial.monomial]
-  · intro a
-    simp
+  rw [AddMonoidAlgebra.coeff_neg, Finsupp.sum_neg_index (fun _ => by simp)]
+  simp
 
 /-- Homogenization commutes with subtraction. -/
 theorem homogenize2To3_sub (d : ℕ) (p q : MvPolynomial (Fin 2) ℝ) :
@@ -1399,8 +1404,8 @@ theorem homogenize2To3_mul_of_totalDegree_le {d e : ℕ}
   classical
   have hprod : p * q =
       ∑ a ∈ p.support, ∑ b ∈ q.support,
-        MvPolynomial.monomial a (MvPolynomial.coeff a p) *
-          MvPolynomial.monomial b (MvPolynomial.coeff b q) := by
+        MvPolynomial.monomial a (legacyMvCoeff a p) *
+          MvPolynomial.monomial b (legacyMvCoeff b q) := by
     conv_lhs => rw [MvPolynomial.as_sum p, MvPolynomial.as_sum q]
     rw [Finset.sum_mul]
     apply Finset.sum_congr rfl
@@ -1410,16 +1415,16 @@ theorem homogenize2To3_mul_of_totalDegree_le {d e : ℕ}
     homogenize2To3 (d + e) (p * q)
         = ∑ a ∈ p.support, ∑ b ∈ q.support,
             homogenize2To3 (d + e)
-              (MvPolynomial.monomial a (MvPolynomial.coeff a p) *
-                MvPolynomial.monomial b (MvPolynomial.coeff b q)) := by
+              (MvPolynomial.monomial a (legacyMvCoeff a p) *
+                MvPolynomial.monomial b (legacyMvCoeff b q)) := by
             rw [hprod]
             rw [homogenize2To3_finset_sum]
             apply Finset.sum_congr rfl
             intro a _
             rw [homogenize2To3_finset_sum]
     _ = ∑ a ∈ p.support, ∑ b ∈ q.support,
-            homogenize2To3 d (MvPolynomial.monomial a (MvPolynomial.coeff a p)) *
-              homogenize2To3 e (MvPolynomial.monomial b (MvPolynomial.coeff b q)) := by
+            homogenize2To3 d (MvPolynomial.monomial a (legacyMvCoeff a p)) *
+              homogenize2To3 e (MvPolynomial.monomial b (legacyMvCoeff b q)) := by
             apply Finset.sum_congr rfl
             intro a ha
             apply Finset.sum_congr rfl
@@ -1630,6 +1635,13 @@ theorem Phi_mul_left {A : Type*} [CommRing A] (c a b d : A) :
   unfold Phi
   ring
 
+/-- Ring homomorphisms preserve the Robinson cubic. -/
+theorem map_Phi {A B : Type*} [CommRing A] [CommRing B]
+    (f : A →+* B) (a b c : A) :
+    f (Phi a b c) = Phi (f a) (f b) (f c) := by
+  simp only [Phi, map_add, map_sub, map_mul, map_pow]
+  rw [map_ofNat]
+
 /-- The squared-radius form is homogeneous of degree two. -/
 theorem sphereSq_isHomogeneous : sphereSq.IsHomogeneous 2 := by
   unfold sphereSq
@@ -1769,9 +1781,9 @@ theorem homBallSourceSubst_totalDegree_le_weighted
   intro d hd
   rw [MvPolynomial.aeval_monomial]
   calc
-    (algebraMap ℝ (MvPolynomial (Fin 3) ℝ) (MvPolynomial.coeff d p) *
+    (algebraMap ℝ (MvPolynomial (Fin 3) ℝ) (legacyMvCoeff d p) *
         d.prod (fun i k => (![X 0, X 1, HomBallGenerator lambda] i) ^ k)).totalDegree
-        ≤ (algebraMap ℝ (MvPolynomial (Fin 3) ℝ) (MvPolynomial.coeff d p)).totalDegree +
+        ≤ (algebraMap ℝ (MvPolynomial (Fin 3) ℝ) (legacyMvCoeff d p)).totalDegree +
             (d.prod (fun i k => (![X 0, X 1, HomBallGenerator lambda] i) ^ k)).totalDegree :=
           MvPolynomial.totalDegree_mul _ _
     _ =
@@ -1782,7 +1794,7 @@ theorem homBallSourceSubst_totalDegree_le_weighted
           ((![X 0, X 1, HomBallGenerator lambda] i : MvPolynomial (Fin 3) ℝ) ^
                 d i).totalDegree := by
           simp only [Finsupp.prod]
-          exact MvPolynomial.totalDegree_finset_prod d.support _
+          exact MvPolynomial.totalDegree_finsetProd d.support _
     _ ≤ ∑ i ∈ d.support, d i * (![1, 1, 2] i) := by
           apply Finset.sum_le_sum
           intro i _
@@ -1868,16 +1880,19 @@ theorem homBallSourceSubst_PmlambdaEvenSource (m : ℕ) (lambda : ℝ) :
       Phi (MvPolynomial.C lambda * (X 0 : MvPolynomial (Fin 3) ℝ) ^ 2)
         (MvPolynomial.C lambda * (X 1 : MvPolynomial (Fin 3) ℝ) ^ 2)
         (MvPolynomial.C lambda * (X 2 : MvPolynomial (Fin 3) ℝ) ^ 2) := by
-    unfold Phi
-    simp [homBallSourceSubst, HomBallGenerator]
-    ring_nf
-    left
-    simpa using map_ofNat
-      (MvPolynomial.bind₁
-        ![(X 0 : MvPolynomial (Fin 3) ℝ), X 1,
-          MvPolynomial.C lambda * (X 2 : MvPolynomial (Fin 3) ℝ) ^ 2 +
-            (-(X 0 : MvPolynomial (Fin 3) ℝ) ^ 2 - (X 1 : MvPolynomial (Fin 3) ℝ) ^ 2)] :
-        MvPolynomial (Fin 3) ℝ →ₐ[ℝ] MvPolynomial (Fin 3) ℝ) 3
+    calc
+      _ = Phi
+          (homBallSourceSubst lambda
+            (MvPolynomial.C lambda * (X 0 : MvPolynomial (Fin 3) ℝ) ^ 2))
+          (homBallSourceSubst lambda
+            (MvPolynomial.C lambda * (X 1 : MvPolynomial (Fin 3) ℝ) ^ 2))
+          (homBallSourceSubst lambda
+            ((X 0 : MvPolynomial (Fin 3) ℝ) ^ 2 +
+              (X 1 : MvPolynomial (Fin 3) ℝ) ^ 2 + X 2)) :=
+        map_Phi (homBallSourceSubst lambda).toRingHom _ _ _
+      _ = _ := by
+        rw [hS]
+        simp [homBallSourceSubst]
   unfold PmlambdaEvenSource homRobinson
   rw [map_mul, map_pow, hS, hPhi, Phi_mul_left]
   rw [mul_pow, ← MvPolynomial.C_pow]
@@ -2371,8 +2386,9 @@ theorem dehomogenize3To2_Pmlambda (m : ℕ) (lambda : ℝ) :
 /-- Dehomogenization preserves SOS witnesses. -/
 theorem IsSOS.dehomogenize3To2 {p : MvPolynomial (Fin 3) ℝ} (hp : IsSOS p) :
     IsSOS (dehomogenize3To2 p) := by
-  simpa [dehomogenize3To2] using
-    IsSOS.aeval hp ![(X 0 : MvPolynomial (Fin 2) ℝ), X 1, 1]
+  change IsSOS (MvPolynomial.aeval
+    ![(X 0 : MvPolynomial (Fin 2) ℝ), X 1, 1] p)
+  exact IsSOS.aeval hp ![(X 0 : MvPolynomial (Fin 2) ℝ), X 1, 1]
 
 /-- Dehomogenizing an SOS witness for `P_{m,lambda}` gives the explicit affine SOS. -/
 theorem IsSOS.dehomogenize3To2_Pmlambda {m : ℕ} {lambda : ℝ}
@@ -2942,18 +2958,18 @@ theorem robinson_mem_ballQuadraticModule_to_BoundedHomBallCertificate
 
 /-- The `x^6` coefficient of the dehomogenized Robinson polynomial is nonzero. -/
 theorem robinson_coeff_x6 :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 2) 6) robinson = 1 := by
+    legacyMvCoeff (Finsupp.single (0 : Fin 2) 6) robinson = 1 := by
   have hzero : ¬ (0 : Fin 2 →₀ ℕ) = Finsupp.single (0 : Fin 2) 6 := by
     intro h
     have : (0 : Fin 2 →₀ ℕ) 0 = (Finsupp.single (0 : Fin 2) 6) 0 := by rw [h]
     simp at this
   unfold robinson
-  simp [MvPolynomial.coeff_add, MvPolynomial.coeff_sub, MvPolynomial.coeff_mul,
+  simp [AddMonoidAlgebra.coeff_add, Finsupp.add_apply, MvPolynomial.coeff_sub, MvPolynomial.coeff_mul,
     MvPolynomial.coeff_X_pow, MvPolynomial.coeff_one, Finsupp.single_eq_single_iff, hzero]
 
 /-- The Robinson polynomial has total degree at least six. -/
 theorem six_le_robinson_totalDegree : 6 ≤ robinson.totalDegree := by
-  have hcoeff : MvPolynomial.coeff (Finsupp.single (0 : Fin 2) 6) robinson ≠ 0 := by
+  have hcoeff : legacyMvCoeff (Finsupp.single (0 : Fin 2) 6) robinson ≠ 0 := by
     rw [robinson_coeff_x6]
     norm_num
   have hmem : Finsupp.single (0 : Fin 2) 6 ∈ robinson.support := by

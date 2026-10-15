@@ -18,8 +18,9 @@ theorem specialize_polynomialListProduct
     (fs : List ((MvPolynomial (Fin n) ℝ)[X])) :
     specializePolynomial coeff x (polynomialListProduct fs) =
       (fs.map (specializePolynomial coeff x)).prod := by
-  simpa [polynomialListProduct, specializePolynomial] using
-    (Polynomial.map_list_prod (f := eval₂Hom coeff x) fs)
+  change fs.prod.map (eval₂Hom coeff x) =
+    (fs.map (fun f => f.map (eval₂Hom coeff x))).prod
+  exact Polynomial.map_list_prod (f := eval₂Hom coeff x) fs
 
 theorem specialize_derivative_polynomialListProduct
     {n : ℕ} {F : Type*} [CommRing F]
@@ -60,12 +61,12 @@ theorem exists_imp_realizes_strictSamplerFormula
   have hrightBad : ∃ z : F, y < z ∧ ∃ f ∈ fs,
       (specializePolynomial coeff x f).eval z ≤ 0 := by
     have hfail := not_exists.mp hposTail y
-    push_neg at hfail
+    push Not at hfail
     exact hfail
   have hleftBad : ∃ z : F, z < y ∧ ∃ f ∈ fs,
       (specializePolynomial coeff x f).eval z ≤ 0 := by
     have hfail := not_exists.mp hnegTail y
-    push_neg at hfail
+    push Not at hfail
     exact hfail
   let specialized : List F[X] := fs.map (specializePolynomial coeff x)
   have hspecialized : ∀ p ∈ specialized, 0 < p.eval y := by

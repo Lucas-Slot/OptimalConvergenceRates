@@ -314,7 +314,7 @@ theorem norm_iteratedFDeriv_intrinsicCutoff_le {n : ℕ}
   have hprod : (∏ _ : Fin j, ‖L‖) ≤ R ^ j := by
     calc
       (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, R :=
-        Finset.prod_le_prod (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
+        Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
       _ = R ^ j := by simp
   rw [hfun, hcomp, htranslate]
   calc
@@ -328,7 +328,7 @@ theorem norm_iteratedFDeriv_intrinsicCutoff_le {n : ℕ}
     _ = ‖iteratedFDeriv ℝ j (cover.cutoff i)
           (cover.center i + nonnegativeJetScale u (cover.center i) • z)‖ *
         nonnegativeJetScale u (cover.center i) ^ j := by
-      simp only [L, R, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply]
+      simp only [L, R, smul_apply, ContinuousLinearMap.id_apply]
 
 /-- Fine-cover radius comparability turns the scaled cover estimate into a global intrinsic
 derivative bound independent of the ambient dimension and the active index. -/
@@ -472,7 +472,7 @@ theorem positiveRoot_sq {n : ℕ} {u : (Fin n → ℝ) → ℝ}
   apply intrinsic_positiveValuePatchRoot_sq hu hcontrol (cover.center i) hR hdelta hcenter
   intro w hw
   have hmem := cover.intrinsicCutoff_support_subset_persistenceBall hi hsigma hw
-  simpa only [Metric.mem_closedBall, dist_zero_right] using hmem
+  simpa only [positiveValueCutoffRadius, Metric.mem_closedBall, dist_zero_right] using hmem
 
 /-- A single constant controls every positive fine-cover root in every ambient dimension.  The
 only cutoff constant entering the bound is the scale-cover constant `A`; intrinsic rescaling

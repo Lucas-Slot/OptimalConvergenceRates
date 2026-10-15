@@ -142,9 +142,9 @@ private theorem totalDegree_aeval_le_of_linear_option {n : ℕ} {τ : Type*}
   intro d hd
   rw [MvPolynomial.aeval_monomial]
   calc
-    (algebraMap ℝ (MvPolynomial τ ℝ) (MvPolynomial.coeff d p) *
+    (algebraMap ℝ (MvPolynomial τ ℝ) (p.coeff d) *
         d.prod fun i k => f i ^ k).totalDegree
-        ≤ (algebraMap ℝ (MvPolynomial τ ℝ) (MvPolynomial.coeff d p)).totalDegree +
+        ≤ (algebraMap ℝ (MvPolynomial τ ℝ) (p.coeff d)).totalDegree +
             (d.prod fun i k => f i ^ k).totalDegree :=
           MvPolynomial.totalDegree_mul _ _
     _ = (d.prod fun i k => f i ^ k).totalDegree := by
@@ -152,7 +152,7 @@ private theorem totalDegree_aeval_le_of_linear_option {n : ℕ} {τ : Type*}
           simp
     _ ≤ ∑ i ∈ d.support, (f i ^ d i).totalDegree := by
           simp only [Finsupp.prod]
-          exact MvPolynomial.totalDegree_finset_prod d.support _
+          exact MvPolynomial.totalDegree_finsetProd d.support _
     _ ≤ ∑ i ∈ d.support, d i := by
           apply Finset.sum_le_sum
           intro i _
@@ -448,14 +448,14 @@ theorem OptionSphereCongruent.uCoeff_term_mod (p : SphereOptionRing) (m : ℕ) :
       (normalRemainderRangeTerm p m) := by
   unfold normalRemainderRangeTerm
   rcases Nat.mod_two_eq_zero_or_one m with h0 | h1
-  · rw [if_pos h0]
+  · rw [ite_eq_left h0]
     have hm : m = 2 * (m / 2) := by
       have h := Nat.mod_add_div m 2
       omega
     convert OptionSphereCongruent.uCoeff_term_even (uCoeff p m) (m / 2) using 1
     · rw [hm]
       rw [Nat.mul_div_right (m / 2) (by norm_num : 0 < 2)]
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     have hm : m = 2 * (m / 2) + 1 := by
       have h := Nat.mod_add_div m 2
       omega

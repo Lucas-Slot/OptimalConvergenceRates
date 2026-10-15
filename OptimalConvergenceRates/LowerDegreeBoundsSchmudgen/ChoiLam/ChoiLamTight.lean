@@ -583,7 +583,7 @@ theorem chebyshevT_lipschitz_on_Icc (m : ℕ) :
 theorem polynomial_eval_zero_nonneg_of_right_nonneg (p : Polynomial ℝ)
     (hp : ∀ t : ℝ, 0 < t → t ≤ 2 → 0 ≤ p.eval t) : 0 ≤ p.eval 0 := by
   by_contra hneg
-  push_neg at hneg
+  push Not at hneg
   have hcont : Continuous (fun t : ℝ => p.eval t) := Polynomial.continuous_aeval p
   obtain ⟨δ, hδpos, hδ⟩ := Metric.continuousAt_iff.mp hcont.continuousAt
     (-(p.eval 0) / 2) (by linarith)

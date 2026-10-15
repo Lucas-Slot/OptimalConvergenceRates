@@ -29,7 +29,7 @@ theorem IsSOSUni_sq (q : Polynomial ℝ) : IsSOSUni (q ^ 2) :=
 theorem IsSOSUni.eval_nonneg {p : Polynomial ℝ}
     (hp : IsSOSUni p) (x : ℝ) : 0 ≤ p.eval x := by
   obtain ⟨m, q, rfl⟩ := hp
-  simp only [Polynomial.eval_finset_sum, Polynomial.eval_pow]
+  simp only [Polynomial.eval_finsetSum, Polynomial.eval_pow]
   exact Finset.sum_nonneg fun i _ => sq_nonneg ((q i).eval x)
 
 
@@ -157,11 +157,13 @@ private theorem sum_sq_totalDegree_leading_bound
   by_cases hD0 : D.degree = 0
   · nlinarith
   have hcoeff_terms : ∀ i : Fin N,
-      coeff (2 • D) ((P i) ^ 2) =
+      ((P i) ^ 2).coeff (2 • D) =
         if m.degree (P i) = D then m.leadingCoeff (P i) ^ 2 else 0 := by
     intro i
     by_cases hiD : m.degree (P i) = D
-    · rw [if_pos hiD, ← hiD, m.coeff_pow_nsmul_degree]
+    · rw [ite_eq_left hiD, ← hiD]
+      change AddMonoidAlgebra.coeff (P i ^ 2) (2 • m.degree (P i)) = _
+      rw [m.coeff_pow_nsmul_degree]
     · have hlt : m.degree (P i) ≺[m] D := lt_of_le_of_ne (hleD i) hiD
       have hpowle : m.degree ((P i) ^ 2) ≼[m] (2 • m.degree (P i)) :=
         m.degree_pow_le 2
@@ -170,6 +172,7 @@ private theorem sum_sq_totalDegree_leading_bound
         simpa [two_nsmul] using add_lt_add hlt hlt
       have hpowlt : m.degree ((P i) ^ 2) ≺[m] (2 • D) :=
         lt_of_le_of_lt hpowle htwolt
+      change AddMonoidAlgebra.coeff (P i ^ 2) (2 • D) = _
       rw [m.coeff_eq_zero_of_lt hpowlt]
       simp [hiD]
   have hPj_ne : P j ≠ 0 := by
@@ -177,17 +180,18 @@ private theorem sum_sq_totalDegree_leading_bound
     have hDz : D = 0 := by
       simpa [hp] using hjD.symm
     exact hD0 (by simp [hDz])
-  have hcoeff_pos : 0 < coeff (2 • D) (∑ i : Fin N, (P i) ^ 2) := by
+  have hcoeff_pos : 0 < (∑ i : Fin N, (P i) ^ 2).coeff (2 • D) := by
+    change 0 < AddMonoidAlgebra.coeff (∑ i : Fin N, (P i) ^ 2) (2 • D)
     rw [coeff_sum]
     simp_rw [hcoeff_terms]
     apply Finset.sum_pos'
     · intro i _
       by_cases hiD : m.degree (P i) = D
-      · rw [if_pos hiD]
+      · rw [ite_eq_left hiD]
         exact sq_nonneg _
-      · rw [if_neg hiD]
+      · rw [ite_eq_right hiD]
     · refine ⟨j, Finset.mem_univ j, ?_⟩
-      rw [if_pos hjD]
+      rw [ite_eq_left hjD]
       exact sq_pos_of_ne_zero (m.leadingCoeff_ne_zero_iff.mpr hPj_ne)
   have hmem : (2 • D) ∈ (∑ i : Fin N, (P i) ^ 2).support := by
     rw [mem_support_iff]

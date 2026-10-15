@@ -1,5 +1,6 @@
 import Mathlib.Analysis.Matrix.PosDef
-import Mathlib.Data.Real.StarOrdered
+import Mathlib.Algebra.Order.Star.Real
+import Mathlib.Tactic.ContinuousFunctionalCalculus
 import OptimalConvergenceRates.CQC.SlackRank
 
 /-!
@@ -111,7 +112,7 @@ theorem cqcGramAt_eq_slackGramAt
       · intro j _ hji
         simp [hji]
       · simp
-    · simp only [if_neg hik]
+    · simp only [ite_eq_right hik]
       apply Fintype.sum_eq_zero
       intro j
       by_cases hji : j = i

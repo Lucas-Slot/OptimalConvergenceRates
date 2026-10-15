@@ -18,11 +18,9 @@ theorem continuous_interiorVecNorm_polynomial {N : ℕ} (P : Fin N → Polynomia
     Continuous (fun t : ℝ ↦ interiorVecNorm (fun i : Fin N ↦ (P i).eval t)) := by
   unfold interiorVecNorm interiorVecSqNorm
   apply Continuous.sqrt
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro i _
-  have hcont : Continuous (fun t : ℝ ↦ (P i).eval t) := by
-    simpa only [Polynomial.coe_aeval_eq_eval] using Polynomial.continuous_aeval (P i)
-  simpa using hcont.pow 2
+  fun_prop
 
 private lemma polynomial_derivative_eval_sum {N : ℕ} (P : Fin N → Polynomial ℝ)
     (a : Fin N → ℝ) :

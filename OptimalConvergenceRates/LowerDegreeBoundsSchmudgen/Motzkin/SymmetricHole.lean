@@ -69,10 +69,10 @@ theorem polynomialEvenPart_expand_contract (P : Polynomial ℝ) :
   ext n
   rw [Polynomial.coeff_expand (by norm_num : 0 < (2 : ℕ))]
   by_cases hn : 2 ∣ n
-  · rw [if_pos hn]
+  · rw [ite_eq_left hn]
     rw [Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0)]
     rw [Nat.div_mul_cancel hn]
-  · rw [if_neg hn]
+  · rw [ite_eq_right hn]
     exact (polynomialEvenPart_odd_coeff_eq_zero P hn).symm
 
 theorem polynomialEvenPart_contract_eval_sq (P : Polynomial ℝ) (t : ℝ) :
@@ -321,14 +321,14 @@ theorem polynomialEvenPart_outer_bound
   have hlow : rho ≤ |t| := by
     rw [ht_abs]
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have hsq_lt : t ^ 2 < rho ^ 2 := by
       nlinarith [hlt, hrho, ht_nonneg]
     nlinarith
   have hhigh : |t| ≤ schmInteriorS := by
     rw [ht_abs]
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have hsq_lt : schmInteriorS ^ 2 < t ^ 2 := by
       nlinarith [hlt, schmInteriorS_pos, ht_nonneg]
     nlinarith

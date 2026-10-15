@@ -155,10 +155,10 @@ theorem polynomialEvenPart_expand_contract (P : Polynomial ℝ) :
   ext n
   rw [Polynomial.coeff_expand (by norm_num : 0 < (2 : ℕ))]
   by_cases hn : 2 ∣ n
-  · rw [if_pos hn]
+  · rw [ite_eq_left hn]
     rw [Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0)]
     rw [Nat.div_mul_cancel hn]
-  · rw [if_neg hn]
+  · rw [ite_eq_right hn]
     exact (polynomialEvenPart_odd_coeff_eq_zero P hn).symm
 
 theorem polynomialEvenPart_contract_eval_sq (P : Polynomial ℝ) (t : ℝ) :
@@ -405,14 +405,14 @@ theorem polynomialEvenPart_outer_bound
   have hlow : rho ≤ |t| := by
     rw [ht_abs]
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have hsq_lt : t ^ 2 < rho ^ 2 := by
       nlinarith [hlt, hrho, ht_nonneg]
     nlinarith
   have hhigh : |t| ≤ schmInteriorS := by
     rw [ht_abs]
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have hsq_lt : schmInteriorS ^ 2 < t ^ 2 := by
       nlinarith [hlt, schmInteriorS_pos, ht_nonneg]
     nlinarith
@@ -1038,7 +1038,9 @@ theorem homogeneousPart4_eq_zero_of_totalDegree_le_one
   by_cases hα : α.sum (fun _ e => e) = m
   · simp only [hα, ↓reduceIte]
     exact coeff_eq_zero_of_totalDegree_lt_n4 hp (by omega)
-  · simp only [hα, ↓reduceIte, coeff_zero]
+  · simp only [hα, ↓reduceIte, AddMonoidAlgebra.coeff_zero, Pi.zero_apply]
+    change (0 : ℝ) = 0
+    rfl
 
 theorem symmetricHole_weightedJet_ordered_coeff_bounds_degree_one
     {N k : ℕ} {A : ℝ}
@@ -1049,13 +1051,13 @@ theorem symmetricHole_weightedJet_ordered_coeff_bounds_degree_one
     vecCoeffNorm4 (homogeneousPartVec4 2 Q) ≤ weightedJetQuarterConst * A ∧
     (∀ ijk : Fin 4 × Fin 4 × Fin 4,
       interiorVecNorm (fun i : Fin N =>
-        MvPolynomial.coeff
+        legacyMvCoeff
           (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
             Finsupp.single ijk.2.2 1)
           (homogeneousPartVec4 3 Q i)) ≤ weightedJetQuarterConst * A * (k : ℝ) / 64) ∧
     (∀ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
       interiorVecNorm (fun i : Fin N =>
-        MvPolynomial.coeff
+        legacyMvCoeff
           (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
             Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1)
           (homogeneousPartVec4 4 Q i)) ≤ weightedJetQuarterConst * A * (k : ℝ) ^ 2 / 256) := by
@@ -1115,13 +1117,13 @@ theorem weightedJet_ordered_coeff_bounds_of_tail_unit_bounds
     vecCoeffNorm4 (homogeneousPartVec4 2 Q) ≤ weightedJetQuarterConst * A ∧
     (∀ ijk : Fin 4 × Fin 4 × Fin 4,
       interiorVecNorm (fun i : Fin N =>
-        MvPolynomial.coeff
+        legacyMvCoeff
           (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
             Finsupp.single ijk.2.2 1)
           (homogeneousPartVec4 3 Q i)) ≤ weightedJetQuarterConst * A * (k : ℝ) / 64) ∧
     (∀ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
       interiorVecNorm (fun i : Fin N =>
-        MvPolynomial.coeff
+        legacyMvCoeff
           (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
             Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1)
           (homogeneousPartVec4 4 Q i)) ≤ weightedJetQuarterConst * A * (k : ℝ) ^ 2 / 256) := by
@@ -1184,7 +1186,7 @@ theorem weightedJet_ordered_coeff_bounds_of_tail_unit_bounds
       _ = (1000 * weightedJetTailConst) * A := by ring
       _ ≤ weightedJetQuarterConst * A := mul_le_mul_of_nonneg_right hQC1000 hA0
   have h3 : ∀ ijk : Fin 4 × Fin 4 × Fin 4,
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff
         (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
           Finsupp.single ijk.2.2 1) (homogeneousPartVec4 3 Q i)) ≤
         weightedJetQuarterConst * A * (k : ℝ) / 64 := by
@@ -1201,10 +1203,10 @@ theorem weightedJet_ordered_coeff_bounds_of_tail_unit_bounds
     have hfactor0 : 0 ≤ A * (k : ℝ) / 64 :=
       div_nonneg (mul_nonneg hA0 hk0) (by norm_num)
     calc
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff
           (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
             Finsupp.single ijk.2.2 1) (homogeneousPartVec4 3 Q i))
-          = interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (alpha3 ijk) (H3 i)) := rfl
+          = interiorVecNorm (fun i : Fin N => legacyMvCoeff (alpha3 ijk) (H3 i)) := rfl
       _ ≤ weight * (8 * (8 * (k : ℝ) * (weightedJetTailConst * A))) := by
         simpa [weight, alpha3] using hcoeff
       _ = (4096 * weight * weightedJetTailConst) * (A * (k : ℝ) / 64) := by ring
@@ -1212,7 +1214,7 @@ theorem weightedJet_ordered_coeff_bounds_of_tail_unit_bounds
         mul_le_mul_of_nonneg_right hconst hfactor0
       _ = weightedJetQuarterConst * A * (k : ℝ) / 64 := by ring
   have h4 : ∀ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff
         (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
           Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1) (homogeneousPartVec4 4 Q i)) ≤
         weightedJetQuarterConst * A * (k : ℝ) ^ 2 / 256 := by
@@ -1230,11 +1232,11 @@ theorem weightedJet_ordered_coeff_bounds_of_tail_unit_bounds
     have hfactor0 : 0 ≤ A * (k : ℝ) ^ 2 / 256 :=
       div_nonneg (mul_nonneg hA0 hk20) (by norm_num)
     calc
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff
           (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
             Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1)
           (homogeneousPartVec4 4 Q i))
-          = interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (alpha4 ijkl) (H4 i)) := rfl
+          = interiorVecNorm (fun i : Fin N => legacyMvCoeff (alpha4 ijkl) (H4 i)) := rfl
       _ ≤ weight * (16 * (64 * (k : ℝ) ^ 2 * (weightedJetTailConst * A))) := by
         simpa [weight, alpha4] using hcoeff
       _ = (262144 * weight * weightedJetTailConst) * (A * (k : ℝ) ^ 2 / 256) := by
@@ -1269,13 +1271,13 @@ theorem symmetricHole_weightedJet_ordered_coeff_bounds
     vecCoeffNorm4 (homogeneousPartVec4 2 Q) ≤ weightedJetQuarterConst * A ∧
     (∀ ijk : Fin 4 × Fin 4 × Fin 4,
       interiorVecNorm (fun i : Fin N =>
-        MvPolynomial.coeff
+        legacyMvCoeff
           (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
             Finsupp.single ijk.2.2 1)
           (homogeneousPartVec4 3 Q i)) ≤ weightedJetQuarterConst * A * (k : ℝ) / 64) ∧
     (∀ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
       interiorVecNorm (fun i : Fin N =>
-        MvPolynomial.coeff
+        legacyMvCoeff
           (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
             Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1)
           (homogeneousPartVec4 4 Q i)) ≤ weightedJetQuarterConst * A * (k : ℝ) ^ 2 / 256) := by
@@ -1359,7 +1361,7 @@ theorem symmetricHole_weightedJet_higher_coeff_bounds
     calc
       vecCoeffNorm4 (homogeneousPartVec4 3 Q)
           ≤ ∑ ijk : Fin 4 × Fin 4 × Fin 4, interiorVecNorm
-              (fun i : Fin N => MvPolynomial.coeff
+              (fun i : Fin N => legacyMvCoeff
                 (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
                   Finsupp.single ijk.2.2 1)
                 (homogeneousPartVec4 3 Q i)) := by
@@ -1377,7 +1379,7 @@ theorem symmetricHole_weightedJet_higher_coeff_bounds
     calc
       vecCoeffNorm4 (homogeneousPartVec4 4 Q)
           ≤ ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4, interiorVecNorm
-              (fun i : Fin N => MvPolynomial.coeff
+              (fun i : Fin N => legacyMvCoeff
                 (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
                   Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1)
                 (homogeneousPartVec4 4 Q i)) := by

@@ -139,7 +139,7 @@ theorem scaledRobinson_isLeastUnitBallOrder_ge_four_two_zpow_one_sub_natCast
     have hball : scaledRobinsonOrder eps =
         3 + Nat.ceil ((Real.sqrt (1 + eps⁻¹ ^ 2) - 1) / 2) := by
       unfold scaledRobinsonOrder ballTargetOrder
-      rw [if_neg (not_le_of_gt hLamGt2)]
+      rw [ite_eq_right (not_le_of_gt hLamGt2)]
     have hscaled := scaledRobinsonOrder_two_zpow_one_sub_natCast (k := k) hk2
     have hscaled_eps : scaledRobinsonOrder eps = 2 ^ (k - 2) + 3 := by
       simpa [eps] using hscaled

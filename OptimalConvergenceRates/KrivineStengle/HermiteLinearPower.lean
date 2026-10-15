@@ -12,7 +12,7 @@ variable {F : Type u} [Field F]
 
 private theorem coeff_modByMonic_X_pow_of_lt (p : F[X]) {n i : ℕ}
     (hi : i < n) : (p %ₘ (X ^ n)).coeff i = p.coeff i := by
-  rw [modByMonic_eq_sub_mul_div p (monic_X_pow n), coeff_sub,
+  rw [modByMonic_eq_sub_mul_div p (X ^ n), coeff_sub,
     coeff_X_pow_mul']
   simp [not_le_of_gt hi]
 
@@ -25,7 +25,7 @@ theorem trace_aeval_adjoinRoot_X_pow (h : F[X]) (n : ℕ) :
   letI : Module.Free F (AdjoinRoot (X ^ n : F[X])) := hf.free_adjoinRoot
   letI : Module.Finite F (AdjoinRoot (X ^ n : F[X])) :=
     (AdjoinRoot.powerBasis' hf).finite
-  let b := (AdjoinRoot.powerBasis' hf).basis
+  let b := AdjoinRoot.powerBasisAux' hf
   rw [Algebra.trace_eq_matrix_trace b, Matrix.trace]
   have hdiag (i : Fin (X ^ n : F[X]).natDegree) :
       Algebra.leftMulMatrix b (aeval (AdjoinRoot.root (X ^ n : F[X])) h) i i =

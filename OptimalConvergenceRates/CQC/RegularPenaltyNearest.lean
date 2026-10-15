@@ -79,8 +79,8 @@ theorem evalFDeriv_linearIndependent_of_gradients
   funext j
   have hj := congrArg
     (fun L : (Fin N → ℝ) →L[ℝ] ℝ => L (Pi.single j 1)) hc
-  simp only [ContinuousLinearMap.sum_apply,
-    ContinuousLinearMap.smul_apply, smul_eq_mul] at hj
+  simp only [_root_.sum_apply,
+    smul_apply, smul_eq_mul] at hj
   simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul, Pi.zero_apply]
   simpa using hj
 
@@ -105,7 +105,7 @@ theorem exists_nearestPoint_displacement_eq_gradientCombination
       {u | ∀ i, MvPolynomial.eval u (h i) = MvPolynomial.eval v (h i)} =
         polynomialZeroSet h := by
     ext u
-    simp only [Set.mem_setOf_eq, polynomialZeroSet]
+    simp only [Set.mem_ofPred_eq, polynomialZeroSet]
     constructor
     · intro hu i
       rw [hu i, hv i]
@@ -115,7 +115,7 @@ theorem exists_nearestPoint_displacement_eq_gradientCombination
       (fun u ↦ MvPolynomial.eval u (squaredDistancePolynomial z))
       {u | ∀ i, MvPolynomial.eval u (h i) = MvPolynomial.eval v (h i)} v := by
     rw [hset]
-    exact Or.inl hvmin.localize
+    exact Or.inl hvmin.isLocalMinOn
   obtain ⟨coeff, coeff₀, hnonzero, hrelation⟩ :=
     hextr.exists_multipliers_of_hasStrictFDerivAt
       (fun i ↦ hasStrictFDerivAt_mvPolynomial_eval (h i) v)
@@ -134,8 +134,8 @@ theorem exists_nearestPoint_displacement_eq_gradientCombination
   funext j
   have hj := congrArg
     (fun L : (Fin N → ℝ) →L[ℝ] ℝ => L (Pi.single j 1)) hrelation
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.sum_apply,
-    ContinuousLinearMap.smul_apply, smul_eq_mul, ContinuousLinearMap.zero_apply,
+  simp only [add_apply, _root_.sum_apply,
+    smul_apply, smul_eq_mul, zero_apply,
     mvPolynomialEvalFDeriv_single] at hj
   have hsq : polynomialGradientAt (squaredDistancePolynomial z) v j =
       2 * (v j - z j) := by

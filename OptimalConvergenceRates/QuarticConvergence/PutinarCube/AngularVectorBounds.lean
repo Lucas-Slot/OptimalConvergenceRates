@@ -256,7 +256,7 @@ theorem oddSineRemoval_one
   by_cases ht0 : t = 0
   · subst t
     have hprod : HasDerivAt (fun u ↦ Real.sin u • V u) (V 0) 0 := by
-      simpa using (Real.hasDerivAt_sin 0).smul (hVderiv 0)
+      simpa using! (Real.hasDerivAt_sin 0).smul (hVderiv 0)
     have hPasV : HasDerivAt P (V 0) 0 :=
       hprod.congr_of_eventuallyEq (Filter.Eventually.of_forall (fun u ↦ hfactor u))
     have hDV : D 0 = V 0 := (hPderiv 0).unique hPasV
@@ -604,7 +604,7 @@ private theorem perturbSelectedZeroAngles_range {n : ℕ}
     have hfrac_le : 1 / ((m : ℝ) + 1) ≤ 1 := by
       exact (div_le_one hdenom_pos).2 hdenom
     have hpi : 1 ≤ Real.pi / 2 := by linarith [Real.two_le_pi]
-    rw [perturbSelectedZeroAngles, if_pos ⟨hzero, hi⟩,
+    rw [perturbSelectedZeroAngles, ite_eq_left ⟨hzero, hi⟩,
       abs_of_nonneg hfrac_nonneg]
     exact hfrac_le.trans hpi
   · simpa [perturbSelectedZeroAngles, hzero] using hrange i hi
@@ -614,7 +614,7 @@ private theorem perturbSelectedZeroAngles_ne_zero {n : ℕ}
     (m : ℕ) {i : Fin n} (hi : i ∈ indices) :
     perturbSelectedZeroAngles indices theta m i ≠ 0 := by
   by_cases hzero : theta i = 0
-  · rw [perturbSelectedZeroAngles, if_pos ⟨hzero, hi⟩]
+  · rw [perturbSelectedZeroAngles, ite_eq_left ⟨hzero, hi⟩]
     exact one_div_ne_zero (by positivity)
   · simp [perturbSelectedZeroAngles, hzero]
 
@@ -1270,7 +1270,7 @@ theorem circleParityReconstruction_totalDegree_le
             MvPolynomial (CubeCircleVar n) ℝ).totalDegree ≤
             ∑ i ∈ J, (MvPolynomial.X (i, true) :
               MvPolynomial (CubeCircleVar n) ℝ).totalDegree :=
-          MvPolynomial.totalDegree_finset_prod J _
+          MvPolynomial.totalDegree_finsetProd J _
         _ = J.card := by simp
 
 /-- The actual parity term attached to the repositorys canonical
@@ -1677,7 +1677,7 @@ theorem eval_weightedParitySum_le_of_twoRotationSeed
     apply Continuous.mul
     · exact (MvPolynomial.continuous_eval _).comp
         (continuous_pi (fun i ↦ Real.continuous_cos.comp (continuous_apply i)))
-    · apply continuous_finset_prod
+    · apply continuous_finsetProd
       intro i _hi
       exact Real.continuous_sin.comp (continuous_apply i)
   have hfactor (phi : Fin n → ℝ) :
@@ -1692,7 +1692,16 @@ theorem eval_weightedParitySum_le_of_twoRotationSeed
           (selected.map (fun i ↦ Real.sin (phi i))).prod := by
       rw [← hselected]
       exact List.prod_toFinset _ hnodup
-    simpa [F, Q, selected, parityTermAngularDerivativeVector, hprod] using hsplit
+    dsimp only [F, parityTermAngularDerivativeVector]
+    have hfamily :
+        circlePolynomialAngularDerivativeFamily
+            (fun nu ↦ pairedPolynomialParityTerm (P nu) I) [] =
+          (fun nu phi ↦ MvPolynomial.eval (cosineSineCirclePoint phi)
+            (pairedPolynomialParityTerm (P nu) I)) := by
+      funext nu psi
+      rfl
+    rw [hfamily, ← hprod]
+    exact hsplit
   have hsquare :
       ‖parityResidualVector P I J theta‖ ^ 2 ≤
         (Real.pi / 2) ^ (2 * (remaining.length + 2)) *

@@ -39,7 +39,7 @@ theorem centeredArccosAngle_range {x : ℝ} (hx : x ∈ Set.Icc (-1) 1) :
   · have harccosNonneg : 0 ≤ Real.arccos x := Real.arccos_nonneg x
     have harccosHalf : Real.arccos x ≤ Real.pi / 2 :=
       Real.arccos_le_pi_div_two.mpr hxzero
-    simp only [centeredArccosAngle, centeredArccosBase, if_pos hxzero, sub_zero,
+    simp only [centeredArccosAngle, centeredArccosBase, ite_eq_left hxzero, sub_zero,
       abs_of_nonneg harccosNonneg]
     exact harccosHalf
   · have hxneg : x < 0 := lt_of_not_ge hxzero
@@ -49,7 +49,7 @@ theorem centeredArccosAngle_range {x : ℝ} (hx : x ∈ Set.Icc (-1) 1) :
       exact not_lt_of_ge hxneg.le
     have harccosPi : Real.arccos x ≤ Real.pi := Real.arccos_le_pi x
     have hnonpos : Real.arccos x - Real.pi ≤ 0 := sub_nonpos.mpr harccosPi
-    simp only [centeredArccosAngle, centeredArccosBase, if_neg hxzero,
+    simp only [centeredArccosAngle, centeredArccosBase, ite_eq_right hxzero,
       abs_of_nonpos hnonpos]
     linarith
 
@@ -238,7 +238,16 @@ theorem eval_weightedParitySum_le_of_twoRotationSeed_hypercube
           (selected.map (fun i ↦ Real.sin (phi i))).prod := by
       rw [← hselected]
       exact List.prod_toFinset _ hnodup
-    simpa [F, Q, V, selected, parityTermAngularDerivativeVector, hprod] using hsplit
+    dsimp only [F, V, parityTermAngularDerivativeVector]
+    have hfamily :
+        circlePolynomialAngularDerivativeFamily
+            (fun nu ↦ pairedPolynomialParityTerm (P nu) I) [] =
+          (fun nu psi ↦ MvPolynomial.eval (cosineSineCirclePoint psi)
+            (pairedPolynomialParityTerm (P nu) I)) := by
+      funext nu psi
+      rfl
+    rw [hfamily, ← hprod]
+    exact hsplit
   have hfactorG (phi : Fin n → ℝ) :
       G [] phi =
         (selected.map (fun i ↦ Real.sin (phi i))).prod • W phi := by
@@ -266,7 +275,7 @@ theorem eval_weightedParitySum_le_of_twoRotationSeed_hypercube
     apply Continuous.mul
     · exact (MvPolynomial.continuous_eval _).comp
         (continuous_pi (fun i ↦ Real.continuous_cos.comp (continuous_apply i)))
-    · apply continuous_finset_prod
+    · apply continuous_finsetProd
       intro i _hi
       exact Real.continuous_sin.comp (continuous_apply i)
   have htranslateCont : Continuous (translateAngles base) := by

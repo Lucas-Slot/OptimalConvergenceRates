@@ -61,7 +61,7 @@ theorem eval_circleReduceMonomial {z : CubeCircleVar n → ℝ}
 /-- Reduce every monomial of a polynomial to first degree in each second coordinate. -/
 def circleParityReduce (P : MvPolynomial (CubeCircleVar n) ℝ) :
     MvPolynomial (CubeCircleVar n) ℝ :=
-  P.sum fun s c ↦ MvPolynomial.C c * circleReduceMonomial s
+  ∑ s ∈ P.support, MvPolynomial.C (legacyMvCoeff s P) * circleReduceMonomial s
 
 /-- The parity-reduced polynomial agrees with the original one on the product of circles. -/
 theorem eval_circleParityReduce {z : CubeCircleVar n → ℝ}
@@ -71,10 +71,10 @@ theorem eval_circleParityReduce {z : CubeCircleVar n → ℝ}
   calc
     MvPolynomial.eval z (circleParityReduce P) =
         ∑ s ∈ P.support,
-          MvPolynomial.eval z (MvPolynomial.monomial s (MvPolynomial.coeff s P)) := by
+          MvPolynomial.eval z (MvPolynomial.monomial s (legacyMvCoeff s P)) := by
       change MvPolynomial.eval z
         (∑ s ∈ P.support,
-          MvPolynomial.C (MvPolynomial.coeff s P) * circleReduceMonomial s) = _
+          MvPolynomial.C (legacyMvCoeff s P) * circleReduceMonomial s) = _
       simp only [map_sum]
       apply Finset.sum_congr rfl
       intro s hs
@@ -119,7 +119,7 @@ theorem circleReduceMonomial_totalDegree_le (s : CubeCircleVar n →₀ ℕ) :
     (s.prod circleReducedFactor).totalDegree ≤
         ∑ ib ∈ s.support, (circleReducedFactor ib (s ib)).totalDegree := by
       simp only [Finsupp.prod]
-      exact MvPolynomial.totalDegree_finset_prod s.support _
+      exact MvPolynomial.totalDegree_finsetProd s.support _
     _ ≤ ∑ ib ∈ s.support, s ib := by
       exact Finset.sum_le_sum fun ib _ ↦ circleReducedFactor_totalDegree_le ib (s ib)
     _ = s.sum fun _ e ↦ e := by
@@ -133,8 +133,8 @@ theorem circleParityReduce_totalDegree_le (P : MvPolynomial (CubeCircleVar n) �
   apply MvPolynomial.totalDegree_finsetSum_le
   intro s hs
   calc
-    (MvPolynomial.C (MvPolynomial.coeff s P) * circleReduceMonomial s).totalDegree ≤
-        (MvPolynomial.C (MvPolynomial.coeff s P) :
+    (MvPolynomial.C (legacyMvCoeff s P) * circleReduceMonomial s).totalDegree ≤
+        (MvPolynomial.C (legacyMvCoeff s P) :
           MvPolynomial (CubeCircleVar n) ℝ).totalDegree +
           (circleReduceMonomial s).totalDegree := MvPolynomial.totalDegree_mul _ _
     _ ≤ 0 + s.sum (fun _ e ↦ e) := by

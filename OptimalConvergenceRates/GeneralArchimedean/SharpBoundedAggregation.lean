@@ -411,7 +411,12 @@ theorem bounded_sharpThetaSum_le_convertedEven_at
       (∑ I ∈ Sall, C (((T I).card : ℝ) * theta) *
         zeroErrorTerm (fun _ => pkg) a sigma I)
       (C alpha * convertedZero (fun _ => pkg) a sigma) := by
-    simpa [convertedZero, Finset.mul_sum] using ctheta
+    have heq : C alpha * convertedZero (fun _ => pkg) a sigma =
+        ∑ I ∈ Sall, C alpha * zeroErrorTerm (fun _ => pkg) a sigma I := by
+      dsimp [convertedZero, Sall]
+      rw [Finset.mul_sum]
+    rw [heq]
+    exact ctheta
   have hpositiveSOS := convertedPositiveEven_isSOS
     (fun _ => pkg) a sigma hsigma hδ
   have hpositiveDegree := convertedPositiveEven_totalDegree_le

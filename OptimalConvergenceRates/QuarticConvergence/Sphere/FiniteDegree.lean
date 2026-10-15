@@ -59,8 +59,8 @@ theorem seminorm_bound_of_finiteDimensional
       apply Finset.sum_le_sum
       intro i _
       apply mul_le_mul_of_nonneg_right
-      · simpa only [eCLM, e, Module.Basis.equivFun_apply, Real.norm_eq_abs] using
-          norm_le_pi_norm (eCLM x) i
+      · change |(eCLM x) i| ≤ ‖eCLM x‖
+        exact norm_le_pi_norm (eCLM x) i
       · exact apply_nonneg q _
     _ = ‖eCLM x‖ * S := by rw [Finset.mul_sum]
     _ ≤ (‖eCLM‖ * ‖x‖) * S := by

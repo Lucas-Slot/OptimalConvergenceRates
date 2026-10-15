@@ -140,7 +140,7 @@ lemma single_one_injective_linear :
 
 lemma coeffNorm4_linear_le_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 1 p = p) :
-    coeffNorm4 p ≤ ∑ j : Fin 4, |MvPolynomial.coeff (Finsupp.single j 1) p| := by
+    coeffNorm4 p ≤ ∑ j : Fin 4, |legacyMvCoeff (Finsupp.single j 1) p| := by
   unfold coeffNorm4
   have hsubset : p.support ⊆ (Finset.univ.image fun j : Fin 4 => Finsupp.single j 1) := by
     intro a ha
@@ -148,18 +148,20 @@ lemma coeffNorm4_linear_le_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     have hweight := hhom (MvPolynomial.mem_support_iff.mp ha)
     have hsum : a.sum (fun _ e => e) = 1 := by
       have hdeg : Finsupp.degree a = 1 := by
-        simpa [Finsupp.degree_eq_weight_one] using hweight
-      simpa [Finsupp.degree_apply] using hdeg
+        rw [Finsupp.degree_eq_weight_one]
+        exact hweight
+      rw [finsupp_sum_fintype4_linear]
+      simpa only [Finsupp.degree_eq_sum] using hdeg
     obtain ⟨j, rfl⟩ := finsupp_degree_one_cases_linear hsum
     simp
   calc
-    ∑ α ∈ p.support, |MvPolynomial.coeff α p|
+    ∑ α ∈ p.support, |legacyMvCoeff α p|
         ≤ ∑ α ∈ (Finset.univ.image fun j : Fin 4 => Finsupp.single j 1),
-            |MvPolynomial.coeff α p| := by
+            |legacyMvCoeff α p| := by
           apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
           intro x _hx _hnot
           exact abs_nonneg _
-    _ = ∑ j : Fin 4, |MvPolynomial.coeff (Finsupp.single j 1) p| := by
+    _ = ∑ j : Fin 4, |legacyMvCoeff (Finsupp.single j 1) p| := by
       rw [Finset.sum_image]
       exact fun i _ j _ hij => single_one_injective_linear hij
 
@@ -167,7 +169,7 @@ lemma coeffNorm4_linear_le_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
 lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 1 p = p) :
     p = ∑ j : Fin 4, MvPolynomial.monomial (Finsupp.single j 1)
-      (MvPolynomial.coeff (Finsupp.single j 1) p) := by
+      (legacyMvCoeff (Finsupp.single j 1) p) := by
   ext α
   rw [MvPolynomial.coeff_sum]
   by_cases hα : α ∈ p.support
@@ -175,8 +177,10 @@ lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 4) ℝ}
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hα)
     have hsum : α.sum (fun _ e => e) = 1 := by
       have hdeg : Finsupp.degree α = 1 := by
-        simpa [Finsupp.degree_eq_weight_one] using hweight
-      simpa [Finsupp.degree_apply] using hdeg
+        rw [Finsupp.degree_eq_weight_one]
+        exact hweight
+      rw [finsupp_sum_fintype4_linear]
+      simpa only [Finsupp.degree_eq_sum] using hdeg
     obtain ⟨j, rfl⟩ := finsupp_degree_one_cases_linear hsum
     rw [Finset.sum_eq_single j]
     · simp [MvPolynomial.coeff_monomial]
@@ -187,7 +191,7 @@ lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 4) ℝ}
       simp [MvPolynomial.coeff_monomial, hne]
     · intro hj
       exact (hj (Finset.mem_univ j)).elim
-  · have hcoeff : MvPolynomial.coeff α p = 0 := by
+  · have hcoeff : legacyMvCoeff α p = 0 := by
       by_contra hc
       exact hα (MvPolynomial.mem_support_iff.mpr hc)
     rw [hcoeff]
@@ -196,7 +200,7 @@ lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 4) ℝ}
     intro j _
     by_cases hαj : Finsupp.single j 1 = α
     · rw [← hαj]
-      have hcoeffj : MvPolynomial.coeff (Finsupp.single j 1) p = 0 := by
+      have hcoeffj : legacyMvCoeff (Finsupp.single j 1) p = 0 := by
         by_contra hc
         exact hα (by simpa [hαj] using MvPolynomial.mem_support_iff.mpr hc)
       simp [hcoeffj]
@@ -204,19 +208,19 @@ lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 4) ℝ}
 
 lemma eval_linear_eq_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 1 p = p) (x : Fin 4 → ℝ) :
-    MvPolynomial.eval x p = ∑ j : Fin 4, MvPolynomial.coeff (Finsupp.single j 1) p * x j := by
+    MvPolynomial.eval x p = ∑ j : Fin 4, legacyMvCoeff (Finsupp.single j 1) p * x j := by
   calc
     MvPolynomial.eval x p =
         MvPolynomial.eval x (∑ j : Fin 4, MvPolynomial.monomial (Finsupp.single j 1)
-          (MvPolynomial.coeff (Finsupp.single j 1) p)) := by
+          (legacyMvCoeff (Finsupp.single j 1) p)) := by
           exact congrArg (MvPolynomial.eval x) (linear_eq_sum_monomial hp)
-    _ = ∑ j : Fin 4, MvPolynomial.coeff (Finsupp.single j 1) p * x j := by
+    _ = ∑ j : Fin 4, legacyMvCoeff (Finsupp.single j 1) p * x j := by
       simp [MvPolynomial.eval_monomial]
 
 
 lemma linear_coeff_eq_choiLam_basis_sum {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 1 p = p) (j : Fin 4) :
-    MvPolynomial.coeff (Finsupp.single j 1) p =
+    legacyMvCoeff (Finsupp.single j 1) p =
       ∑ z : Fin 4, MvPolynomial.eval (choiLamZeroDirection z) p * choiLamZeroDirection z j := by
   have h0 := eval_linear_eq_sum_coeff hp (choiLamZeroDirection 0)
   have h1 := eval_linear_eq_sum_coeff hp (choiLamZeroDirection 1)
@@ -254,7 +258,7 @@ lemma coeffNorm4_linear_le_two_sum_abs_basis_eval {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 1 p = p) :
     coeffNorm4 p ≤ 2 * ∑ z : Fin 4, |MvPolynomial.eval (choiLamZeroDirection z) p| := by
   calc
-    coeffNorm4 p ≤ ∑ j : Fin 4, |MvPolynomial.coeff (Finsupp.single j 1) p| :=
+    coeffNorm4 p ≤ ∑ j : Fin 4, |legacyMvCoeff (Finsupp.single j 1) p| :=
       coeffNorm4_linear_le_sum_coeff hp
     _ = ∑ j : Fin 4,
         |∑ z : Fin 4, MvPolynomial.eval (choiLamZeroDirection z) p *
@@ -343,7 +347,7 @@ theorem linear_coeff_bound_from_choiLam_basis
 theorem directionalDeriv_zero_eq_sum_linear_coeff
     (p : MvPolynomial (Fin 4) ℝ) (z : Fin 4 → ℝ) :
     directionalDeriv p 0 z =
-      ∑ j : Fin 4, MvPolynomial.coeff (Finsupp.single j 1) p * z j := by
+      ∑ j : Fin 4, legacyMvCoeff (Finsupp.single j 1) p * z j := by
   unfold directionalDeriv univariateRestriction
   induction p using MvPolynomial.induction_on with
   | C a =>
@@ -358,7 +362,7 @@ theorem directionalDeriv_zero_eq_sum_linear_coeff
         simp at this
       simp [h]
   | add p q ihp ihq =>
-      simp only [map_add, Polynomial.eval_add, MvPolynomial.coeff_add]
+      simp only [map_add, Polynomial.eval_add, AddMonoidAlgebra.coeff_add, Finsupp.add_apply]
       rw [ihp, ihq, ← Finset.sum_add_distrib]
       apply Finset.sum_congr rfl
       intro j _
@@ -373,29 +377,30 @@ theorem directionalDeriv_zero_eq_sum_linear_coeff
           Polynomial.eval 0
               ((MvPolynomial.aeval fun i =>
                 Polynomial.C ((0 : Fin 4 → ℝ) i) + Polynomial.C (z i) * Polynomial.X) p) =
-            MvPolynomial.coeff 0 p := by
+            legacyMvCoeff 0 p := by
         change (univariateRestriction p (0 : Fin 4 → ℝ) z).eval 0 =
-          MvPolynomial.coeff 0 p
+          legacyMvCoeff 0 p
         rw [univariateRestriction_eval]
-        have hcoeff : MvPolynomial.eval (0 : Fin 4 → ℝ) p = MvPolynomial.coeff 0 p := by
+        have hcoeff : MvPolynomial.eval (0 : Fin 4 → ℝ) p = legacyMvCoeff 0 p := by
           rw [MvPolynomial.eval_zero]
-          rw [congrFun MvPolynomial.constantCoeff_eq p]
+          rw [MvPolynomial.constantCoeff_eq p]
         simpa using hcoeff
       rw [heval0]
       rw [Finset.sum_eq_single j]
       · simp [MvPolynomial.coeff_mul_X']
       · intro b _ hb
+        have hjb : j ≠ b := Ne.symm hb
         have hnot : j ∉ (Finsupp.single b 1).support := by
-          simp [hb]
-        simp [MvPolynomial.coeff_mul_X', hnot]
+          simp [hjb]
+        simp [MvPolynomial.coeff_mul_X', hnot, hjb]
       · intro hj
         exact (hj (Finset.mem_univ j)).elim
 
 lemma coeff_homogeneousPart4_one_single
     (p : MvPolynomial (Fin 4) ℝ) (j : Fin 4) :
-    MvPolynomial.coeff (Finsupp.single j 1) (homogeneousPart4 1 p) =
-      MvPolynomial.coeff (Finsupp.single j 1) p := by
-  by_cases hcoeff : MvPolynomial.coeff (Finsupp.single j 1) p = 0
+    legacyMvCoeff (Finsupp.single j 1) (homogeneousPart4 1 p) =
+      legacyMvCoeff (Finsupp.single j 1) p := by
+  by_cases hcoeff : legacyMvCoeff (Finsupp.single j 1) p = 0
   · rw [hcoeff]
     unfold homogeneousPart4
     rw [MvPolynomial.coeff_sum]
@@ -761,8 +766,13 @@ theorem weightedJetLemma_linear_zero_direction_bound
       interiorVecNorm (fun i : Fin N => (P i).eval t) ≤ A * Real.sqrt epsilon := by
     intro t ht
     have hline := hzeroLines zi t ht
-    simpa [P, univariateRestriction_eval, Pi.smul_apply, smul_eq_mul, mul_assoc]
-      using hline
+    simp only [P, univariateRestriction_eval, zero_add]
+    have hdir :
+        t • choiLamZeroDirection zi =
+          (fun j => t * choiLamZeroDirection zi j) := by
+      rfl
+    rw [hdir]
+    exact hline
   have hmark := interior_markov_vector_first_derivative_schm P hMnon hdegP hbound
   let V : Fin N → ℝ := fun i =>
     MvPolynomial.eval (choiLamZeroDirection zi) (homogeneousPartVec4 1 Q i)

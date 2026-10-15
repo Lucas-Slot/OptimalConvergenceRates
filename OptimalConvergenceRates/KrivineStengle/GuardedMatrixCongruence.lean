@@ -115,7 +115,7 @@ theorem eval_symmetrizeGuardedMatrix {n d : ℕ} {F : Type*} [Field F]
   ext i j
   by_cases hij : i ≤ j
   · simp [evalGuardedMatrix, symmetrizeGuardedMatrix, hij]
-  · simp only [evalGuardedMatrix, symmetrizeGuardedMatrix, if_neg hij]
+  · simp only [evalGuardedMatrix, symmetrizeGuardedMatrix, ite_eq_right hij]
     exact hM.apply i j
 
 theorem matrixCongruence_isSymm {d : ℕ} {F : Type*} [CommRing F]
@@ -199,8 +199,8 @@ theorem matrixSignature_transvection_congruence {d : ℕ}
     change (Matrix.toLin' P) v = P *ᵥ v
     rfl
   rw [he]
-  simp only [Matrix.toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply,
-    Matrix.toLinearMap₂'_apply']
+  simp only [Matrix.toQuadraticForm', Matrix.toQuadraticForm',
+    LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply']
   change (P *ᵥ v) ⬝ᵥ (M *ᵥ (P *ᵥ v)) =
     v ⬝ᵥ ((Pᵀ * M * P) *ᵥ v)
   rw [← Matrix.mulVec_mulVec, ← Matrix.mulVec_mulVec,

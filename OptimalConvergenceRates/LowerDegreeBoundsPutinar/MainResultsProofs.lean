@@ -72,7 +72,7 @@ theorem improved_lasserre_box_qm_gap
       ring
     rw [hfl] at hl
     by_contra h_contra
-    push_neg at h_contra
+    push Not at h_contra
     have hge0 : 0 ≤ ε - l := by
       have := BoxQuadraticModule_subset_nonneg hl corner_11 corner_11_in_hypercube
       rw [f_eps_eval, corner_11_val_0, corner_11_val_1] at this

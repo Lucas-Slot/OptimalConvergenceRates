@@ -32,7 +32,7 @@ theorem continuous_coordinateRotationValue {n : ℕ}
   unfold coordinateRotationValue
   exact (hf.continuous_fderiv (by norm_num)).clm_apply
     (by
-      simpa only [← coordinateRotationCLM_apply] using
+      simpa only [← coordinateRotationCLM_apply] using!
         (coordinateRotationCLM i j).continuous)
 
 /-- At a fixed angle, the coordinate rotation is continuous in its sphere
@@ -57,7 +57,7 @@ theorem hasDerivAt_comp_coordinateRotationFlow {n : ℕ}
       (coordinateRotationValue f i j
         (coordinateRotationFlow i j hij t x).1) t := by
   unfold coordinateRotationValue
-  simpa only [Function.comp_apply] using
+  simpa only [Function.comp_apply] using!
     ((hf.differentiable (by norm_num)).differentiableAt.hasFDerivAt.comp_hasDerivAt t
       (hasDerivAt_coordinateRotationFlow i j hij x t))
 
@@ -167,9 +167,10 @@ theorem hasDerivAt_eval_coordinateRotationFlow {n : ℕ}
       (coordinateRotationFlow i j hij 0 x).1).comp_hasDerivAt 0
     (hasDerivAt_coordinateRotationFlow_zero i j hij x)
   convert hchain using 1
-  rw [mvPolynomialEvalFDeriv_eq_directionalDeriv]
-  simpa only [coordinateRotationFlow_zero] using
-    (directionalDeriv_coordinateRotation P x.1 i j).symm
+  · rfl
+  · rw [mvPolynomialEvalFDeriv_eq_directionalDeriv]
+    simpa only [coordinateRotationFlow_zero, coordinateRotationVector] using
+      (directionalDeriv_coordinateRotation P x.1 i j).symm
 
 /-- Pointwise polynomial form of exact first-order normalized-filter
 commutation on the sphere. -/
@@ -255,7 +256,7 @@ theorem hasDerivAt_booleanFilteredFunctionValue_rotation {n : ℕ}
       funext y
       exact (eval_normalizedFunctionZonalKernelPolynomial p k base
         (fun z ↦ f z.1) hcoeff y.1).symm
-  simpa only [booleanFilteredFunctionValue, rot] using
+  simpa only [booleanFilteredFunctionValue, rot] using!
     (hfirst.add hfirst).sub hsecond'
 
 /-- Exact Boolean-filter/rotation commutation in the stored polynomial
@@ -336,7 +337,7 @@ theorem contDiff_coordinateRotationValue {n : ℕ}
     ContDiff ℝ 1 (coordinateRotationValue f a b) := by
   unfold coordinateRotationValue
   have hv : ContDiff ℝ 1 (fun y ↦ coordinateRotationVector a b y) := by
-    simpa only [← coordinateRotationCLM_apply] using
+    simpa only [← coordinateRotationCLM_apply] using!
       (coordinateRotationCLM a b).contDiff
   exact (hf.fderiv_right (m := 1) (by norm_num)).clm_apply hv
 

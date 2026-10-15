@@ -166,7 +166,7 @@ theorem lagrangeProductDerivativeEval_eq_sum_products
         ((Finset.univ.erase i).erase j).prod (fun k => x - τ k) := by
   unfold lagrangeProductDerivativeEval
   rw [derivative_prod_linear_factors]
-  rw [Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_finsetSum]
   apply Finset.sum_congr rfl
   intro j hj
   rw [Polynomial.eval_prod]
@@ -235,7 +235,7 @@ theorem lagrange_interpolation_eq {ι : Type*} [Fintype ι] [DecidableEq ι]
   have h_eval_S : ∀ j : ι, S.eval (τ j) = p.eval (τ j) := by
     intro j
     dsimp [S]
-    rw [Polynomial.eval_finset_sum]
+    rw [Polynomial.eval_finsetSum]
     trans (Polynomial.C (p.eval (τ j)) * lagrangeBasis τ j).eval (τ j)
     · apply Finset.sum_eq_single j
       · intro i hi hij
@@ -290,7 +290,7 @@ theorem derivative_eval_lagrange_interpolation_eq {ι : Type*} [Fintype ι] [Dec
       Finset.univ.sum (fun i : ι =>
         p.eval (τ i) * (Polynomial.derivative (lagrangeBasis τ i)).eval x) := by
   rw [derivative_lagrange_interpolation_eq hτ p hpdeg]
-  rw [Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_finsetSum]
   apply Finset.sum_congr rfl
   intro i _
   simp [Polynomial.eval_mul]

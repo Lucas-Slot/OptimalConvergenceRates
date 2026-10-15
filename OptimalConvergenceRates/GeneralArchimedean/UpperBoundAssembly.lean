@@ -216,8 +216,15 @@ theorem hasPutinarDegreeCostBound_of_archimedean
     have hDr : 0 ≤ Dr := by dsimp [Dr, Rbase]; positivity
     have hrefutationOrder :
         (refutationOrder : ℝ) ≤ Dr * (1 + Real.log x) := by
-      dsimp [refutationOrder]
-      rw [sharpConversionRefutationOrder_eq_ofDegree]
+      have horderNat :
+          refutationOrder =
+            sharpConversionRefutationOrderOfDegree pkg.degreeBound
+              (m + 1) d (boundedCoeffEnvelopeOrder n t d) d
+              (boundedCoeffEnvelopeOrder n t d) := by
+        exact sharpConversionRefutationOrder_eq_ofDegree pkg
+          (m + 1) d (boundedCoeffEnvelopeOrder n t d) d
+          (boundedCoeffEnvelopeOrder n t d)
+      rw [horderNat]
       calc
         (sharpConversionRefutationOrderOfDegree pkg.degreeBound
             (m + 1) d (boundedCoeffEnvelopeOrder n t d) d

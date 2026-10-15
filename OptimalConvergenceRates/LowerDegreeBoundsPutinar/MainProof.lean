@@ -34,7 +34,7 @@ theorem improved_lower_degree_bound
     (hmem : f_eps ε ∈ BoxQuadraticModule 2 r) :
     improvedLowerBoundConst * ε ^ (-(1 : ℝ) / 4) ≤ (r : ℝ) := by
   by_contra hcontra
-  push_neg at hcontra
+  push Not at hcontra
   have hc_pos : 0 < improvedLowerBoundConst := improvedLowerBoundConst_pos
   have hε1 : ε < 1 := by
     have hε0_lt_one : improvedEpsilon0 < 1 := by

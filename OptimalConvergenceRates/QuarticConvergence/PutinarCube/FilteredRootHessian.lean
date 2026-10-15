@@ -115,7 +115,7 @@ theorem fderiv_coordinateRotationValue_eq_rotationHessianValue
     simpa only [← coordinateRotationCLM_apply] using
       (coordinateRotationCLM a b).differentiableAt
   rw [fderiv_clm_apply hc hu]
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.comp_apply,
+  simp only [add_apply, ContinuousLinearMap.comp_apply,
     ContinuousLinearMap.flip_apply]
   have huDeriv :
       fderiv ℝ (fun y ↦ coordinateRotationVector a b y) x =
@@ -410,14 +410,14 @@ theorem rotationHessianValue_eq_zero_of_sphere_support
       (hf.differentiable (by norm_num)) center r hsupp y
       (coordinateRotationVector a b y) (by
         simpa only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X,
-          Set.mem_setOf_eq] using hy)
+          Set.mem_ofPred_eq] using hy)
       (coordinateRotationVector_orth a b y)
-    simpa only [sphereChordalCap, Set.mem_setOf_eq] using hnot
+    simpa only [sphereChordalCap, Set.mem_ofPred_eq] using hnot
   rw [← fderiv_coordinateRotationValue_eq_rotationHessianValue hf]
   exact tangent_fderiv_eq_zero_of_sphere_support hg center r hgsupp x
     (coordinateRotationVector i j x) (by
       simpa only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X,
-        Set.mem_setOf_eq] using hx)
+        Set.mem_ofPred_eq] using hx)
     (coordinateRotationVector_orth i j x) hout
 
 /-- The overlap budget gives a root-count-free square bound for the rotation

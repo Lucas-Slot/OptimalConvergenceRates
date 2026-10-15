@@ -48,7 +48,9 @@ theorem sqrtPolynomial_irreducible {a : F} (ha : ¬IsSquare a) :
     (AdjoinRoot.root (sqrtPolynomial a)) ^ 2 =
       algebraMap F (AdjoinRoot (sqrtPolynomial a)) a := by
   have h := AdjoinRoot.eval₂_root (sqrtPolynomial a)
-  simpa [sqrtPolynomial, sub_eq_zero] using h
+  rw [sqrtPolynomial, Polynomial.eval₂_sub, Polynomial.eval₂_X_pow,
+    Polynomial.eval₂_C, ← AdjoinRoot.algebraMap_eq] at h
+  exact sub_eq_zero.mp h
 
 /-- Every element of the quadratic adjoined-root field has the expected two-coordinate normal
 form. -/
@@ -66,7 +68,7 @@ private theorem sqrtAdjoinRoot_exists_normal {a : F}
     · interval_cases n <;> simp
     · have h2n : 2 ≤ n := Nat.le_of_not_gt hn
       rw [coeff_eq_zero_of_natDegree_lt (lt_of_lt_of_le hq2 h2n)]
-      rw [coeff_add, coeff_C_ne_zero (by omega), coeff_C_mul_X, if_neg (by omega)]
+      rw [coeff_add, coeff_C_of_ne_zero (by omega), coeff_C_mul_X, ite_eq_right (by omega)]
       simp
   refine ⟨q.coeff 0, q.coeff 1, ?_⟩
   rw [hz, hqform]

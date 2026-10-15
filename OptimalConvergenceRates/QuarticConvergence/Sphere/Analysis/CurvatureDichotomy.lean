@@ -13,7 +13,7 @@ theorem exists_unit_pair_of_lt_norm {n : ℕ}
     ∃ x y : Fin n → ℝ, ‖x‖ = 1 ∧ ‖y‖ = 1 ∧ r < |H ![x, y]| := by
   have hex : ∃ m, r * ∏ i, ‖m i‖ < ‖H m‖ := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact (not_le_of_gt hr) (H.opNorm_le_bound hr0 h)
   rcases hex with ⟨m, hm⟩
   have hmrepr : ![m 0, m 1] = m := by
@@ -151,7 +151,7 @@ theorem exists_unit_diagonal_quarter_of_norm_one {n : ℕ}
     · have hneg : H ![x, y] < 0 := lt_of_not_ge hsign
       rw [abs_of_neg hneg] at hxyabs
       change (3 / 4 : ℝ) < H ![x, if 0 ≤ H ![x, y] then y else -y]
-      rw [if_neg hsign]
+      rw [ite_eq_right hsign]
       rw [bilinear_neg_right]
       exact hxyabs
   let z := x + y'
@@ -280,9 +280,9 @@ theorem intrinsicRescaledPatch_iteratedFDeriv_two_zero {n : ℕ}
   have hsmoothAt : ContDiffAt ℝ 2 (shifted ∘ L) 0 := (hshift.comp L.contDiff).contDiffAt
   rw [iteratedFDeriv_const_smul_apply hsmoothAt, hcomp, htranslate]
   ext m
-  simp only [ContinuousMultilinearMap.smul_apply,
+  simp only [smul_apply,
     ContinuousMultilinearMap.compContinuousLinearMap_apply, L,
-    ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply]
+    smul_apply, ContinuousLinearMap.id_apply]
   rw [(iteratedFDeriv ℝ 2 u c).map_smul_univ]
   simp only [Fin.prod_univ_two, smul_eq_mul]
   field_simp
@@ -382,7 +382,7 @@ theorem intrinsicRescaledPatch_hessian_lower_at_origin {n : ℕ}
       iteratedFDeriv ℝ 2 (intrinsicRescaledPatch u c R) 0 ![v, v] := by
   rw [sqrt_intrinsicRescaledPatch_zero c hR,
     intrinsicRescaledPatch_iteratedFDeriv_two_zero (hu.contDiff.of_le (by norm_num)) c hR,
-    ContinuousMultilinearMap.smul_apply, smul_eq_mul]
+    smul_apply, smul_eq_mul]
   have hscaled := mul_le_mul_of_nonneg_left
     (hcontrol.iteratedFDeriv_two_lower hu.contDiff c v)
     (inv_nonneg.mpr (sq_nonneg R))
@@ -441,7 +441,7 @@ theorem value_or_positive_curvature_at_intrinsic_scale {n : ℕ}
   · right
     refine ⟨v, hvnorm, ?_⟩
     rw [intrinsicRescaledPatch_iteratedFDeriv_two_zero
-      (hu.contDiff.of_le (by norm_num)) c hR', ContinuousMultilinearMap.smul_apply,
+      (hu.contDiff.of_le (by norm_num)) c hR', smul_apply,
       smul_eq_mul] at hcurvature
     have hmul := mul_le_mul_of_nonneg_left hcurvature (sq_nonneg R)
     change (1 / 4) * R ^ 2 ≤ iteratedFDeriv ℝ 2 u c ![v, v]

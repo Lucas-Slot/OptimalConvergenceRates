@@ -30,13 +30,14 @@ polynomials. -/
 def sharpMomentFunctional (η : ℝ) :
     MvPolynomial (Fin 2) ℝ →ₗ[ℝ] ℝ :=
   (Finsupp.lsum ℝ)
-    (fun α : Fin 2 →₀ ℕ ↦
-      (LinearMap.lsmul ℝ ℝ) (sharpMoment η α))
+      (fun α : Fin 2 →₀ ℕ ↦
+        (LinearMap.lsmul ℝ ℝ) (sharpMoment η α)) ∘ₗ
+    (AddMonoidAlgebra.coeffLinearEquiv ℝ).toLinearMap
 
 @[simp] theorem sharpMomentFunctional_apply (η : ℝ)
     (p : MvPolynomial (Fin 2) ℝ) :
     sharpMomentFunctional η p =
-      p.sum fun α c ↦ sharpMoment η α * c :=
+      p.coeff.sum fun α c ↦ sharpMoment η α * c :=
   rfl
 
 @[simp] theorem sharpMomentFunctional_monomial
@@ -261,7 +262,7 @@ theorem sharpMoment_neg_ab_sub_etaSq_pos {η : ℝ} (hη : 0 < η) :
       monomial (Finsupp.single (0 : Fin 2) 1) 1 *
           monomial (Finsupp.single (1 : Fin 2) 1) 1 =
         monomial α 1
-    simp [α, monomial_mul]
+    simp [α, monomial_mul_monomial]
   have hab :
       sharpMomentFunctional η (obstructionA * obstructionB) =
         -(η ^ 2 * Real.exp 8) := by

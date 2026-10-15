@@ -177,7 +177,7 @@ theorem fact1_sigma1_bound (ε : ℝ) (_hε : 0 < ε) (r : ℕ)
           apply Polynomial.natDegree_sum_le_of_forall_le
           intro v hv
           rw [MvPolynomial.aeval_monomial, Polynomial.algebraMap_eq]
-          calc (Polynomial.C (MvPolynomial.coeff v f) *
+          calc (Polynomial.C (legacyMvCoeff v f) *
                 Finsupp.prod v fun i k => g i ^ k).natDegree
               ≤ (Finsupp.prod v fun i k => g i ^ k).natDegree :=
                 Polynomial.natDegree_C_mul_le _ _

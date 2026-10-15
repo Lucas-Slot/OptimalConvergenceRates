@@ -57,7 +57,7 @@ theorem complexHouseholderMatVec {N : ℕ} (u v : Fin N → ℂ) :
     rw [Finset.sum_eq_single i]
     · simp
     · intro j _hj hji
-      simp [if_neg (Ne.symm hji)]
+      simp [ite_eq_right (Ne.symm hji)]
     · intro hi
       exact False.elim (hi (Finset.mem_univ i))
   rw [hfirst]
@@ -187,7 +187,7 @@ theorem complexMatInvolutive_of_matVec_apply_twice {N : ℕ} {J : Fin N → Fin 
     rw [Finset.sum_eq_single k]
     · simp
     · intro l _hl hlk
-      simp [if_neg hlk]
+      simp [ite_eq_right hlk]
     · intro hknot
       exact False.elim (hknot (Finset.mem_univ k))
   simp only [hinner] at hk
@@ -279,7 +279,7 @@ theorem complexPlusFactorApply_eval {N : ℕ} (a : ℝ) (J : Fin N → Fin N →
         complexMatVec J (fun j : Fin N => (G j).eval z) i := by
   funext i
   unfold complexPlusFactorApply complexMatVecPoly complexMatVec
-  simp [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_finset_sum]
+  simp [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_finsetSum]
 
 /-- Additivity in the second argument of the custom Hermitian product. -/
 theorem complexVecHermitianEval_add_right {N : ℕ} (u v w : Fin N → ℂ) :

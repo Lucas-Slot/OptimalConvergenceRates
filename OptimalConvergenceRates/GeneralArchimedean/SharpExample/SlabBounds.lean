@@ -38,7 +38,7 @@ theorem sharpRestrictAB_natDegree_le (a b : Real) (p : MvPolynomial (Fin 3) Real
     ![Polynomial.C a, Polynomial.C b, Polynomial.X] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [sharpRestrictAB] using h
 
 /-- Coarse Chebyshev growth at distance `O(t)` outside `[-1,1]`.  The
 constant is deliberately generous so later algebra stays simple. -/
@@ -59,7 +59,7 @@ theorem chebyshevT_abs_le_exp_slab
   by_cases hyin : |y| <= 1
   · exact (chebyshevT_abs_le_one d y (abs_le.mp hyin).1
       (abs_le.mp hyin).2).trans hexpOne
-  · push_neg at hyin
+  · push Not at hyin
     have hyge : 1 <= |y| := le_of_lt hyin
     have hyupper : |y| <= 3 / 2 := by
       calc
@@ -217,7 +217,7 @@ theorem quarterInterval_face_multiplier_bound
       _ <= Real.exp 6 * M := by
         simpa using mul_le_mul_of_nonneg_right hCone hM.le
       _ = 8 * Real.exp 6 * (d : Real) ^ 2 := by dsimp [M]; ring
-  · push_neg at hdx
+  · push Not at hdx
     have hbound : forall z : Real, delta <= z -> z <= (1 : Real) / 4 ->
         |p.eval z| <= M := by
       intro z hzdelta hz4

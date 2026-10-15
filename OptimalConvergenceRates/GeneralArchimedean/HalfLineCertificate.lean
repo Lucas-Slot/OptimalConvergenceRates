@@ -137,7 +137,7 @@ theorem halfLineCertificate_nonempty
     ring
   have hfpos := congrArg (fun z : Polynomial ℝ => z.eval t) hf
   have hfneg := congrArg (fun z : Polynomial ℝ => z.eval (-t)) hf
-  simp only [Polynomial.eval_finset_sum, Polynomial.eval_pow] at hfpos hfneg
+  simp only [Polynomial.eval_finsetSum, Polynomial.eval_pow] at hfpos hfneg
   have hterm : ∀ i : Fin k,
       ((f i).eval t ^ 2 + (f i).eval (-t) ^ 2) / 2 =
         (e i).eval (U - u) ^ 2 +
@@ -176,7 +176,7 @@ theorem halfLineCertificate_nonempty
   simp only [Polynomial.eval_add, Polynomial.eval_mul, Polynomial.eval_sub,
     Polynomial.eval_C, Polynomial.eval_X]
   dsimp [sigmaZero, sigmaBoundary, reflect]
-  simp only [Polynomial.eval_finset_sum, Polynomial.eval_pow,
+  simp only [Polynomial.eval_finsetSum, Polynomial.eval_pow,
     Polynomial.eval_comp, Polynomial.eval_sub, Polynomial.eval_C,
     Polynomial.eval_X]
   rw [havg]

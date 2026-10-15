@@ -48,7 +48,7 @@ theorem norm_iteratedFDeriv_normalCoordinate_le_one {n q : ℕ}
     rw [norm_iteratedFDeriv_zero]
     apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
     intro w
-    simpa only [one_mul] using norm_fst_le w
+    simpa only [ContinuousLinearMap.coe_fst', one_mul] using norm_fst_le w
   · rw [iteratedFDeriv_const_of_ne hqZero]
     simp
 
@@ -68,7 +68,7 @@ theorem norm_iteratedFDeriv_tangentialCoordinate_le_one {n q : ℕ}
     rw [norm_iteratedFDeriv_zero]
     apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
     intro w
-    simpa only [one_mul] using norm_snd_le w
+    simpa only [ContinuousLinearMap.coe_snd', one_mul] using norm_snd_le w
   · rw [iteratedFDeriv_const_of_ne hqZero]
     simp
 
@@ -114,8 +114,8 @@ theorem norm_iteratedFDeriv_localSquareCoefficientPath_le
     linarith [hs.1, hs.2]
   have hfirstDeriv : ‖iteratedFDeriv ℝ q first z‖ ≤ 2 * G := by
     change ‖iteratedFDeriv ℝ q
-      (fun w ↦ (1 - s) • graphPull w + s • normal w) z‖ ≤ 2 * G
-    rw [iteratedFDeriv_add_apply' (i := q)
+      ((fun w ↦ (1 - s) • graphPull w) + fun w ↦ s • normal w) z‖ ≤ 2 * G
+    rw [iteratedFDeriv_add_apply (i := q)
       (((hgraphSmooth.const_smul (1 - s)).of_le (by exact_mod_cast hq)).contDiffAt)
       (((hnormalSmooth.const_smul s).of_le (by exact_mod_cast hq)).contDiffAt),
       iteratedFDeriv_const_smul_apply'
@@ -195,8 +195,8 @@ theorem norm_iteratedFDeriv_splitNormalDisplacement_le {n q : ℕ}
       tangentialCoordinatePullback, sub_eq_add_neg]
   rw [hdisplacementEq]
   change ‖iteratedFDeriv ℝ q
-    (fun w ↦ normal w + (-1 : ℝ) • graphPull w) z‖ ≤ 2 * G
-  rw [iteratedFDeriv_add_apply'
+    (normal + fun w ↦ (-1 : ℝ) • graphPull w) z‖ ≤ 2 * G
+  rw [iteratedFDeriv_add_apply
     ((hnormalSmooth.of_le (by exact_mod_cast hq)).contDiffAt)
     (((hgraphSmooth.const_smul (-1 : ℝ)).of_le
       (by exact_mod_cast hq)).contDiffAt),

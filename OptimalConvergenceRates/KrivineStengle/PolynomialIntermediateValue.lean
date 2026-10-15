@@ -30,7 +30,7 @@ private theorem normalizedFactor_eval_mul_pos_of_no_root_between
     have hpRoot : p.IsRoot r := hqRoot.dvd hqDvd
     have hrOutside : r < a ∨ b < r := by
       by_contra h
-      push_neg at h
+      push Not at h
       exact hNoRoot r ⟨h.1, h.2⟩ hpRoot
     rw [hqEq]
     simp only [eval_add, eval_X, eval_C]
@@ -85,7 +85,7 @@ theorem exists_isRoot_mem_Icc_of_eval_mul_nonpos {p : R[X]} {a b : R}
   · subst p
     exact ⟨a, left_mem_Icc.mpr hab, by simp⟩
   by_contra hroot
-  push_neg at hroot
+  push Not at hroot
   exact (not_lt_of_ge hsign) (eval_mul_pos_of_no_root_between hp hab hroot)
 
 /-- Endpoint sign change gives a root between the endpoints. -/

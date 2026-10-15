@@ -6,6 +6,7 @@
 import OptimalConvergenceRates.QuarticConvergence.Sphere.Analysis.JetBounds
 import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
 import Mathlib.Analysis.Calculus.Deriv.MeanValue
+import Mathlib.Analysis.Calculus.Deriv.Prod
 import Mathlib.Analysis.Calculus.ImplicitContDiff
 import Mathlib.Analysis.Calculus.ParametricIntegral
 import Mathlib.Analysis.Calculus.ContDiff.FiniteDimension
@@ -17,7 +18,7 @@ import Mathlib.Topology.Maps.Proper.Basic
 open Set
 open Filter
 open MeasureTheory
-open scoped Topology
+open scoped Topology ContDiff
 
 noncomputable section
 
@@ -33,7 +34,7 @@ theorem contDiff_setIntegral_Icc
   | zero =>
       exact contDiff_zero.2
         (continuous_parametric_integral_of_continuous
-          (f := fun x t ↦ g (x, t)) (by simpa using hg.continuous) isCompact_Icc)
+          (f := fun x t ↦ g (x, t)) (by fun_prop) isCompact_Icc)
   | succ m ih =>
       let inl : D →L[ℝ] (D × ℝ) := ContinuousLinearMap.inl ℝ D ℝ
       let F : D → ℝ → ℝ := fun x t ↦ g (x, t)
@@ -69,7 +70,7 @@ theorem contDiff_setIntegral_Icc
         · refine Filter.Eventually.of_forall fun t x hx ↦ by
             have hpair : HasFDerivAt (fun x : D ↦ (x, t)) inl x := by
               fun_prop
-            simpa [F, F'] using
+            simpa only [F, F', Function.comp_def] using
               (hg.differentiable (by norm_num) (x, t)).hasFDerivAt.comp x hpair
       have hdiff : Differentiable ℝ (fun x : D ↦ ∫ t in Set.Icc (0 : ℝ) 1, F x t) :=
         fun x ↦ (hderiv x).differentiableAt
@@ -182,11 +183,12 @@ theorem normalCriticalPoint_unique {n : ℕ} (input : NormalizedLocalSplitInput 
       exact htIcc
     have hcurv := input.normal_curvature (t, y) htcyl
     have he : HasDerivAt (fun s : ℝ => (s, y)) (splitNormalDirection n) t := by
-      convert (hasDerivAt_id t).prodMk (hasDerivAt_const t y) using 1
+      simpa only [id_eq, splitNormalDirection] using
+        (HasDerivAt.prodMk (hasDerivAt_id t) (hasDerivAt_const t y))
     have hchain :=
       (hnormal.differentiable (by norm_num) (t, y)).hasFDerivAt.comp_hasDerivAt t he
     rw [show deriv φ t = fderiv ℝ N (t, y) (splitNormalDirection n) by
-      simpa [φ] using hchain.deriv]
+      simpa only [φ, Function.comp_def] using hchain.deriv]
     exact (by norm_num : (0 : ℝ) < 1 / 4).trans_le hcurv
   apply hmono.injOn ha hb
   simpa [φ, N] using hza.trans hzb.symm
@@ -276,19 +278,21 @@ theorem normalCriticalEquation_partial_bijective {n : ℕ}
     rw [hformula]
     field_simp
 
-/-- At every selected critical point, all hypotheses of mathlib's `C⁵` implicit-function theorem
-hold. -/
-theorem normalCriticalEquation_isContDiffImplicitAt {n : ℕ}
+/-- At every selected critical point, the normal partial derivative is invertible. -/
+theorem normalCriticalEquation_partial_isInvertible {n : ℕ}
     (input : NormalizedLocalSplitInput n) (y : Fin n → ℝ) :
-    IsContDiffImplicitAt 5 (normalCriticalEquation input)
-      (fderiv ℝ (normalCriticalEquation input) (y, minimizingGraphValue input y))
-      (y, minimizingGraphValue input y) where
-  hasFDerivAt := (normalCriticalEquation_contDiff_five input).differentiable
-    (by norm_num) (y, minimizingGraphValue input y) |>.hasFDerivAt
-  contDiffAt := (normalCriticalEquation_contDiff_five input).contDiffAt
-  bijective := normalCriticalEquation_partial_bijective input y
+    ((fderiv ℝ (normalCriticalEquation input) (y, minimizingGraphValue input y)).comp
+      (ContinuousLinearMap.inr ℝ (Fin n → ℝ) ℝ)).IsInvertible := by
+  let L : ℝ →L[ℝ] ℝ :=
+    (fderiv ℝ (normalCriticalEquation input) (y, minimizingGraphValue input y)).comp
+      (ContinuousLinearMap.inr ℝ (Fin n → ℝ) ℝ)
+  have hbij : Function.Bijective L := normalCriticalEquation_partial_bijective input y
     (minimizingGraphValue input y) (minimizingGraphValue_mem_Icc input y)
-  ne_zero := by norm_num
+  have hL : L.IsInvertible := by
+    refine ⟨ContinuousLinearEquiv.ofBijective L
+      (LinearMap.ker_eq_bot.mpr hbij.1) (LinearMap.range_eq_top.mpr hbij.2), ?_⟩
+    rfl
+  simpa [L] using hL
 
 /-- The unique critical-point selection is continuous. The proof realizes its graph as a closed
 subset of tangential space times the compact interval and uses that the graph projection is a
@@ -321,8 +325,8 @@ theorem minimizingGraphValue_continuous {n : ℕ} (input : NormalizedLocalSplitI
       apply Prod.ext hab
       apply Subtype.ext
       apply normalCriticalPoint_unique input b.1.1 a.1.2.property b.1.2.property
-      · simpa only [Z, Set.mem_setOf_eq, equation, hab] using a.property
-      · simpa only [Z, Set.mem_setOf_eq, equation] using b.property
+      · simpa only [Z, Set.mem_ofPred_eq, equation, hab] using a.property
+      · simpa only [Z, Set.mem_ofPred_eq, equation] using b.property
     · intro y
       let t : K := ⟨minimizingGraphValue input y, minimizingGraphValue_mem_Icc input y⟩
       have hzero : equation (y, t) = 0 := by
@@ -337,7 +341,7 @@ theorem minimizingGraphValue_continuous {n : ℕ} (input : NormalizedLocalSplitI
     apply normalCriticalPoint_unique input y
     · exact (h.symm y).1.2.property
     · exact minimizingGraphValue_mem_Icc input y
-    · simpa only [Z, Set.mem_setOf_eq, equation, hy] using (h.symm y).property
+    · simpa only [Z, Set.mem_ofPred_eq, equation, hy] using (h.symm y).property
     · exact minimizingGraphValue_normalDerivative_eq_zero input y
   have hcontinuous : Continuous (fun y : Fin n → ℝ => ((h.symm y).1.2 : ℝ)) := by
     fun_prop
@@ -349,19 +353,27 @@ theorem minimizingGraphValue_contDiff_five {n : ℕ} (input : NormalizedLocalSpl
     ContDiff ℝ 5 (minimizingGraphValue input) := by
   rw [contDiff_iff_contDiffAt]
   intro y
-  let h := normalCriticalEquation_isContDiffImplicitAt input y
+  let cdf : ContDiffAt ℝ 5 (normalCriticalEquation input)
+      (y, minimizingGraphValue input y) :=
+    (normalCriticalEquation_contDiff_five input).contDiffAt
+  have pn : (5 : WithTop ℕ∞) ≠ 0 := by norm_num
+  have if₂ :
+      ((fderiv ℝ (normalCriticalEquation input) (y, minimizingGraphValue input y)).comp
+        (ContinuousLinearMap.inr ℝ (Fin n → ℝ) ℝ)).IsInvertible :=
+    normalCriticalEquation_partial_isInvertible input y
   have hpair : ContinuousAt (fun z => (z, minimizingGraphValue input z)) y := by
     exact continuousAt_id.prodMk (minimizingGraphValue_continuous input).continuousAt
-  have hpull := hpair.eventually h.eventually_implicitFunction_apply_eq
-  have heq : h.implicitFunction =ᶠ[𝓝 y] minimizingGraphValue input := by
+  have hpull := hpair.eventually
+    (cdf.eventually_apply_eq_iff_implicitFunction pn if₂)
+  have heq : cdf.implicitFunction pn if₂ =ᶠ[𝓝 y] minimizingGraphValue input := by
     filter_upwards [hpull] with z hz
-    apply hz
+    apply hz.mp
     have hz0 : normalCriticalEquation input (z, minimizingGraphValue input z) = 0 := by
       exact minimizingGraphValue_normalDerivative_eq_zero input z
     have hy0 : normalCriticalEquation input (y, minimizingGraphValue input y) = 0 := by
       exact minimizingGraphValue_normalDerivative_eq_zero input y
     rw [hz0, hy0]
-  exact h.contDiffAt_implicitFunction.congr_of_eventuallyEq heq.symm
+  exact (cdf.contDiffAt_implicitFunction pn if₂).congr_of_eventuallyEq heq.symm
 
 /-- Strict normal convexity and endpoint signs produce one global minimizing graph. -/
 theorem uniformMinimizingGraph {n : ℕ} (input : NormalizedLocalSplitInput n) :
@@ -398,7 +410,7 @@ theorem localSplitEnvelope_contDiff_six {n : ℕ} (input : NormalizedLocalSplitI
     rw [fderiv_comp y hfDiff hGDiff]
     rw [show fderiv ℝ G y = (fderiv ℝ graph.graph y).prod
         (ContinuousLinearMap.id ℝ (Fin n → ℝ)) by
-      simpa [G, fderiv_id'] using hgraphDiff.fderiv_prodMk differentiableAt_id]
+      simpa [G, fderiv_fun_id] using hgraphDiff.fderiv_prodMk differentiableAt_id]
     ext v
     simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.prod_apply,
       ContinuousLinearMap.id_apply]
@@ -431,7 +443,9 @@ theorem taylor_quadratic_lower_of_lt {f : ℝ → ℝ} {a b c : ℝ}
     (hsecond : ∀ x ∈ Set.Icc a b, c ≤ iteratedDeriv 2 f x) :
     c / 2 * (b - a) ^ 2 ≤ f b - f a := by
   obtain ⟨x, hx, hrem⟩ :=
-    taylor_mean_remainder_lagrange_iteratedDeriv (n := 1) hab hf.contDiffOn
+    taylor_mean_remainder_lagrange_iteratedDeriv (n := 1) hab.ne hf.contDiffOn
+  rw [Set.uIoo_of_le hab.le] at hx
+  rw [Set.uIcc_of_le hab.le] at hrem
   have hxa : x ∈ Set.Icc a b := ⟨hx.1.le, hx.2.le⟩
   have hsecondx := hsecond x hxa
   have hud : UniqueDiffOn ℝ (Set.Icc a b) := uniqueDiffOn_Icc hab
@@ -462,7 +476,7 @@ theorem taylor_quadratic_lower {f : ℝ → ℝ} {a b c : ℝ}
       rw [show deriv g 0 = iteratedDeriv 1 g 0 by simp [iteratedDeriv_one]]
       rw [show iteratedDeriv 1 g = fun s => (-1 : ℝ) ^ 1 *
           iteratedDeriv 1 f (a - s) by
-        simpa only [smul_eq_mul] using
+        simpa only [smul_eq_mul, Pi.sub_apply, Function.const_apply, id_eq, zero_sub] using
           (iteratedDeriv_comp_const_sub (f := f) (s := a) (n := 1))]
       simp [iteratedDeriv_one, hda]
     have hsecondg : ∀ s ∈ Set.Icc (0 : ℝ) (a - b),
@@ -493,10 +507,11 @@ theorem localSplit_quadratic_lower {n : ℕ} (input : NormalizedLocalSplitInput 
   have hderivφ : deriv φ = fun t => N (t, z.2) := by
     funext t
     have hline : HasDerivAt (fun s : ℝ => (s, z.2)) (splitNormalDirection n) t := by
-      convert (hasDerivAt_id t).prodMk (hasDerivAt_const t z.2) using 1
+      simpa only [id_eq, splitNormalDirection] using
+        (HasDerivAt.prodMk (hasDerivAt_id t) (hasDerivAt_const t z.2))
     have hchain := (input.contDiff.differentiable (by norm_num) (t, z.2)).hasFDerivAt
       |>.comp_hasDerivAt t hline
-    simpa [φ, N] using hchain.deriv
+    simpa only [φ, N, Function.comp_def] using hchain.deriv
   have hdX : deriv φ X = 0 := by
     rw [hderivφ]
     exact graph.first_derivative_zero z.2
@@ -515,7 +530,8 @@ theorem localSplit_quadratic_lower {n : ℕ} (input : NormalizedLocalSplitInput 
     have hN : ContDiff ℝ 5 N := by
       exact (input.contDiff.fderiv_right (m := 5) (by norm_num)).clm_apply contDiff_const
     have hline : HasDerivAt (fun s : ℝ => (s, z.2)) (splitNormalDirection n) t := by
-      convert (hasDerivAt_id t).prodMk (hasDerivAt_const t z.2) using 1
+      simpa only [id_eq, splitNormalDirection] using
+        (HasDerivAt.prodMk (hasDerivAt_id t) (hasDerivAt_const t z.2))
     have hchain := (hN.differentiable (by norm_num) (t, z.2)).hasFDerivAt
       |>.comp_hasDerivAt t hline
     have hiter : iteratedDeriv 2 φ t =
@@ -631,12 +647,11 @@ theorem integralTaylor_two {φ φ' φ'' : ℝ → ℝ}
   have hip : ∫ s in (0 : ℝ)..1, (1 - s) * φ'' s =
       (1 - 1) * φ' 1 - (1 - 0) * φ' 0 -
         ∫ s in (0 : ℝ)..1, (-1) * φ' s := by
-    exact intervalIntegral.integral_mul_deriv_eq_deriv_mul
-      (fun s _ ↦ by
-        simpa only [Pi.sub_apply, Function.const_apply, id_eq, zero_sub] using
-          (hasDerivAt_const s 1).sub (hasDerivAt_id s))
-      (fun s _ ↦ hφ'' s) (continuous_const.intervalIntegrable 0 1)
-      (hφ''cont.intervalIntegrable 0 1)
+    simpa only [smul_eq_mul, Pi.sub_apply, Function.const_apply, id_eq, zero_sub] using
+      intervalIntegral.integral_smul_deriv_eq_deriv_smul
+        (fun s _ ↦ (hasDerivAt_const s (1 : ℝ)).sub (hasDerivAt_id s))
+        (fun s _ ↦ hφ'' s) (continuous_const.intervalIntegrable 0 1)
+        (hφ''cont.intervalIntegrable 0 1)
   rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le zero_le_one]
   rw [← hftc]
   simpa [hzero] using hip.symm
@@ -660,19 +675,21 @@ theorem localRawSquareCoefficientFn_factorization {n : ℕ}
     have hfirst : HasDerivAt (fun q : ℝ ↦ X + q * d) d s := by
       simpa only [id_eq, one_mul] using (hasDerivAt_id s).mul_const d |>.const_add X
     have hp : HasDerivAt path (d, 0) s := by
-      simpa only [path] using hfirst.prodMk (hasDerivAt_const s z.2)
+      simpa only [path] using
+        (HasDerivAt.prodMk hfirst (hasDerivAt_const s z.2))
     exact hp.congr_deriv (by simp [splitNormalDirection])
   have hN : ContDiff ℝ 5 N := by
     exact (input.contDiff.fderiv_right (m := 5) (by norm_num)).clm_apply contDiff_const
+  letI : Module ℝ ℝ := RCLike.toInnerProductSpaceReal.toModule
   have hφ' (s : ℝ) : HasDerivAt φ (φ' s) s := by
     have hchain := (input.contDiff.differentiable (by norm_num) (path s)).hasFDerivAt
       |>.comp_hasDerivAt s (hpath s)
-    simpa [φ, φ', N, map_smul] using hchain
+    simpa [φ, φ', N, map_smul, this, Function.comp_def] using hchain
   have hφ'' (s : ℝ) : HasDerivAt φ' (φ'' s) s := by
     have hchain := (hN.differentiable (by norm_num) (path s)).hasFDerivAt
       |>.comp_hasDerivAt s (hpath s)
     have hbase : HasDerivAt (fun q ↦ N (path q)) (d * H (path s)) s := by
-      simpa [H, localNormalSecondDerivative, map_smul, mul_comm] using hchain
+      simpa [H, localNormalSecondDerivative, map_smul, mul_comm, this, Function.comp_def] using hchain
     simpa [φ', φ'', pow_two, mul_assoc] using hbase.const_mul d
   have hφ''cont : Continuous φ'' := by
     have hpathCont : Continuous path := by fun_prop

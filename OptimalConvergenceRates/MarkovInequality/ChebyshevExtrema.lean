@@ -84,7 +84,7 @@ theorem chebyshevT_derivative_eq_zero_iff_exists_cos
         exact Polynomial.degree_ne_bot.mp (by rw [Polynomial.Chebyshev.degree_U_natCast]; simp)
       have hxmem : x ∈ (Polynomial.Chebyshev.U ℝ (↑d - 1 : ℤ)).roots :=
         (Polynomial.mem_roots hne).mpr hx
-      rw [hcast, Polynomial.Chebyshev.roots_U_real] at hxmem
+      rw [hcast, Polynomial.Chebyshev.roots_U_real, Finset.mem_val] at hxmem
       obtain ⟨k, hk, hxk⟩ := Finset.mem_image.mp hxmem
       refine ⟨k, Finset.mem_range.mp hk, ?_⟩
       rw [← hxk, hden]
@@ -92,9 +92,8 @@ theorem chebyshevT_derivative_eq_zero_iff_exists_cos
       rw [hcast]
       have hxmem : Real.cos ((k + 1) * Real.pi / ↑d) ∈
           (Polynomial.Chebyshev.U ℝ (d - 1 : ℕ)).roots := by
-        rw [Polynomial.Chebyshev.roots_U_real]
+        rw [Polynomial.Chebyshev.roots_U_real, Finset.mem_val]
         rw [← hden]
-        rw [← Finset.mem_def]
         exact Finset.mem_image.mpr ⟨k, Finset.mem_range.mpr hk, rfl⟩
       exact (Polynomial.mem_roots (Polynomial.degree_ne_bot.mp (by
         rw [Polynomial.Chebyshev.degree_U_natCast]; simp))).mp hxmem

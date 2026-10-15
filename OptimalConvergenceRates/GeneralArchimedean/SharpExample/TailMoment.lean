@@ -73,7 +73,7 @@ theorem sharpTruncatedMoment_monomial_mul_apply
   rw [Finset.mul_sum, map_sum]
   apply Finset.sum_congr rfl
   intro alpha _halpha
-  simp only [monomial_mul, one_mul, sharpTruncatedMoment_monomial]
+  simp only [monomial_mul_monomial, one_mul, sharpTruncatedMoment_monomial]
   rw [finsupp_sum_fin_two, bivarTotal_bivarExponent_add]
 
 /-- A shifted truncated tail moment is bounded by the explicit finite budget.
@@ -97,7 +97,7 @@ theorem abs_sharpTruncatedMoment_monomial_mul_tail_le
   apply Finset.sum_le_sum
   intro alpha halpha
   by_cases hcut : bivarTotal alpha + u + v <= 2 * D
-  · rw [if_pos hcut, abs_mul]
+  · rw [ite_eq_left hcut, abs_mul]
     have hcoeff := abs_sharpTailPolynomial_coeff_le_closed
       (D := D) q hM hdeg hbound alpha
     have hmoment := abs_sharpMoment_bivarExponent_add_le heta u v alpha
@@ -105,10 +105,10 @@ theorem abs_sharpTruncatedMoment_monomial_mul_tail_le
         sharpShiftedMomentEnvelope eta u v alpha := by
       unfold sharpShiftedMomentEnvelope
       positivity
-    simp only [hcut, if_true]
+    simp only [hcut, ite_true]
     simpa [sharpTailCoefficientEnvelope, mul_comm] using
       mul_le_mul hmoment hcoeff (abs_nonneg _) hmomentNonneg
-  · rw [if_neg hcut]
+  · rw [ite_eq_right hcut]
     simp [hcut]
 
 theorem monomial_bivarExponent_eq_pow (u v : Nat) :
@@ -118,7 +118,7 @@ theorem monomial_bivarExponent_eq_pow (u v : Nat) :
       simp [obstructionA, X_pow_eq_monomial],
     show obstructionB ^ v = monomial (Finsupp.single (1 : Fin 2) v) 1 by
       simp [obstructionB, X_pow_eq_monomial],
-    monomial_mul]
+    monomial_mul_monomial]
   simp [bivarExponent]
 
 theorem abs_sharpTruncatedMoment_pow_mul_tail_le

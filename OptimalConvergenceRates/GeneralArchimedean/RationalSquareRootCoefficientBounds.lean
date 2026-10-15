@@ -165,7 +165,7 @@ theorem gridProduct_polynomialCoeffL1Norm_le
         (1 + gridPoint δ j) ^ (2 * ell) := by
       rw [gridProduct_eval]
     _ ≤ ∏ _j ∈ Finset.range (J + 1), Q ^ (2 * ell) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro j hj
         exact pow_nonneg (add_nonneg zero_le_one (gridPoint_nonneg hδ j)) _
       · intro j hj
@@ -247,7 +247,7 @@ theorem gridResidual_coeffL1Norm_le
       embeddedPolynomialCoeffL1Norm_prod_le _ _
     _ ≤ ∏ _j ∈ Finset.range (J + 1),
         dyadicCoefficientBase δ J ^ ell := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro j hj
         exact embeddedPolynomialCoeffL1Norm_nonneg _
       · intro j hj
@@ -319,7 +319,7 @@ theorem two_mul_sqrt_mul_denominator_eval
       (gridProduct δ ell J).eval (-t) =
         (numerator δ ell J).eval δ -
           t * (denominator δ ell J).eval δ := by
-    simpa [numerator, denominator] using hminus
+    simpa [numerator, denominator, sub_eq_add_neg] using hminus
   rw [hzero] at hminus'
   dsimp [t] at hplus' hminus' ⊢
   linarith
@@ -346,7 +346,7 @@ theorem gridProduct_eval_sqrt_lower
       simp [t, pow_mul]
     _ ≤ ∏ j ∈ Finset.range (J + 1),
           (t + gridPoint δ j) ^ (2 * ell) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro j hj
         positivity
       · intro j hj

@@ -205,7 +205,7 @@ theorem bounded_certificate_preordering_refutation_to_sharp_module_at_of_coordin
     RationalSquareRoot.package_nonempty_with_parameter_log_bounds
       hdelta hB0 htheta hthetaOne
   refine ⟨pkg, hell, hJ, ?_⟩
-  simpa [boundedSharpBridgeRefutationBudget, Bprime, theta, delta] using
+  simpa [boundedSharpBridgeRefutationBudget, boundedBridgeGeneratorBudget, Bprime, theta, delta] using
     bounded_refutation_of_sharpAbsorption_with_denominator_at
       pkg a sigma hsigmaSOS hsigmaDegree hsigmaNorm hH
       csigma (by norm_num : (0 : ℝ) ≤ 1)

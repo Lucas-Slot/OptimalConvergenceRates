@@ -409,7 +409,7 @@ def BoundedIntervalCertificate.subst_bounded
             a * polynomialSubst a cert.certificate.sigmaLeft +
               (C B - a) * polynomialSubst a cert.certificate.sigmaRight := by
         simpa only [polynomialSubst, map_add, map_mul, map_sub,
-          Polynomial.aeval_X, Polynomial.aeval_C] using hid
+          Polynomial.aeval_X, Polynomial.aeval_C, MvPolynomial.C_eq_algebraMap] using hid
       _ = polynomialSubst a cert.certificate.sigmaZero +
           (polynomialSubst a cert.certificate.sigmaLeft * a +
             polynomialSubst a cert.certificate.sigmaRight * (C B - a)) := by

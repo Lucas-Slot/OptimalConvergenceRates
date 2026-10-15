@@ -32,7 +32,7 @@ theorem sharpRestrictA_natDegree_le (b z : Real)
     ![Polynomial.X, Polynomial.C b, Polynomial.C z] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [sharpRestrictA] using h
 
 def sharpRestrictB (a z : Real) (p : MvPolynomial (Fin 3) Real) :
     Polynomial Real :=
@@ -60,7 +60,7 @@ theorem sharpRestrictB_natDegree_le (a z : Real)
     ![Polynomial.C a, Polynomial.X, Polynomial.C z] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [sharpRestrictB] using h
 
 theorem sharpCertificate_eval
     {eps : Real}

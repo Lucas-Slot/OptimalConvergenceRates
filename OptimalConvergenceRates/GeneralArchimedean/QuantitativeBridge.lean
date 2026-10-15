@@ -69,7 +69,7 @@ theorem activePreorderingCoefficient_totalDegree_le
   · simp [activePreorderingCoefficient, hprod]
   · by_cases hsigma : c.sigma I = 0
     · simp [activePreorderingCoefficient, hprod, hsigma]
-    · rw [activePreorderingCoefficient, if_neg hprod]
+    · rw [activePreorderingCoefficient, ite_eq_right hprod]
       have hdegree := c.degree_le I
       rw [totalDegree_mul_of_isDomain hsigma hprod] at hdegree
       exact (Nat.le_add_right _ _).trans hdegree

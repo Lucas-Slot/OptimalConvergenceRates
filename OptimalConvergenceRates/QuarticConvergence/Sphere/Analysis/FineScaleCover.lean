@@ -176,13 +176,13 @@ theorem fineQuantitativeSquarePartition_of_slowVariation {n : ℕ}
     have hRi : 0 ≤ nonnegativeJetScale u (I.value i) :=
       nonnegativeJetScale_nonneg u (I.value i)
     constructor
-    · simp only [radius, if_pos hi]
+    · simp only [radius, ite_eq_left hi]
       calc
         ε * nonnegativeJetScale u (I.value i) ≤
             1 * nonnegativeJetScale u (I.value i) :=
           mul_le_mul_of_nonneg_right hε_le_one hRi
         _ = nonnegativeJetScale u (I.value i) := one_mul _
-    · simp only [radius, if_pos hi]
+    · simp only [radius, ite_eq_left hi]
       calc
         nonnegativeJetScale u (I.value i) ≤
             (A * ε) * nonnegativeJetScale u (I.value i) :=
@@ -224,17 +224,17 @@ theorem fineQuantitativeSquarePartition_of_slowVariation {n : ℕ}
   · intro i j hj x
     by_cases hi : i ∈ I.active
     · have hb := hderiv' i hi j hj x
-      simpa only [cutoff, bump, I, radius, if_pos hi] using
+      simpa only [cutoff, bump, I, radius, ite_eq_left hi] using
         hb.trans (show Aderiv ≤ A from le_max_left _ _)
     · have hzero : cutoff i = 0 := by
         funext y
         simp [cutoff, squareNormalizedFamily, bump, activeIntrinsicRawBump, hi]
       rw [hzero]
       change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ => (0 : ℝ)) x‖ * radius i ^ j ≤ A
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simpa using hA0
   · intro i hi
-    simp only [radius, if_pos hi]
+    simp only [radius, ite_eq_left hi]
     exact mul_le_mul_of_nonneg_right hε_le_σ
       (nonnegativeJetScale_nonneg u (I.value i))
 

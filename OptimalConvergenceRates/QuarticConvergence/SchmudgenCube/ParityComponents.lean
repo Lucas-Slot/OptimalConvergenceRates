@@ -144,7 +144,7 @@ theorem cubeReducedMonomial_totalDegree_add_card_le
       ∑ ib : CubeCircleVar n, (cubeReducedFactor ib (s ib)).totalDegree := by
     unfold cubeReducedMonomial
     rw [s.prod_fintype cubeReducedFactor hzero]
-    exact MvPolynomial.totalDegree_finset_prod Finset.univ _
+    exact MvPolynomial.totalDegree_finsetProd Finset.univ _
   calc
     (cubeReducedMonomial s).totalDegree + (circleMonomialParity s).card ≤
         (∑ ib : CubeCircleVar n, (cubeReducedFactor ib (s ib)).totalDegree) +
@@ -163,7 +163,7 @@ theorem cubeReducedMonomial_totalDegree_add_card_le
 def circleParityComponent (P : MvPolynomial (CubeCircleVar n) ℝ) (J : Finset (Fin n)) :
     MvPolynomial (Fin n) ℝ :=
   ∑ s ∈ P.support.filter (fun s ↦ circleMonomialParity s = J),
-    MvPolynomial.C (MvPolynomial.coeff s P) * cubeReducedMonomial s
+    MvPolynomial.C (legacyMvCoeff s P) * cubeReducedMonomial s
 
 /-- Each parity component has the canonical weighted degree inherited from the original
 polynomial. -/
@@ -178,15 +178,15 @@ theorem circleParityComponent_eq_zero_or_totalDegree_add_card_le
     simp [circleParityComponent, T, hT]
   · right
     have hterm (s : CubeCircleVar n →₀ ℕ) (hs : s ∈ T) :
-        (MvPolynomial.C (MvPolynomial.coeff s P) * cubeReducedMonomial s).totalDegree ≤
+        (MvPolynomial.C (legacyMvCoeff s P) * cubeReducedMonomial s).totalDegree ≤
           P.totalDegree - J.card := by
       have hs' := Finset.mem_filter.mp hs
       have hcoeff :
-          (MvPolynomial.C (MvPolynomial.coeff s P) * cubeReducedMonomial s).totalDegree ≤
+          (MvPolynomial.C (legacyMvCoeff s P) * cubeReducedMonomial s).totalDegree ≤
             (cubeReducedMonomial s).totalDegree := by
         calc
-          (MvPolynomial.C (MvPolynomial.coeff s P) * cubeReducedMonomial s).totalDegree ≤
-              (MvPolynomial.C (MvPolynomial.coeff s P) :
+          (MvPolynomial.C (legacyMvCoeff s P) * cubeReducedMonomial s).totalDegree ≤
+              (MvPolynomial.C (legacyMvCoeff s P) :
                 MvPolynomial (Fin n) ℝ).totalDegree +
                 (cubeReducedMonomial s).totalDegree := MvPolynomial.totalDegree_mul _ _
           _ = (cubeReducedMonomial s).totalDegree := by simp
@@ -229,19 +229,19 @@ theorem eval_circleParityReduce_eq_sum_components
   calc
     MvPolynomial.eval z (circleParityReduce P) =
         ∑ s ∈ P.support,
-          MvPolynomial.coeff s P *
+          legacyMvCoeff s P *
             (MvPolynomial.eval (fun i ↦ z (i, false)) (cubeReducedMonomial s) *
               ∏ i ∈ circleMonomialParity s, z (i, true)) := by
       change MvPolynomial.eval z
         (∑ s ∈ P.support,
-          MvPolynomial.C (MvPolynomial.coeff s P) * circleReduceMonomial s) = _
+          MvPolynomial.C (legacyMvCoeff s P) * circleReduceMonomial s) = _
       simp only [map_sum]
       apply Finset.sum_congr rfl
       intro s _
       rw [map_mul, eval_C, eval_circleReduceMonomial_eq_cube_mul_parity]
     _ = ∑ J ∈ Finset.univ.powerset,
         ∑ s ∈ P.support.filter (fun s ↦ parity s = J),
-          MvPolynomial.coeff s P *
+          legacyMvCoeff s P *
             (MvPolynomial.eval (fun i ↦ z (i, false)) (cubeReducedMonomial s) *
               ∏ i ∈ J, z (i, true)) := by
       rw [← Finset.sum_fiberwise_of_maps_to hmaps]

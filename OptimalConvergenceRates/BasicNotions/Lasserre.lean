@@ -137,7 +137,7 @@ theorem lasserre_bound_box_preo_ge_feasible (f : MvPolynomial (Fin n) ℝ) (r : 
     ↑l ≤ lasserre_bound_box_preo f r := by
   unfold lasserre_bound_box_preo
   have hne : { l : ℝ | (f - MvPolynomial.C l) ∈ BoxPreordering n r }.Nonempty := ⟨l, hl⟩
-  rw [dif_pos hne]
+  rw [dite_eq_left hne]
   exact WithBot.coe_le_coe.mpr (le_csSup (lasserre_feasible_bddAbove f r) hl)
 
 theorem lasserre_bound_box_preo_mono (f : MvPolynomial (Fin n) ℝ) {r s : ℕ} (hrs : r ≤ s) :
@@ -209,7 +209,7 @@ theorem lasserre_bound_box_qm_ge_feasible (f : MvPolynomial (Fin n) ℝ) (r : �
     ↑l ≤ lasserre_bound_box_qm f r := by
   unfold lasserre_bound_box_qm
   have hne : { l : ℝ | (f - MvPolynomial.C l) ∈ BoxQuadraticModule n r }.Nonempty := ⟨l, hl⟩
-  rw [dif_pos hne]
+  rw [dite_eq_left hne]
   exact WithBot.coe_le_coe.mpr
     (le_csSup
       (⟨polyMin f, fun _l hl' =>

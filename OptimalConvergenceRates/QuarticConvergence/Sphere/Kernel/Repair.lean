@@ -190,7 +190,7 @@ theorem spherePolynomial_repair_of_error_le
   have hvnonnegative : ∀ x : sphereSet n, 0 ≤ v.1 x := by
     intro x
     have hwpoint : |w.1 x| ≤ ‖w‖ := by
-      simpa only [Real.norm_eq_abs] using
+      simpa only [Real.norm_eq_abs, Submodule.norm_coe] using
         ContinuousMap.norm_coe_le_norm w.1 x
     have hwlower : -‖w‖ ≤ w.1 x := neg_le_of_abs_le hwpoint
     change 0 ≤ w.1 x + B
@@ -842,7 +842,7 @@ theorem continuousZonalKernelPolynomialMap_range_mem_zero
     (mem_spherePolynomialSpace_iff v.1).1 v.2
   have hqzero : q.totalDegree = 0 := Nat.eq_zero_of_le_zero hqdeg
   have hqconst := (MvPolynomial.totalDegree_eq_zero_iff_eq_C).1 hqzero
-  let c := MvPolynomial.coeff 0 q
+  let c := legacyMvCoeff 0 q
   have hvconst : v = spherePolynomialConst n 0 c := by
     apply Subtype.ext
     change v.1 = (spherePolynomialConst n 0 c).1
@@ -980,7 +980,7 @@ theorem prod_euclideanNorthPoleCylinder_width
   classical
   rw [Fintype.prod_eq_mul_prod_compl ⟨0, hn⟩]
   simp only [euclideanNorthPoleCylinderUpper,
-    euclideanNorthPoleCylinderLower, if_pos, sub_zero, one_mul]
+    euclideanNorthPoleCylinderLower, ite_eq_left, sub_zero, one_mul]
   have hprod :
       (∏ x ∈ ({⟨0, hn⟩}ᶜ : Finset (Fin n)),
           ((if x = ⟨0, hn⟩ then 1 else r) -
@@ -1168,7 +1168,7 @@ theorem euclideanNorthPoleReverseCylinderLower_le_upper
   · norm_num [euclideanNorthPoleReverseCylinderLower,
       euclideanNorthPoleReverseCylinderUpper, hi]
   · simp only [euclideanNorthPoleReverseCylinderLower,
-      euclideanNorthPoleReverseCylinderUpper, hi, if_false]
+      euclideanNorthPoleReverseCylinderUpper, hi, ite_false]
     have hq : 0 ≤ r / (16 * n) :=
       div_nonneg hr (by positivity)
     exact (neg_nonpos.mpr hq).trans hq
@@ -1184,7 +1184,7 @@ theorem prod_euclideanNorthPoleReverseCylinder_width
   classical
   rw [Fintype.prod_eq_mul_prod_compl ⟨0, hn⟩]
   simp only [euclideanNorthPoleReverseCylinderUpper,
-    euclideanNorthPoleReverseCylinderLower, if_pos]
+    euclideanNorthPoleReverseCylinderLower, ite_eq_left]
   have hprod :
       (∏ x ∈ ({⟨0, hn⟩}ᶜ : Finset (Fin n)),
           ((if x = ⟨0, hn⟩ then 1 / 2 else r / (16 * n)) -

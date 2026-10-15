@@ -187,14 +187,14 @@ theorem weighted_monomial_plus_mem
 
 /-- Radius-weighted coefficient envelope of a polynomial. -/
 def weightedCoeffEnvelope (B : ℝ) (q : MvPolynomial (Fin n) ℝ) : ℝ :=
-  ∑ α ∈ q.support, weightedMonomialBound B α (coeff α q)
+  ∑ α ∈ q.support, weightedMonomialBound B α (q.coeff α)
 theorem weightedCoeffEnvelope_nonneg
     {B : ℝ} (hB : 0 ≤ B) (q : MvPolynomial (Fin n) ℝ) :
     0 ≤ weightedCoeffEnvelope B q := by
   classical
   dsimp [weightedCoeffEnvelope]
   exact Finset.sum_nonneg fun α _ =>
-    weightedMonomialBound_nonneg hB α (coeff α q)
+    weightedMonomialBound_nonneg hB α (q.coeff α)
 
 
 /-- The positive coefficient envelope belongs to the Archimedean module. -/
@@ -206,8 +206,8 @@ theorem weightedCoeffEnvelope_plus_mem
     QuadraticModuleMem g (C (weightedCoeffEnvelope B q) + q) := by
   classical
   have hsum := QuadraticModuleMem.sum q.support
-    (fun α ↦ C (weightedMonomialBound B α (coeff α q)) + monomial α (coeff α q))
-    (fun α _ ↦ weighted_monomial_plus_mem hB hcoord α (coeff α q))
+    (fun α ↦ C (weightedMonomialBound B α (q.coeff α)) + monomial α (q.coeff α))
+    (fun α _ ↦ weighted_monomial_plus_mem hB hcoord α (q.coeff α))
   convert hsum using 1
   simp only [weightedCoeffEnvelope, map_sum, Finset.sum_add_distrib,
     MvPolynomial.support_sum_monomial_coeff]
@@ -221,12 +221,12 @@ theorem weightedCoeffEnvelope_minus_mem
     QuadraticModuleMem g (C (weightedCoeffEnvelope B q) - q) := by
   classical
   have hterm (α : Fin n →₀ ℕ) : QuadraticModuleMem g
-      (C (weightedMonomialBound B α (coeff α q)) - monomial α (coeff α q)) := by
-    have h := weighted_monomial_plus_mem hB hcoord α (-coeff α q)
-    have hsquare : (-coeff α q / 2) ^ 2 = (coeff α q / 2) ^ 2 := by ring
+      (C (weightedMonomialBound B α (q.coeff α)) - monomial α (q.coeff α)) := by
+    have h := weighted_monomial_plus_mem hB hcoord α (-q.coeff α)
+    have hsquare : (-q.coeff α / 2) ^ 2 = (q.coeff α / 2) ^ 2 := by ring
     simpa [weightedMonomialBound, sub_eq_add_neg, hsquare] using h
   have hsum := QuadraticModuleMem.sum q.support
-    (fun α ↦ C (weightedMonomialBound B α (coeff α q)) - monomial α (coeff α q))
+    (fun α ↦ C (weightedMonomialBound B α (q.coeff α)) - monomial α (q.coeff α))
     (fun α _ ↦ hterm α)
   convert hsum using 1
   simp only [weightedCoeffEnvelope, map_sum, Finset.sum_sub_distrib,
@@ -258,16 +258,16 @@ coefficient `ℓ¹` norm and the total degree. -/
 theorem weightedMonomialBound_le_coeffL1Norm
     {B : ℝ} (hB : 1 ≤ B) (q : MvPolynomial (Fin n) ℝ)
     {α : Fin n →₀ ℕ} (hα : α ∈ q.support) :
-    weightedMonomialBound B α (coeff α q) ≤
+    weightedMonomialBound B α (q.coeff α) ≤
       (coeffL1Norm q / 2) ^ 2 * B ^ q.totalDegree + 1 := by
-  have hc : |coeff α q| ≤ coeffL1Norm q := abs_coeff_le_coeffL1Norm q α
-  have hcsq : (coeff α q / 2) ^ 2 ≤ (coeffL1Norm q / 2) ^ 2 := by
+  have hc : |q.coeff α| ≤ coeffL1Norm q := abs_coeff_le_coeffL1Norm q α
+  have hcsq : (q.coeff α / 2) ^ 2 ≤ (coeffL1Norm q / 2) ^ 2 := by
     have hnorm : 0 ≤ coeffL1Norm q := coeffL1Norm_nonneg q
-    have hc_upper : coeff α q ≤ coeffL1Norm q := (le_abs_self _).trans hc
-    have hc_lower : -coeffL1Norm q ≤ coeff α q := by
+    have hc_upper : q.coeff α ≤ coeffL1Norm q := (le_abs_self _).trans hc
+    have hc_lower : -coeffL1Norm q ≤ q.coeff α := by
       exact (neg_le_neg hc).trans (neg_abs_le _)
-    have hprod : 0 ≤ (coeffL1Norm q - coeff α q) *
-        (coeffL1Norm q + coeff α q) :=
+    have hprod : 0 ≤ (coeffL1Norm q - q.coeff α) *
+        (coeffL1Norm q + q.coeff α) :=
       mul_nonneg (sub_nonneg.mpr hc_upper) (by linarith)
     nlinarith
   have hdegree : α.degree ≤ q.totalDegree := by
@@ -288,7 +288,7 @@ theorem weightedCoeffEnvelope_le
   classical
   rw [weightedCoeffEnvelope]
   calc
-    ∑ α ∈ q.support, weightedMonomialBound B α (coeff α q)
+    ∑ α ∈ q.support, weightedMonomialBound B α (q.coeff α)
         ≤ ∑ _α ∈ q.support,
             ((coeffL1Norm q / 2) ^ 2 * B ^ q.totalDegree + 1) := by
           exact Finset.sum_le_sum fun α hα ↦

@@ -15,6 +15,8 @@ noncomputable section
 
 namespace OptimalConvergenceRates
 
+local macro "legacyCoeff" α:term:max p:term:max : term => `(($p).coeff $α)
+
 /-! ## The quartic obstruction -/
 
 /-- First zero direction for the Choi-Lam quartic. -/
@@ -246,7 +248,7 @@ private lemma antidiagonal_single_four_degree_two_eq {j : Fin 4} {a b : Fin 4 �
 
 private lemma coeff_eq_zero_of_totalDegree_lt {p : MvPolynomial (Fin 4) ℝ} {m : Fin 4 →₀ ℕ}
     {d : ℕ} (hp : p.totalDegree ≤ d) (hm : d < m.sum fun _ e => e) :
-    MvPolynomial.coeff m p = 0 := by
+    legacyCoeff m p = 0 := by
   by_contra hcoeff
   have hmem : m ∈ p.support := by
     rw [MvPolynomial.mem_support_iff]
@@ -265,8 +267,8 @@ private lemma single_two_add_single_two (j : Fin 4) :
 
 private lemma coeff_single_four_sq_of_totalDegree_le_two {j : Fin 4}
     {p : MvPolynomial (Fin 4) ℝ} (hp : p.totalDegree ≤ 2) :
-    MvPolynomial.coeff (Finsupp.single j 4) (p ^ 2) =
-      MvPolynomial.coeff (Finsupp.single j 2) p ^ 2 := by
+    legacyCoeff (Finsupp.single j 4) (p ^ 2) =
+      legacyCoeff (Finsupp.single j 2) p ^ 2 := by
   rw [pow_two, MvPolynomial.coeff_mul]
   rw [Finset.sum_eq_single (Finsupp.single j 2, Finsupp.single j 2)]
   · ring
@@ -280,11 +282,11 @@ private lemma coeff_single_four_sq_of_totalDegree_le_two {j : Fin 4}
         exfalso
         apply hne
         ext <;> simp [hpair.1, hpair.2]
-      · have hzero : MvPolynomial.coeff x.2 p = 0 := by
+      · have hzero : legacyCoeff x.2 p = 0 := by
           apply coeff_eq_zero_of_totalDegree_lt hp
           omega
         simp [hzero]
-    · have hzero : MvPolynomial.coeff x.1 p = 0 := by
+    · have hzero : legacyCoeff x.1 p = 0 := by
         apply coeff_eq_zero_of_totalDegree_lt hp
         omega
       simp [hzero]
@@ -386,7 +388,7 @@ private lemma X_pow_eq_monomial (i : Fin 4) (k : ℕ) :
       rw [pow_succ, ih]
       change (monomial (Finsupp.single i k)) (1 : ℝ) *
           (monomial (Finsupp.single i 1)) (1 : ℝ) = _
-      rw [MvPolynomial.monomial_mul]
+      rw [MvPolynomial.monomial_mul_monomial]
       congr
       · ext j
         by_cases h : j = i <;> simp [h]
@@ -395,7 +397,7 @@ private lemma X_pow_eq_monomial (i : Fin 4) (k : ℕ) :
 private lemma X_pow_mul_X_pow_eq_monomial (i j : Fin 4) (a b : ℕ) :
     ((X i : MvPolynomial (Fin 4) ℝ) ^ a * X j ^ b) =
       monomial (Finsupp.single i a + Finsupp.single j b) 1 := by
-  rw [X_pow_eq_monomial, X_pow_eq_monomial, MvPolynomial.monomial_mul]
+  rw [X_pow_eq_monomial, X_pow_eq_monomial, MvPolynomial.monomial_mul_monomial]
   norm_num
 
 private lemma four_X_prod_eq_monomial :
@@ -407,13 +409,13 @@ private lemma four_X_prod_eq_monomial :
       monomial (Finsupp.single (1 : Fin 4) 1) 1 *
       monomial (Finsupp.single (2 : Fin 4) 1) 1 *
       monomial (Finsupp.single (3 : Fin 4) 1) 1) = _
-  repeat rw [MvPolynomial.monomial_mul]
+  repeat rw [MvPolynomial.monomial_mul_monomial]
   congr
   · ext j; fin_cases j <;> norm_num
   · norm_num
 
 private lemma choiLamQuartic_coeff_single_four_one :
-    MvPolynomial.coeff (Finsupp.single (1 : Fin 4) 4) choiLamQuartic = 0 := by
+    legacyCoeff (Finsupp.single (1 : Fin 4) 4) choiLamQuartic = 0 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
   rw [X_pow_mul_X_pow_eq_monomial, X_pow_mul_X_pow_eq_monomial,
@@ -437,7 +439,7 @@ private lemma choiLamQuartic_coeff_single_four_one :
 
 
 private lemma choiLamQuartic_coeff_single_four_two :
-    MvPolynomial.coeff (Finsupp.single (2 : Fin 4) 4) choiLamQuartic = 0 := by
+    legacyCoeff (Finsupp.single (2 : Fin 4) 4) choiLamQuartic = 0 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
   rw [X_pow_mul_X_pow_eq_monomial, X_pow_mul_X_pow_eq_monomial,
@@ -460,7 +462,7 @@ private lemma choiLamQuartic_coeff_single_four_two :
   simp [MvPolynomial.coeff_monomial, h1, h2, h3, h4, h5]
 
 private lemma choiLamQuartic_coeff_single_four_three :
-    MvPolynomial.coeff (Finsupp.single (3 : Fin 4) 4) choiLamQuartic = 0 := by
+    legacyCoeff (Finsupp.single (3 : Fin 4) 4) choiLamQuartic = 0 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
   rw [X_pow_mul_X_pow_eq_monomial, X_pow_mul_X_pow_eq_monomial,
@@ -483,7 +485,7 @@ private lemma choiLamQuartic_coeff_single_four_three :
   simp [MvPolynomial.coeff_monomial, h1, h2, h3, h4, h5]
 
 private lemma choiLamQuartic_coeff_single_four_of_ne_zero {j : Fin 4} (hj : j ≠ 0) :
-    MvPolynomial.coeff (Finsupp.single j 4) choiLamQuartic = 0 := by
+    legacyCoeff (Finsupp.single j 4) choiLamQuartic = 0 := by
   fin_cases j
   · contradiction
   · exact choiLamQuartic_coeff_single_four_one
@@ -494,8 +496,8 @@ private lemma choiLamQuartic_coeff_single_four_of_ne_zero {j : Fin 4} (hj : j �
 private lemma coeff_single_four_sum_sq_of_totalDegree_le_two
     {N : ℕ} {P : Fin N → MvPolynomial (Fin 4) ℝ}
     (hdeg : ∀ i, (P i).totalDegree ≤ 2) (j : Fin 4) :
-    MvPolynomial.coeff (Finsupp.single j 4) (∑ i : Fin N, (P i) ^ 2) =
-      ∑ i : Fin N, (MvPolynomial.coeff (Finsupp.single j 2) (P i)) ^ 2 := by
+    legacyCoeff (Finsupp.single j 4) (∑ i : Fin N, (P i) ^ 2) =
+      ∑ i : Fin N, (legacyCoeff (Finsupp.single j 2) (P i)) ^ 2 := by
   rw [MvPolynomial.coeff_sum]
   apply Finset.sum_congr rfl
   intro i _
@@ -505,21 +507,21 @@ private lemma coeff_single_two_eq_zero_of_sos_choiLam
     {N : ℕ} {P : Fin N → MvPolynomial (Fin 4) ℝ}
     (hP : choiLamQuartic = ∑ i : Fin N, (P i) ^ 2) (hdeg : ∀ i, (P i).totalDegree ≤ 2)
     {j : Fin 4} (hj : j ≠ 0) (i : Fin N) :
-    MvPolynomial.coeff (Finsupp.single j 2) (P i) = 0 := by
-  have hcoeff : ∑ i : Fin N, (MvPolynomial.coeff (Finsupp.single j 2) (P i)) ^ 2 = 0 := by
+    legacyCoeff (Finsupp.single j 2) (P i) = 0 := by
+  have hcoeff : ∑ i : Fin N, (legacyCoeff (Finsupp.single j 2) (P i)) ^ 2 = 0 := by
     rw [← coeff_single_four_sum_sq_of_totalDegree_le_two hdeg j]
     rw [← hP]
     exact choiLamQuartic_coeff_single_four_of_ne_zero hj
   have hall := (Finset.sum_eq_zero_iff_of_nonneg (s := Finset.univ)
-    (fun i _ => sq_nonneg (MvPolynomial.coeff (Finsupp.single j 2) (P i)))).mp hcoeff
+    (fun i _ => sq_nonneg (legacyCoeff (Finsupp.single j 2) (P i)))).mp hcoeff
   exact sq_eq_zero_iff.mp (hall i (Finset.mem_univ i))
 
 
 private lemma coeff_zero_two_sq_of_totalDegree_le_two {j : Fin 4} (hj : j ≠ 0)
     {p : MvPolynomial (Fin 4) ℝ} (hp : p.totalDegree ≤ 2)
-    (hj2 : MvPolynomial.coeff (Finsupp.single j 2) p = 0) :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single j 2) (p ^ 2) =
-      MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) p ^ 2 := by
+    (hj2 : legacyCoeff (Finsupp.single j 2) p = 0) :
+    legacyCoeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single j 2) (p ^ 2) =
+      legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) p ^ 2 := by
   rw [pow_two, MvPolynomial.coeff_mul]
   rw [Finset.sum_eq_single
     (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1,
@@ -540,11 +542,11 @@ private lemma coeff_zero_two_sq_of_totalDegree_le_two {j : Fin 4} (hj : j ≠ 0)
           exfalso
           apply hne
           ext k <;> simp [hx1, hx2]
-      · have hzero : MvPolynomial.coeff x.2 p = 0 := by
+      · have hzero : legacyCoeff x.2 p = 0 := by
           apply coeff_eq_zero_of_totalDegree_lt hp
           omega
         simp [hzero]
-    · have hzero : MvPolynomial.coeff x.1 p = 0 := by
+    · have hzero : legacyCoeff x.1 p = 0 := by
         apply coeff_eq_zero_of_totalDegree_lt hp
         omega
       simp [hzero]
@@ -561,7 +563,7 @@ private lemma coeff_zero_two_sq_of_totalDegree_le_two {j : Fin 4} (hj : j ≠ 0)
 
 
 private lemma choiLamQuartic_coeff_zero_two_1 :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single (1 : Fin 4) 2)
+    legacyCoeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single (1 : Fin 4) 2)
       choiLamQuartic = 0 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
@@ -586,7 +588,7 @@ private lemma choiLamQuartic_coeff_zero_two_1 :
   simp [MvPolynomial.coeff_monomial, h1, h2, h3, h4, h5]
 
 private lemma choiLamQuartic_coeff_zero_two_2 :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single (2 : Fin 4) 2)
+    legacyCoeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single (2 : Fin 4) 2)
       choiLamQuartic = 0 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
@@ -611,7 +613,7 @@ private lemma choiLamQuartic_coeff_zero_two_2 :
   simp [MvPolynomial.coeff_monomial, h1, h2, h3, h4, h5]
 
 private lemma choiLamQuartic_coeff_zero_two_3 :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single (3 : Fin 4) 2)
+    legacyCoeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single (3 : Fin 4) 2)
       choiLamQuartic = 0 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
@@ -636,7 +638,7 @@ private lemma choiLamQuartic_coeff_zero_two_3 :
   simp [MvPolynomial.coeff_monomial, h1, h2, h3, h4, h5]
 
 private lemma choiLamQuartic_coeff_zero_two_of_ne_zero {j : Fin 4} (hj : j ≠ 0) :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single j 2)
+    legacyCoeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single j 2)
       choiLamQuartic = 0 := by
   fin_cases j
   · contradiction
@@ -648,11 +650,11 @@ private lemma choiLamQuartic_coeff_zero_two_of_ne_zero {j : Fin 4} (hj : j ≠ 0
 private lemma coeff_zero_two_sum_sq_of_totalDegree_le_two
     {N : ℕ} {P : Fin N → MvPolynomial (Fin 4) ℝ}
     (hdeg : ∀ i, (P i).totalDegree ≤ 2) {j : Fin 4} (hj : j ≠ 0)
-    (hj2 : ∀ i, MvPolynomial.coeff (Finsupp.single j 2) (P i) = 0) :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single j 2)
+    (hj2 : ∀ i, legacyCoeff (Finsupp.single j 2) (P i) = 0) :
+    legacyCoeff (Finsupp.single (0 : Fin 4) 2 + Finsupp.single j 2)
         (∑ i : Fin N, (P i) ^ 2) =
       ∑ i : Fin N,
-        (MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) (P i)) ^ 2 := by
+        (legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) (P i)) ^ 2 := by
   rw [MvPolynomial.coeff_sum]
   apply Finset.sum_congr rfl
   intro i _
@@ -662,20 +664,20 @@ private lemma coeff_zero_one_eq_zero_of_sos_choiLam
     {N : ℕ} {P : Fin N → MvPolynomial (Fin 4) ℝ}
     (hP : choiLamQuartic = ∑ i : Fin N, (P i) ^ 2) (hdeg : ∀ i, (P i).totalDegree ≤ 2)
     {j : Fin 4} (hj : j ≠ 0) (i : Fin N) :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) (P i) = 0 := by
-  have hj2 : ∀ i, MvPolynomial.coeff (Finsupp.single j 2) (P i) = 0 := by
+    legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) (P i) = 0 := by
+  have hj2 : ∀ i, legacyCoeff (Finsupp.single j 2) (P i) = 0 := by
     intro i
     exact coeff_single_two_eq_zero_of_sos_choiLam hP hdeg hj i
   have hcoeff :
       ∑ i : Fin N,
-          (MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1)
+          (legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1)
             (P i)) ^ 2 = 0 := by
     rw [← coeff_zero_two_sum_sq_of_totalDegree_le_two hdeg hj hj2]
     rw [← hP]
     exact choiLamQuartic_coeff_zero_two_of_ne_zero hj
   have hall := (Finset.sum_eq_zero_iff_of_nonneg (s := Finset.univ)
     (fun i _ => sq_nonneg
-      (MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) (P i)))).mp
+      (legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single j 1) (P i)))).mp
       hcoeff
   exact sq_eq_zero_iff.mp (hall i (Finset.mem_univ i))
 
@@ -746,10 +748,10 @@ private lemma antidiagonal_mixed_has_zero_pair {a b : Fin 4 →₀ ℕ}
 
 private lemma coeff_mixed_sq_zero_of_totalDegree_le_two
     {p : MvPolynomial (Fin 4) ℝ} (hp : p.totalDegree ≤ 2)
-    (h01 : MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1) p = 0)
-    (h02 : MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (2 : Fin 4) 1) p = 0)
-    (h03 : MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (3 : Fin 4) 1) p = 0) :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1 +
+    (h01 : legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1) p = 0)
+    (h02 : legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (2 : Fin 4) 1) p = 0)
+    (h03 : legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (3 : Fin 4) 1) p = 0) :
+    legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1 +
       Finsupp.single (2 : Fin 4) 1 + Finsupp.single (3 : Fin 4) 1) (p ^ 2) = 0 := by
   rw [pow_two, MvPolynomial.coeff_mul]
   apply Finset.sum_eq_zero
@@ -765,18 +767,18 @@ private lemma coeff_mixed_sq_zero_of_totalDegree_le_two
       · simp [hcase, h01]
       · simp [hcase, h02]
       · simp [hcase, h03]
-    · have hzero : MvPolynomial.coeff x.2 p = 0 := by
+    · have hzero : legacyCoeff x.2 p = 0 := by
         apply coeff_eq_zero_of_totalDegree_lt hp
         omega
       simp [hzero]
-  · have hzero : MvPolynomial.coeff x.1 p = 0 := by
+  · have hzero : legacyCoeff x.1 p = 0 := by
       apply coeff_eq_zero_of_totalDegree_lt hp
       omega
     simp [hzero]
 
 
 private lemma choiLamQuartic_coeff_mixed :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1 +
+    legacyCoeff (Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1 +
       Finsupp.single (2 : Fin 4) 1 + Finsupp.single (3 : Fin 4) 1) choiLamQuartic = -4 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial]
@@ -807,7 +809,7 @@ theorem choiLamQuartic_not_sos :
   have hdeg : ∀ i, (P i).totalDegree ≤ 2 := choiLam_sos_summand_totalDegree_le_two hP
   let m : Fin 4 →₀ ℕ := Finsupp.single (0 : Fin 4) 1 + Finsupp.single (1 : Fin 4) 1 +
     Finsupp.single (2 : Fin 4) 1 + Finsupp.single (3 : Fin 4) 1
-  have hm_zero : MvPolynomial.coeff m (∑ i : Fin N, (P i) ^ 2) = 0 := by
+  have hm_zero : legacyCoeff m (∑ i : Fin N, (P i) ^ 2) = 0 := by
     rw [MvPolynomial.coeff_sum]
     apply Finset.sum_eq_zero
     intro i _
@@ -815,14 +817,14 @@ theorem choiLamQuartic_not_sos :
       (coeff_zero_one_eq_zero_of_sos_choiLam hP hdeg (by decide : (1 : Fin 4) ≠ 0) i)
       (coeff_zero_one_eq_zero_of_sos_choiLam hP hdeg (by decide : (2 : Fin 4) ≠ 0) i)
       (coeff_zero_one_eq_zero_of_sos_choiLam hP hdeg (by decide : (3 : Fin 4) ≠ 0) i)
-  have hm_neg : MvPolynomial.coeff m (∑ i : Fin N, (P i) ^ 2) = -4 := by
+  have hm_neg : legacyCoeff m (∑ i : Fin N, (P i) ^ 2) = -4 := by
     rw [← hP]
     exact choiLamQuartic_coeff_mixed
   nlinarith
 
 /-- Coefficient `L¹` distance between two four-variable polynomials. -/
 def coeffL1Distance4 (P S : MvPolynomial (Fin 4) ℝ) : ℝ :=
-  ∑ α ∈ (P - S).support, |MvPolynomial.coeff α (P - S)|
+  ∑ α ∈ (P - S).support, |legacyCoeff α (P - S)|
 
 /-- Coefficient `L¹` distance from `choiLamQuartic` to a candidate SOS polynomial. -/
 def choiLamCoeffDistanceToSOS (S : MvPolynomial (Fin 4) ℝ) : ℝ :=

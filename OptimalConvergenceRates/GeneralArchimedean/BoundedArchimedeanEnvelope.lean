@@ -76,7 +76,7 @@ def bounded_coordinate_power_square_bound_at
           ((X i ^ k : MvPolynomial (Fin n) ℝ) ^ 2) ≤ 1 := by
         have hvar :
             coeffL1Norm (X i : MvPolynomial (Fin n) ℝ) ≤ 1 := by
-          simpa using coeffL1Norm_monomial_le
+          simpa [MvPolynomial.X] using coeffL1Norm_monomial_le
             (n := n) (Finsupp.single i 1) (1 : ℝ)
         calc
           coeffL1Norm ((X i ^ k : MvPolynomial (Fin n) ℝ) ^ 2) ≤
@@ -196,7 +196,7 @@ theorem bounded_monomial_square_bound_of_degree_at
     (fun i _ => by
       have hvar :
           coeffL1Norm (X i : MvPolynomial (Fin n) ℝ) ≤ 1 := by
-        simpa using coeffL1Norm_monomial_le
+        simpa [MvPolynomial.X] using coeffL1Norm_monomial_le
           (n := n) (Finsupp.single i 1) (1 : ℝ)
       calc
         coeffL1Norm ((X i ^ α i : MvPolynomial (Fin n) ℝ) ^ 2) ≤
@@ -371,7 +371,7 @@ def boundedWeightedCoeffPlusBudget
     (n d : ℕ) (B Hcoord : ℝ)
     (q : MvPolynomial (Fin n) ℝ) : ℝ :=
   ∑ α ∈ q.support,
-    boundedWeightedMonomialBudget n d B Hcoord α (coeff α q)
+    boundedWeightedMonomialBudget n d B Hcoord α (q.coeff α)
 
 theorem bounded_weightedCoeffEnvelope_plus_mem_at
     {g : Fin m → MvPolynomial (Fin n) ℝ}
@@ -388,12 +388,12 @@ theorem bounded_weightedCoeffEnvelope_plus_mem_at
   classical
   obtain ⟨csum⟩ := BoundedQuadraticModuleCertificate.sum_nonempty_of_bounds
     q.support
-    (fun α => C (weightedMonomialBound B α (coeff α q)) +
-      monomial α (coeff α q))
-    (fun α => boundedWeightedMonomialBudget n d B Hcoord α (coeff α q))
+    (fun α => C (weightedMonomialBound B α (q.coeff α)) +
+      monomial α (q.coeff α))
+    (fun α => boundedWeightedMonomialBudget n d B Hcoord α (q.coeff α))
     (fun α hα => bounded_weighted_monomial_plus_mem_of_degree_at
       hB hHcoord hcoord α
-        ((MvPolynomial.le_totalDegree hα).trans hqDegree) (coeff α q))
+        ((MvPolynomial.le_totalDegree hα).trans hqDegree) (q.coeff α))
   exact ⟨by
     simpa [boundedWeightedCoeffPlusBudget] using csum.congr (by
       simp only [weightedCoeffEnvelope, map_sum, Finset.sum_add_distrib,
@@ -405,7 +405,7 @@ def boundedWeightedCoeffMinusBudget
     (n d : ℕ) (B Hcoord : ℝ)
     (q : MvPolynomial (Fin n) ℝ) : ℝ :=
   ∑ α ∈ q.support,
-    boundedWeightedMonomialBudget n d B Hcoord α (-coeff α q)
+    boundedWeightedMonomialBudget n d B Hcoord α (-(q.coeff α))
 
 theorem bounded_weightedCoeffEnvelope_minus_mem_at
     {g : Fin m → MvPolynomial (Fin n) ℝ}
@@ -422,23 +422,23 @@ theorem bounded_weightedCoeffEnvelope_minus_mem_at
   classical
   have hterm : ∀ α ∈ q.support,
       Nonempty (BoundedQuadraticModuleCertificate g
-        (C (weightedMonomialBound B α (coeff α q)) -
-          monomial α (coeff α q))
+        (C (weightedMonomialBound B α (q.coeff α)) -
+          monomial α (q.coeff α))
         (boundedCoeffEnvelopeOrder n t d)
-        (boundedWeightedMonomialBudget n d B Hcoord α (-coeff α q))) := by
+        (boundedWeightedMonomialBudget n d B Hcoord α (-(q.coeff α)))) := by
     intro α hα
     obtain ⟨cneg⟩ := bounded_weighted_monomial_plus_mem_of_degree_at
       hB hHcoord hcoord α
-        ((MvPolynomial.le_totalDegree hα).trans hqDegree) (-coeff α q)
+        ((MvPolynomial.le_totalDegree hα).trans hqDegree) (-(q.coeff α))
     exact ⟨cneg.congr (by
       have hsquare :
-          (-coeff α q / 2) ^ 2 = (coeff α q / 2) ^ 2 := by ring
+          (-(q.coeff α) / 2) ^ 2 = (q.coeff α / 2) ^ 2 := by ring
       simp [weightedMonomialBound, sub_eq_add_neg, hsquare])⟩
   obtain ⟨csum⟩ := BoundedQuadraticModuleCertificate.sum_nonempty_of_bounds
     q.support
-    (fun α => C (weightedMonomialBound B α (coeff α q)) -
-      monomial α (coeff α q))
-    (fun α => boundedWeightedMonomialBudget n d B Hcoord α (-coeff α q))
+    (fun α => C (weightedMonomialBound B α (q.coeff α)) -
+      monomial α (q.coeff α))
+    (fun α => boundedWeightedMonomialBudget n d B Hcoord α (-(q.coeff α)))
     hterm
   exact ⟨by
     simpa [boundedWeightedCoeffMinusBudget] using csum.congr (by
@@ -475,7 +475,7 @@ theorem boundedWeightedMonomialBudget_le
     exact pow_le_pow_left₀ (abs_nonneg _) (hcdiv.trans (by linarith)) 2
   have hMnorm : coeffL1Norm M ≤ 1 := by
     dsimp [M]
-    simpa using coeffL1Norm_monomial_le α (1 : ℝ)
+    simpa [MvPolynomial.X] using coeffL1Norm_monomial_le α (1 : ℝ)
   have hscaledNorm :
       coeffL1Norm (C (c / 2) * M) ≤ |c / 2| := by
     calc
@@ -525,7 +525,7 @@ theorem boundedWeightedCoeffPlusBudget_le
   unfold boundedWeightedCoeffPlusBudget boundedCoeffEnvelopeBudgetUpper
   calc
     ∑ α ∈ q.support,
-        boundedWeightedMonomialBudget n d B Hcoord α (coeff α q) ≤
+        boundedWeightedMonomialBudget n d B Hcoord α (q.coeff α) ≤
       ∑ _α ∈ q.support,
         (H + 1) ^ 2 *
           (boundedMonomialSquareBudget n d B Hcoord + 1) := by
@@ -546,7 +546,7 @@ theorem boundedWeightedCoeffMinusBudget_le
   unfold boundedWeightedCoeffMinusBudget boundedCoeffEnvelopeBudgetUpper
   calc
     ∑ α ∈ q.support,
-        boundedWeightedMonomialBudget n d B Hcoord α (-coeff α q) ≤
+        boundedWeightedMonomialBudget n d B Hcoord α (-(q.coeff α)) ≤
       ∑ _α ∈ q.support,
         (H + 1) ^ 2 *
           (boundedMonomialSquareBudget n d B Hcoord + 1) := by

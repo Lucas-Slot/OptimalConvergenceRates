@@ -83,7 +83,7 @@ theorem mem_farFromSet_of_nearest_large
     (hlarge : rho < ‖z - v‖) :
     z ∈ farFromSet A (polynomialZeroSet h) (rho / ((N : ℝ) + 1)) := by
   refine ⟨hz, ?_⟩
-  simp only [Set.mem_iInter, Set.mem_setOf_eq]
+  simp only [Set.mem_iInter, Set.mem_ofPred_eq]
   intro u hu
   by_contra hnot
   have hzu : ‖z - u‖ < rho / ((N : ℝ) + 1) := lt_of_not_ge hnot
@@ -165,7 +165,7 @@ theorem exists_global_regular_error_bound
         (eval_equationSquareSum_eq_zero_iff h z₀).mp hzero.symm
       have hzfar : tau ≤ ‖z₀ - z₀‖ := by
         have hfar := hz₀.2
-        simp only [Set.mem_iInter, Set.mem_setOf_eq] at hfar
+        simp only [Set.mem_iInter, Set.mem_ofPred_eq] at hfar
         exact hfar z₀ hzV
       exact (not_le_of_gt htau) (by simpa using hzfar)
     let Cfar := 4 * R ^ 2 / q

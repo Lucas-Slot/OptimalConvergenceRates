@@ -539,7 +539,8 @@ theorem convertedOdd_le_sharpAbsorption_at
           simpa [zeroErrorTerm, RE] using
             errorExpansionTerm_totalDegree_le pkg a sigma
               hsigmaDegree haDegree I ∅
-        exact (hconst.sos_mul_right hzeroSOS).mono (by simpa using hzeroDegree))
+        have hmul := hconst.sos_mul_right hzeroSOS
+        exact hmul.mono (by simpa [zeroErrorTerm] using hzeroDegree))
     simpa [convertedZero, Sall, T, Finset.mul_sum] using hsum
   have hzeroEven := convertedZero_le_convertedEven_at
     (g := g) pkg a sigma hsigma hsigmaDegree haDegree hδ
@@ -658,7 +659,7 @@ theorem refutation_of_sharpAbsorption_at
     simpa [gamma, beta, MvPolynomial.totalDegree_C] using hscaled
   have hDminusOne : D - 1 ∈ GenQuadraticModule g Rden := by
     have hden := one_le_denominatorProduct_const pkg a ha haDegree hδ
-    simpa [ModuleLEAt, D, Rden, F] using hden
+    simpa [ModuleLEAt, D, Rden, F, conversionFactorDegree] using hden
   have hfinal := genQuadraticModule_add hminusD hDminusOne
   have hpoly : -D + (D - 1) = (-1 : MvPolynomial (Fin n) ℝ) := by ring
   change (-1 : MvPolynomial (Fin n) ℝ) ∈

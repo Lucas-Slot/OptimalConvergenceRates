@@ -48,7 +48,9 @@ theorem norm_iteratedFDeriv_localNormalSecondDerivative_le {n j : ℕ}
   calc
     ‖iteratedFDeriv ℝ j (localNormalSecondDerivative input) z‖ ≤
         ‖e‖ * ‖iteratedFDeriv ℝ j (fderiv ℝ N) z‖ := by
-      simpa [localNormalSecondDerivative, N, e] using hfirst
+      change ‖iteratedFDeriv ℝ j
+          (fun y ↦ fderiv ℝ N y e) z‖ ≤ _
+      simpa [N, e] using hfirst
     _ = ‖iteratedFDeriv ℝ (j + 1) N z‖ := by
       rw [norm_iteratedFDeriv_fderiv]
       simp [e, splitNormalDirection, Prod.norm_def]
@@ -123,7 +125,10 @@ theorem norm_iteratedFDeriv_localRawSquareCoefficientFn_le
   have hIntegral := norm_iteratedFDeriv_setIntegral_Icc_le j
     ((localRawSquareCoefficientIntegrand_contDiff input graph).of_le
       (by exact_mod_cast hj)) z hB hintegrand
-  simpa [localRawSquareCoefficientFn] using hIntegral
+  change ‖iteratedFDeriv ℝ j
+      (fun y ↦ ∫ t in Set.Icc (0 : ℝ) 1,
+        localRawSquareCoefficientIntegrand input graph (y, t)) z‖ ≤ _
+  simpa [B] using hIntegral
 
 end QuarticConvergence
 end OptimalConvergenceRates

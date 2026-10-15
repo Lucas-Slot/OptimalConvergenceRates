@@ -101,7 +101,7 @@ noncomputable def EuclideanAtomFamily.localizeOfTargetSupport {n : ℕ}
     have hinz : atoms.root i ≠ 0 := hi.2
     obtain ⟨x, hx⟩ : ∃ x, atoms.root i x ≠ 0 := by
       by_contra hall
-      push_neg at hall
+      push Not at hall
       apply hinz
       funext x
       exact hall x
@@ -226,7 +226,7 @@ theorem norm_iteratedFDeriv_comp_continuousLinearMap_le
       ContinuousMultilinearMap.norm_compContinuousLinearMap_le _ _
     _ ≤ ‖iteratedFDeriv ℝ j f (L x)‖ * ∏ _ : Fin j, (1 : ℝ) :=
       mul_le_mul_of_nonneg_left
-        (Finset.prod_le_prod (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hL))
+        (Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hL))
         (norm_nonneg _)
     _ = ‖iteratedFDeriv ℝ j f (L x)‖ := by simp
 
@@ -257,8 +257,10 @@ theorem norm_iteratedFDeriv_normalCoordinatePullback_le {n j : ℕ}
   have hL : ‖L‖ ≤ 1 := by
     apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
     intro z
-    simpa only [one_mul] using norm_fst_le z
-  simpa [normalCoordinatePullback, L] using
+    simpa only [L, ContinuousLinearMap.coe_fst', one_mul] using norm_fst_le z
+  change ‖iteratedFDeriv ℝ j (fun y ↦ f y.1) z‖ ≤
+    ‖iteratedFDeriv ℝ j f z.1‖
+  simpa only [L, ContinuousLinearMap.coe_fst'] using
     norm_iteratedFDeriv_comp_continuousLinearMap_le L hL hf hj z
 
 theorem norm_iteratedFDeriv_tangentialCoordinatePullback_le {n j : ℕ}
@@ -271,8 +273,10 @@ theorem norm_iteratedFDeriv_tangentialCoordinatePullback_le {n j : ℕ}
   have hL : ‖L‖ ≤ 1 := by
     apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
     intro z
-    simpa only [one_mul] using norm_snd_le z
-  simpa [tangentialCoordinatePullback, L] using
+    simpa only [L, ContinuousLinearMap.coe_snd', one_mul] using norm_snd_le z
+  change ‖iteratedFDeriv ℝ j (fun y ↦ f y.2) z‖ ≤
+    ‖iteratedFDeriv ℝ j f z.2‖
+  simpa only [L, ContinuousLinearMap.coe_snd'] using
     norm_iteratedFDeriv_comp_continuousLinearMap_le L hL hf hj z
 
 /-- Lift lower-dimensional atoms through atom-scale normal square partitions and multiply by a
@@ -432,7 +436,9 @@ noncomputable def EuclideanAtomFamily.liftThroughNormalPartition {n : ℕ}
     have hreindexed : HasSum (f ∘ Nat.pairEquiv.symm)
         (parent z ^ 2 * v z.2) :=
       (Nat.pairEquiv.symm.hasSum_iff).2 hprod
-    simpa [liftedRoot, f, z, Function.comp_def] using hreindexed
+    change HasSum (f ∘ Nat.pairEquiv.symm)
+      (parent z ^ 2 * v z.2)
+    exact hreindexed
   · intro x s
     let z := split x
     let pairTarget : Set (ℕ × ℕ) := {p |
@@ -657,7 +663,7 @@ noncomputable def EuclideanAtomFamily.liftThroughNormalPartition {n : ℕ}
       change ‖iteratedFDeriv ℝ j (fun _ : Fin (n + 1) → ℝ ↦ (0 : ℝ)) x‖ *
           (2 * atoms.radius p.1) ^ j ≤
         (1024 * Mparent * Cp * Cchild) * (2 * atoms.radius p.1) ^ 2
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simp only [Pi.zero_apply, norm_zero, zero_mul]
       positivity
 
@@ -761,7 +767,7 @@ noncomputable def EuclideanAtomFamily.pullbackContinuousLinearEquiv {n : ℕ}
       have hprod : (∏ _ : Fin j, ‖T.toContinuousLinearMap‖) ≤ K ^ j := by
         calc
           (∏ _ : Fin j, ‖T.toContinuousLinearMap‖) ≤ ∏ _ : Fin j, K :=
-            Finset.prod_le_prod (fun _ _ ↦ norm_nonneg _)
+            Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg _)
               (fun _ _ ↦ hT)
           _ = K ^ j := by simp
       have hKi : 0 < Kinv := lt_of_lt_of_le zero_lt_one hKinv
@@ -810,7 +816,7 @@ noncomputable def EuclideanAtomFamily.pullbackContinuousLinearEquiv {n : ℕ}
       change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ ↦ (0 : ℝ)) x‖ *
           (Kinv * atoms.radius i) ^ j ≤
         (C * (K * Kinv) ^ 4) * (Kinv * atoms.radius i) ^ 2
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simp only [Pi.zero_apply, norm_zero, zero_mul]
       positivity
 /-- The ambient automorphism taking canonical leading/trailing coordinates to the chosen
@@ -926,9 +932,9 @@ theorem curvatureMainRoot_compactSupport {n : ℕ}
     (root : (ℝ × (Fin n → ℝ)) → ℝ)
     (hcutoff : HasCompactSupport cutoff) :
     HasCompactSupport (curvatureMainRoot prep cutoff root) := by
-  have hscaled : HasCompactSupport (fun x ↦ Real.sqrt (1 / 2 : ℝ) * cutoff x) := by
-    simpa only [Pi.smul_apply, smul_eq_mul] using
-      hcutoff.smul_left (f := fun _ ↦ Real.sqrt (1 / 2 : ℝ))
+  have hscaled := hcutoff.smul_left
+    (f := fun _ : Fin (n + 1) → ℝ ↦ Real.sqrt (1 / 2 : ℝ))
+  change HasCompactSupport (fun x ↦ Real.sqrt (1 / 2 : ℝ) * cutoff x) at hscaled
   change HasCompactSupport (fun x ↦
     (Real.sqrt (1 / 2 : ℝ) * cutoff x) *
       root (curvatureSplitCoordinates prep x))
@@ -1077,7 +1083,7 @@ theorem norm_iteratedFDeriv_curvatureParentCutoffPullback_le {n j : ℕ}
   have hprod : (∏ _ : Fin j, ‖T.toContinuousLinearMap‖) ≤ (2 : ℝ) ^ j := by
     calc
       (∏ _ : Fin j, ‖T.toContinuousLinearMap‖) ≤ ∏ _ : Fin j, (2 : ℝ) :=
-        Finset.prod_le_prod (fun _ _ ↦ norm_nonneg _) (fun _ _ ↦ hnormT)
+        Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg _) (fun _ _ ↦ hnormT)
       _ = (2 : ℝ) ^ j := by simp
   have hpow : (2 : ℝ) ^ j ≤ 16 := by
     interval_cases j <;> norm_num
@@ -1204,10 +1210,12 @@ theorem QuantitativeCurvatureSplitOutput.normalized_residual {n : ℕ}
     (hAzeta : 0 ≤ Azeta) (hAresidual : 0 ≤ Aresidual) :
     NormalizedNonnegativeC6
       (normalizedCurvatureResidual data.zeta data.residual Azeta Aresidual) := by
-  simpa [normalizedCurvatureResidual, curvatureResidualNormalizationConstant] using
-    normalized_cutoffResidual data.residual_nonnegative data.zeta_contDiff
-      data.residual_contDiff data.zeta_compactSupport hAzeta hAresidual
-      data.zeta_global_jets data.residual_global_jets
+  change NormalizedNonnegativeC6 (fun x ↦
+    (max 1 (64 * (64 * Azeta * Azeta) * Aresidual))⁻¹ *
+      (data.zeta x ^ 2 * data.residual x))
+  exact normalized_cutoffResidual data.residual_nonnegative data.zeta_contDiff
+    data.residual_contDiff data.zeta_compactSupport hAzeta hAresidual
+    data.zeta_global_jets data.residual_global_jets
 
 /-- Explicit jet constant produced by normalize, recurse, lift, halve, and undo the frame. -/
 def curvatureResidualAtomConstant

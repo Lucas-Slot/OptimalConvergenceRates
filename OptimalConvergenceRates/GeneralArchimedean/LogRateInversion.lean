@@ -1,5 +1,5 @@
 import OptimalConvergenceRates.GeneralArchimedean.Defs
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 
 /-!
 # Inverting logarithmic-over-quadratic rates

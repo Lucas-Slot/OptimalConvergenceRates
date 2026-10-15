@@ -20,7 +20,7 @@ noncomputable def sphereDirichletPolynomial (k : ℕ) : Polynomial ℝ :=
 theorem sphereDirichletPolynomial_eval (k : ℕ) (t : ℝ) :
     (sphereDirichletPolynomial k).eval t =
       1 + 2 * ∑ j ∈ Finset.range k, (chebyshevT (j + 1)).eval t := by
-  simp [sphereDirichletPolynomial, Polynomial.eval_finset_sum]
+  simp [sphereDirichletPolynomial, Polynomial.eval_finsetSum]
 
 /-- Trigonometric form of the Dirichlet polynomial on the cosine coordinate. -/
 theorem sphereDirichletPolynomial_eval_cos (k : ℕ) (theta : ℝ) :
@@ -192,8 +192,7 @@ theorem natCast_le_sphereDirichletPolynomial_eval_cos
   have hterm : ∀ j ∈ Finset.range k,
       (1 / 2 : ℝ) ≤ Real.cos ((j + 1) * theta) := by
     intro j hj
-    have hjleNat : j + 1 ≤ k := by
-      simpa only [Finset.mem_range] using hj
+    have hjleNat : j + 1 ≤ k := Nat.succ_le_iff.mpr (Finset.mem_range.mp hj)
     have hjle : ((j + 1 : ℕ) : ℝ) ≤ (k : ℝ) := Nat.cast_le.mpr hjleNat
     have hjnonneg : 0 ≤ ((j + 1 : ℕ) : ℝ) := by positivity
     have harg : |((j + 1 : ℕ) * theta)| ≤ (1 : ℝ) := by

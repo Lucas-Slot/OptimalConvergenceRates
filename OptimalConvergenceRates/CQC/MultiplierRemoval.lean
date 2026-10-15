@@ -77,7 +77,7 @@ theorem inverseSeriesApprox_eval (α β u : ℝ) (ell : ℕ) :
       (1 / β) * ∑ j ∈ Finset.range (ell + 1), (1 - (u + α) / β) ^ j := by
   rw [inverseSeriesApprox, Polynomial.eval_mul, Polynomial.eval_C]
   congr 1
-  rw [Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_finsetSum]
   apply Finset.sum_congr rfl
   intro j _
   rw [Polynomial.eval_pow, inverseSeriesVariable_eval]

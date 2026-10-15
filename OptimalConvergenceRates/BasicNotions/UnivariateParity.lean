@@ -110,9 +110,9 @@ theorem evenPart_expand_contract (P : Polynomial ℝ) :
   ext n
   rw [Polynomial.coeff_expand (by norm_num : 0 < (2 : ℕ))]
   by_cases hn : 2 ∣ n
-  · rw [if_pos hn, Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0),
+  · rw [ite_eq_left hn, Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0),
       Nat.div_mul_cancel hn]
-  · rw [if_neg hn]
+  · rw [ite_eq_right hn]
     exact (evenPart_odd_coeff_eq_zero P hn).symm
 
 /-- The odd part has zero constant coefficient. -/
@@ -136,9 +136,9 @@ theorem divX_oddPart_expand_contract (P : Polynomial ℝ) :
   ext n
   rw [Polynomial.coeff_expand (by norm_num : 0 < (2 : ℕ))]
   by_cases hn : 2 ∣ n
-  · rw [if_pos hn, Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0),
+  · rw [ite_eq_left hn, Polynomial.coeff_contract (by norm_num : (2 : ℕ) ≠ 0),
       Nat.div_mul_cancel hn]
-  · rw [if_neg hn]
+  · rw [ite_eq_right hn]
     exact (divX_oddPart_odd_coeff_eq_zero P hn).symm
 
 theorem X_mul_divX_oddPart (P : Polynomial ℝ) :

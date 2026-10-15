@@ -25,9 +25,9 @@ theorem upperBoundConvergenceRateBoxPreo (f : MvPolynomial (Fin n) ℝ) (d r : �
     lasserre_bound_box_preo f ((r + 1) * n) := by
   -- Step 0: Derive d > 0, n > 0 from hfmax (nonconstant poly needs d,n > 0)
   have hd_pos : 0 < d := by
-    by_contra hd0; push_neg at hd0; exfalso
+    by_contra hd0; push Not at hd0; exfalso
     have hfz : f.totalDegree = 0 := by omega
-    set c := MvPolynomial.coeff 0 f
+    set c := f.coeff 0
     have hfeq : f = MvPolynomial.C c := MvPolynomial.totalDegree_eq_zero_iff_eq_C.mp hfz
     obtain ⟨x, hx, hmin⟩ := polyMin_mem f
     obtain ⟨y, hy, hmax⟩ := polyMax_mem f
@@ -35,14 +35,14 @@ theorem upperBoundConvergenceRateBoxPreo (f : MvPolynomial (Fin n) ℝ) (d r : �
     rw [MvPolynomial.eval_C] at hmin hmax
     linarith
   have hn_pos : 0 < n := by
-    by_contra hn0; push_neg at hn0; interval_cases n; exfalso
+    by_contra hn0; push Not at hn0; interval_cases n; exfalso
     obtain ⟨x, hx, hmin⟩ := polyMin_mem f
     obtain ⟨y, hy, hmax⟩ := polyMax_mem f
     have heq : x = y := Subsingleton.elim x y
     linarith [show MvPolynomial.eval x f = MvPolynomial.eval y f by rw [heq]]
   -- Step 1: Derive d ≤ r from hr (using n > 0)
   have hdr : d ≤ r := by
-    by_contra h; push_neg at h
+    by_contra h; push Not at h
     have hd_pos' : (0 : ℝ) < d := Nat.cast_pos.mpr hd_pos
     have hsqrt : (1 : ℝ) ≤ Real.sqrt (2 * n) := by
       rw [← Real.sqrt_one]
@@ -79,7 +79,7 @@ theorem upperBoundMembershipBoxPreo (f : MvPolynomial (Fin n) ℝ) (d r : ℕ) (
   by_cases hn0 : n = 0
   · subst hn0
     -- n = 0: f is a poly in 0 variables, hence constant
-    set c := MvPolynomial.coeff 0 f
+    set c := f.coeff 0
     have hf_const : f = MvPolynomial.C c := by
       ext m; rw [show m = 0 from Subsingleton.elim m 0]; simp [c, MvPolynomial.coeff_C]
     have hc_nonneg : 0 ≤ c := by
@@ -92,7 +92,7 @@ theorem upperBoundMembershipBoxPreo (f : MvPolynomial (Fin n) ℝ) (d r : ℕ) (
   by_cases hd0 : d = 0
   · subst hd0
     -- d = 0: f has totalDegree ≤ 0, so f is constant
-    set c := MvPolynomial.coeff 0 f
+    set c := f.coeff 0
     have hf_const : f = MvPolynomial.C c :=
       MvPolynomial.totalDegree_eq_zero_iff_eq_C.mp (Nat.le_zero.mp hd)
     have hc_nonneg : 0 ≤ c := by
@@ -103,7 +103,7 @@ theorem upperBoundMembershipBoxPreo (f : MvPolynomial (Fin n) ℝ) (d r : ℕ) (
   have hd_pos : 0 < d := Nat.pos_of_ne_zero hd0
   -- Step 1: Derive d ≤ r from hr1 (using n > 0)
   have hdr : d ≤ r := by
-    by_contra h; push_neg at h
+    by_contra h; push Not at h
     have hd_pos' : (0 : ℝ) < d := Nat.cast_pos.mpr hd_pos
     have hsqrt : (1 : ℝ) ≤ Real.sqrt (2 * n) := by
       rw [← Real.sqrt_one]

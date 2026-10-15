@@ -10,7 +10,7 @@ import OptimalConvergenceRates.BaldiSlot2024.Defs
 import OptimalConvergenceRates.MarkovInequality.MarkovInequalityCorollaries
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Algebra.MvPolynomial.NoZeroDivisors
 import Mathlib.Algebra.MvPolynomial.PDeriv
 
@@ -542,7 +542,12 @@ theorem fact2_sigma1_sup (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1) (r : ℕ) (δ
         nlinarith [h1.1, h1.2, sq_nonneg (1 - x 1), sq_nonneg (1 + x 1)]
       have hx_le1 : 1 - x 0 ^ 2 ≤ 1 := by nlinarith [sq_nonneg (x 0)]
       have hy_le1 : 1 - x 1 ^ 2 ≤ 1 := by nlinarith [sq_nonneg (x 1)]
-      nlinarith [mul_le_one₀ hx_le1 hy' hy_le1, mul_nonneg hx' hy']
+      have hmul_le_one : (1 - x 0 ^ 2) * (1 - x 1 ^ 2) ≤ 1 := by
+        calc
+          (1 - x 0 ^ 2) * (1 - x 1 ^ 2) ≤ 1 * (1 - x 1 ^ 2) :=
+            mul_le_mul_of_nonneg_right hx_le1 hy'
+          _ ≤ 1 := by simpa using hy_le1
+      nlinarith [hmul_le_one, mul_nonneg hx' hy']
     -- So σ₁(x) · g₁(x) ≤ 2 and g₁(x) ≥ δ > 0
     -- Therefore σ₁(x) ≤ 2/δ
     have hg₁_pos' : 0 < MvPolynomial.eval x (BoxSemialgebraicGenerator (0 : Fin 2)) := by
@@ -1028,7 +1033,7 @@ theorem lower_degree_bound_core
     have : (1 : ℝ) ≤ (r : ℝ) := Nat.one_le_cast.mpr hr
     linarith
   · -- The non-trivial case: ε is small, need the full argument
-    push_neg at h_trivial
+    push Not at h_trivial
     -- h_trivial : 1 < lower_bound_const * ε ^ (-(1:ℝ)/8)
     -- This means ε < lower_bound_const^8 = (1/16)^8
 
@@ -1214,7 +1219,7 @@ theorem lower_degree_bound (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1) (r : ℕ)
     lower_bound_const * ε ^ (-(1 : ℝ) / 8) ≤ (r : ℝ) := by
   -- Proof by contradiction: assume r < c · ε^{-1/8}
   by_contra h_contra
-  push_neg at h_contra
+  push Not at h_contra
   -- Extract QM decomposition
   obtain ⟨σ₀, σ₁, σ₂, hsos₀, hsos₁, hsos₂, hdeg₀, hdeg₁, hdeg₂, hdecomp⟩ :=
     box_qm_decomp_n2 (f_eps ε) r hmem
@@ -1347,7 +1352,7 @@ theorem lasserre_box_qm_gap (ε : ℝ) (hε : 0 < ε) (hε1 : ε < 1) (r : ℕ)
       simp [f_eps, map_sub]; ring
     rw [hfl] at hl
     by_contra h_contra
-    push_neg at h_contra  -- h_contra : 0 < l
+    push Not at h_contra  -- h_contra : 0 < l
     -- Since l > 0, ε - l < ε < 1 and ε - l could be ≤ 0 or > 0
     -- First: ε - l ≥ 0 (from nonnegativity on hypercube)
     have hge0 : 0 ≤ ε - l := by
@@ -1426,23 +1431,23 @@ private theorem totalDegree_restrictAeval_le
       exact Finset.prod_eq_zero hi_supp hzp
     simp [this]
   · -- All variables in d.support have f i = X j for some j
-    push_neg at h_vanish
+    push Not at h_vanish
     have hf_X : ∀ i ∈ d.support, ∃ j, f i = X j := by
       intro i hi
       rcases hf i with h | h
       · exact absurd h (h_vanish i hi)
       · exact h
     -- The product is ∏_{i ∈ d.support} (X (j i)) ^ (d i)
-    calc (algebraMap ℝ (MvPolynomial (Fin 2) ℝ) (MvPolynomial.coeff d p) *
+    calc (algebraMap ℝ (MvPolynomial (Fin 2) ℝ) (legacyMvCoeff d p) *
           d.prod fun i k => f i ^ k).totalDegree
-        ≤ (algebraMap ℝ (MvPolynomial (Fin 2) ℝ) (MvPolynomial.coeff d p)).totalDegree +
+        ≤ (algebraMap ℝ (MvPolynomial (Fin 2) ℝ) (legacyMvCoeff d p)).totalDegree +
           (d.prod fun i k => f i ^ k).totalDegree :=
           MvPolynomial.totalDegree_mul _ _
       _ = (d.prod fun i k => f i ^ k).totalDegree := by
           rw [MvPolynomial.algebraMap_eq, MvPolynomial.totalDegree_C]; simp
       _ ≤ ∑ i ∈ d.support, (f i ^ d i).totalDegree := by
           simp only [Finsupp.prod]
-          exact MvPolynomial.totalDegree_finset_prod d.support _
+          exact MvPolynomial.totalDegree_finsetProd d.support _
       _ ≤ ∑ i ∈ d.support, d i := by
           apply Finset.sum_le_sum
           intro i hi
@@ -1490,13 +1495,13 @@ theorem restriction_to_two_vars (n : ℕ) (hn : 2 ≤ n) (ε : ℝ) (r : ℕ)
       restrict (BoxSemialgebraicGenerator (ι j)) = BoxSemialgebraicGenerator j := by
     intro j
     simp only [restrict, φ, ι, BoxSemialgebraicGenerator, map_sub, map_one, map_pow,
-      MvPolynomial.aeval_X, dif_pos j.isLt]
+      MvPolynomial.aeval_X, dite_eq_left j.isLt]
   -- restrict(g_i) = 1 for i ≥ 2
   have h_rg_ge : ∀ (i : Fin n), ¬(i.val < 2) →
       restrict (BoxSemialgebraicGenerator i) = 1 := by
     intro i hi
     simp only [restrict, φ, BoxSemialgebraicGenerator, map_sub, map_one, map_pow,
-      MvPolynomial.aeval_X, dif_neg hi]; simp
+      MvPolynomial.aeval_X, dite_eq_right hi]; simp
   -- Build QM decomposition for Fin 2
   let σ' : Fin 2 → MvPolynomial (Fin 2) ℝ := fun j => restrict (σ (ι j))
   let σ₀' : MvPolynomial (Fin 2) ℝ := restrict σ₀ +
@@ -1558,7 +1563,7 @@ theorem restriction_to_two_vars (n : ℕ) (hn : 2 ≤ n) (ε : ℝ) (r : ℕ)
         exact Fin.ext (by simp only [ι] at h; exact Fin.mk.inj h)
       · -- ι is surjective onto the filter
         intro i hi
-        simp only [Finset.coe_filter, Set.mem_setOf_eq,
+        simp only [Finset.coe_filter, Set.mem_ofPred_eq,
           Finset.mem_univ, true_and] at hi
         have hiv : (i : ℕ) < 2 := hi
         exact ⟨⟨i.val, hiv⟩, Finset.mem_coe.mpr (Finset.mem_univ _), Fin.ext rfl⟩
@@ -1647,7 +1652,7 @@ theorem box_qm_convergence_lower_bound (r : ℕ) (hr : 0 < r) :
             calc (1:ℝ) / 16 ≤ 1 := by norm_num
               _ ≤ ↑r := by exact_mod_cast hr
           linarith
-        · push_neg at hge1
+        · push Not at hge1
           have hbound := lower_degree_bound (1/2 - l) hpos hge1 r hl
           have h1 : lower_bound_const / ↑r ≤ (1/2 - l) ^ ((1:ℝ)/8) := by
             rw [div_le_iff₀ hr_pos]
