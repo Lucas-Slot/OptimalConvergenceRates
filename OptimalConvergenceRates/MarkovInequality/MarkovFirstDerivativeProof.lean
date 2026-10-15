@@ -616,6 +616,7 @@ private theorem one_div_sub_right_sub_one_div_sub_left_neg
   have hxb_ne : x - b ≠ 0 := by linarith
   have hxa_ne : x - a ≠ 0 := by linarith
   field_simp [hxb_ne, hxa_ne]
+  rw [mul_zero]
   apply div_neg_of_pos_of_neg
   · linarith
   · nlinarith

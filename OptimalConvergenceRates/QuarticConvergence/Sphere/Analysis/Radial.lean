@@ -503,7 +503,7 @@ theorem mvPolynomial_eval_contDiff {n : ℕ} (F : MvPolynomial (Fin n) ℝ) (N :
   | C a => simpa using (contDiff_const : ContDiff ℝ N (fun _ : Fin n → ℝ ↦ a))
   | add p q hp hq => simpa using hp.add hq
   | mul_X p i hp =>
-      simpa only [map_mul, eval_X] using hp.mul (contDiff_apply ℝ ℝ i)
+      simpa only [map_mul, eval_X] using hp.mul (contDiff_apply ℝ (fun _ : Fin n => ℝ) i)
 
 /-- Squared Euclidean length is smooth. -/
 theorem radialNormSq_contDiff {n : ℕ} (N : ℕ∞) :
@@ -1113,7 +1113,8 @@ theorem radialTangentCoefficient_contDiffAt {n : ℕ} (j : Fin n) {x : Fin n →
       (Real.sqrt (radialNormSq y))⁻¹) x :=
     (hq.sqrt hx.ne').inv (Real.sqrt_ne_zero'.mpr hx)
   have hcoord : ContDiffAt ℝ 6 (fun y : Fin n → ℝ ↦ radialDirection y j) x :=
-    (contDiffAt_apply ℝ ℝ j (radialDirection x)).comp x (radialDirection_contDiffAt hx)
+    (contDiffAt_apply ℝ (fun _ : Fin n => ℝ) j (radialDirection x)).comp x
+      (radialDirection_contDiffAt hx)
   exact hinv.mul hcoord
 
 /-- The closed buffered annulus used for all local coefficient bounds. -/

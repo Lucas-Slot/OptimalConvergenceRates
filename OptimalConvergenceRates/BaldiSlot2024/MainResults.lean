@@ -116,7 +116,7 @@ theorem upperBoundConvergenceRateBoxQM (f : MvPolynomial (Fin n) ℝ) (d r : ℕ
             ≤ A * (polyMin f - l') / (polyMin f - l') :=
               div_le_div_of_nonneg_right
                 (mul_le_mul_of_nonneg_left hg'_sup_le hA_pos.le) (by linarith)
-          _ = A := by field_simp; exact div_self (ne_of_gt (by linarith))
+          _ = A := by field_simp
           _ ≤ ↑r := by linarith
       exact upper_degree_bound_weak _ d r
         ((MvPolynomial.totalDegree_sub_C_le f l').trans hdeg) hg'_pos hcond

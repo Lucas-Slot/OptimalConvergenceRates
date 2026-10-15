@@ -46,8 +46,7 @@ theorem IsPGroup.exists_le_index_eq_prime
           rw [hbot]
           simp }
   have hcenter : Subgroup.center Q = ⊤ := by
-    rcases Subgroup.Normal.eq_bot_or_eq_top
-      (inferInstance : (Subgroup.center Q).Normal) with hbot | htop
+    rcases Subgroup.Normal.eq_bot_or_eq_top (Subgroup.center Q) with hbot | htop
     · exact (hQ.bot_lt_center.ne hbot.symm).elim
     · exact htop
   letI : CommGroup Q := Group.commGroupOfCenterEqTop hcenter

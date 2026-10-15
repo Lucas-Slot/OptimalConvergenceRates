@@ -18,10 +18,10 @@ comparator_dir="$cache_root/comparator"
 lean4export_dir="$cache_root/lean4export"
 nanoda_dir="$cache_root/nanoda"
 
-comparator_commit=575674928e239f5bc452aab72d1dd7b0f1326494
-lean4export_commit=076e8e57707e813375e8f9da8bf989799ace9680
-lean4export_source_tag=v4.34.0
-project_lean_tag=v4.34.1
+comparator_commit=e3dcf3083fc53d44b27a4431fabf7d43181583f5
+lean4export_commit=5a9a355dc6c5fd82b69058d433e2ae2e8dfbf8fe
+lean4export_source_tag=v4.35.0
+project_lean_tag=v4.35.0
 landrun_commit=811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
 nanoda_commit=68d5ca9db226849b41a6fff59d796ff19d0a8840
 
@@ -91,8 +91,7 @@ if $use_landrun; then
 fi
 
 (cd "$comparator_dir" && lake build comparator)
-# Upstream has no v4.34.1 source tag. Build the exact v4.34.0 exporter source
-# with the project's v4.34.1 patch toolchain so it reads the project's oleans.
+# Build the exporter with the project toolchain so it reads this project's oleans.
 (cd "$lean4export_dir" && elan run "$project_toolchain" lake build lean4export)
 (cd "$nanoda_dir" && cargo build --release --locked)
 
