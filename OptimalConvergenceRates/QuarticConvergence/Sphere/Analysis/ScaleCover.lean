@@ -64,7 +64,7 @@ theorem finite_of_uniform_finset_ncard_le {p : ℕ → Prop} {B : ℕ}
   have hb := h t
   have heq : {i | i ∈ t ∧ p i} = (t : Set ℕ) := by
     ext i
-    simp only [mem_setOf_eq, mem_coe]
+    simp only [mem_ofPred_eq, mem_coe]
     constructor
     · exact fun hi => hi.1
     · intro hi
@@ -185,7 +185,7 @@ def zeroQuantitativeScaleCover {n : ℕ} {D A : ℝ} (hD : 2 ≤ D) (hA : 0 ≤ 
   overlap := by simp
   scaled_cutoff := by
     intro i j hj x
-    rw [iteratedFDeriv_zero_fun]
+    rw [iteratedFDeriv_fun_zero]
     simpa using hA
 
 @[simp] theorem zeroQuantitativeScaleCover_active {n : ℕ} {D A : ℝ}
@@ -875,9 +875,14 @@ order six have one common finite bound. -/
 theorem unitScaleBumpSquare_uniform_deriv_bound (n : ℕ) :
     ∃ A : ℝ, 1 ≤ A ∧ ∀ j, j ≤ 6 → ∀ x,
       ‖iteratedFDeriv ℝ j (unitScaleBumpSquare n) x‖ ≤ A := by
-  have hcompact : HasCompactSupport (unitScaleBumpSquare n) := by
-    simpa [unitScaleBumpSquare, pow_two] using
-      (unitScaleBump n).hasCompactSupport.mul_left
+  have hcompactMul := HasCompactSupport.mul_left
+    (f := (unitScaleBump n : (Fin n → ℝ) → ℝ))
+    (unitScaleBump n).hasCompactSupport
+  have hcompactEq : unitScaleBumpSquare n =
+      (unitScaleBump n : (Fin n → ℝ) → ℝ) * unitScaleBump n := by
+    funext x
+    simp [unitScaleBumpSquare, pow_two]
+  have hcompact := hcompactEq.symm ▸ hcompactMul
   have hbound : ∀ j : ℕ, ∃ M : ℝ, ∀ x,
       ‖iteratedFDeriv ℝ j (unitScaleBumpSquare n) x‖ ≤ M := by
     intro j
@@ -948,7 +953,7 @@ theorem rescaledFunction_scaled_deriv_bound {n : ℕ}
   have hprod : (∏ _ : Fin j, ‖L‖) ≤ (r⁻¹) ^ j := by
     calc
       (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, r⁻¹ :=
-        Finset.prod_le_prod (fun _ _ => norm_nonneg L) (fun _ _ => hnormL)
+        Finset.prod_le_prod₀ (fun _ _ => norm_nonneg L) (fun _ _ => hnormL)
       _ = (r⁻¹) ^ j := by simp
   calc
     ‖(iteratedFDeriv ℝ j f (L (x - c))).compContinuousLinearMap
@@ -1001,7 +1006,7 @@ theorem rescaledUnitBump_scaled_deriv_bound {n : ℕ} {A : ℝ}
   have hprod : (∏ _ : Fin j, ‖L‖) ≤ (r⁻¹) ^ j := by
     calc
       (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, r⁻¹ :=
-        Finset.prod_le_prod (fun _ _ => norm_nonneg L) (fun _ _ => hnormL)
+        Finset.prod_le_prod₀ (fun _ _ => norm_nonneg L) (fun _ _ => hnormL)
       _ = (r⁻¹) ^ j := by simp
   calc
     ‖(iteratedFDeriv ℝ j (unitScaleBump n) (L (x - c))).compContinuousLinearMap
@@ -1069,7 +1074,7 @@ theorem activeIntrinsicRawBump_contDiff {n : ℕ}
     ContDiff ℝ 6 (activeIntrinsicRawBump u center active ε i) := by
   classical
   by_cases hi : i ∈ active
-  · simp only [activeIntrinsicRawBump, if_pos hi]
+  · simp only [activeIntrinsicRawBump, ite_eq_left hi]
     exact rescaledUnitBump_contDiff _ _
   · rw [activeIntrinsicRawBump_eq_zero_of_not_active hi]
     exact contDiff_const
@@ -1084,7 +1089,7 @@ theorem support_activeIntrinsicRawBump {n : ℕ}
       activeScaledBall (nonnegativeJetScale u) center active ε i := by
   classical
   by_cases hi : i ∈ active
-  · simp only [activeIntrinsicRawBump, activeScaledBall, if_pos hi]
+  · simp only [activeIntrinsicRawBump, activeScaledBall, ite_eq_left hi]
     exact support_rescaledUnitBump _ (mul_pos hε (hcenter i hi))
   · simp [activeIntrinsicRawBump, activeScaledBall, hi, Function.support]
 
@@ -1222,7 +1227,7 @@ theorem activeIntrinsicRawBump_sq_deriv_ncard_le {n : ℕ}
         funext y
         simp [activeIntrinsicRawBump_eq_zero_of_not_active hnot]
       have hne := hi.2
-      rw [hzero, iteratedFDeriv_zero_fun, Pi.zero_apply] at hne
+      rw [hzero, iteratedFDeriv_fun_zero, Pi.zero_apply] at hne
       exact hne rfl
     have hclosed := support_iteratedFDeriv_activeIntrinsicRawBump_sq_subset_closedBall
       hε hcenter i j hi.2
@@ -1251,7 +1256,7 @@ theorem exists_selectedIntrinsicRawBump_eq_one {n : ℕ}
   simp only [Set.mem_iUnion] at hindexed
   obtain ⟨i, hi, hxball⟩ := hindexed
   refine ⟨i, hi, ?_⟩
-  simp only [activeIntrinsicRawBump, if_pos hi]
+  simp only [activeIntrinsicRawBump, ite_eq_left hi]
   apply rescaledUnitBump_eq_one _
     (mul_pos hε (selectedIntrinsicCentersNatIndexing_value_pos hε s hdis i hi))
   exact Metric.ball_subset_closedBall hxball
@@ -1395,7 +1400,7 @@ theorem iteratedFDeriv_tsum_of_support_locallyFiniteAt {E F : Type*}
     have hderivzero := (hzero.iteratedFDeriv ℝ j).eq_of_nhds
     have hzeroiter : iteratedFDeriv ℝ j (0 : E → F) = 0 := by
       rw [show (0 : E → F) = (fun _ => 0) by rfl]
-      exact iteratedFDeriv_zero_fun
+      exact iteratedFDeriv_fun_zero
     rw [hzeroiter] at hderivzero
     exact hderivzero
 
@@ -1616,7 +1621,7 @@ theorem selectedSquareNormalizedFamily_contDiff {n : ℕ}
     obtain ⟨i, hi, hone⟩ := exists_selectedIntrinsicRawBump_eq_one hε s hdis hcover hx
     have hone' : bump i x = 1 := by simpa [bump, I] using hone
     have hsummable : Summable (fun k => bump k x ^ 2) := by
-      apply summable_of_finite_support
+      apply summable_of_hasFiniteSupport
       exact (hpointBump x).subset (by
         intro k hk
         change bump k x ≠ 0
@@ -1660,7 +1665,7 @@ theorem squareNormalizedFamily_square_tsum {X : Type*} (bump : ℕ → X → ℝ
     (hpos : 0 < ∑' i, bump i x ^ 2) :
     ∑' i, squareNormalizedFamily bump i x ^ 2 = 1 := by
   have hsummable : Summable (fun i => bump i x ^ 2) := by
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     exact (hfinite x).subset (by
       intro i hi
       change bump i x ≠ 0
@@ -1686,7 +1691,7 @@ theorem one_le_raw_square_tsum {X : Type*} (bump : ℕ → X → ℝ)
     (icover : ℕ) (hone : bump icover x = 1) :
     1 ≤ ∑' i, bump i x ^ 2 := by
   have hsummable : Summable (fun i => bump i x ^ 2) := by
-    apply summable_of_finite_support
+    apply summable_of_hasFiniteSupport
     exact (hfinite x).subset (by
       intro i hi
       change bump i x ≠ 0
@@ -1716,7 +1721,7 @@ theorem raw_square_tsum_le_card {X : Type*} (bump : ℕ → X → ℝ) (x : X) (
       _ ≤ B := by exact_mod_cast hcard
   · intro i hi
     have hi' : i ∉ {i | bump i x ≠ 0} := by simpa [t] using hi
-    simp only [Set.mem_setOf_eq, ne_eq, not_not] at hi'
+    simp only [Set.mem_ofPred_eq, ne_eq, not_not] at hi'
     simp [hi']
 
 /-- A cardinality bound on the raw pointwise support gives the corresponding square-root
@@ -1803,7 +1808,7 @@ theorem norm_hessian_sub_le {n : ℕ} {u : (Fin n → ℝ) → ℝ} {C : ℝ}
         · exact hcontrol.third x
       _ ≤ d + C * R := by
         gcongr
-        simpa [dist_eq_norm, norm_sub_rev] using norm_sub_le_of_mem_segment hz
+        simpa [d, dist_eq_norm, norm_sub_rev] using norm_sub_le_of_mem_segment hz
       _ = C * R + d := by ring
   have hmv := (convex_segment x y).norm_image_sub_le_of_norm_fderiv_le
     (s := segment ℝ x y) (x := x) (y := y) (C := C * R + d)
@@ -2227,7 +2232,7 @@ theorem selectedRawSquareTsum_scaled_deriv_bound {n : ℕ} {A₀ : ℝ}
         simp [bump, activeIntrinsicRawBump_eq_zero_of_not_active hnot]
       have hk' := hk
       dsimp [df] at hk'
-      rw [hzero, iteratedFDeriv_zero_fun, Pi.zero_apply] at hk'
+      rw [hzero, iteratedFDeriv_fun_zero, Pi.zero_apply] at hk'
       exact hk' rfl
     have hclosed := support_iteratedFDeriv_activeIntrinsicRawBump_sq_subset_closedBall
       hε hcenter k j (by simpa [df, bump] using hk)
@@ -2246,7 +2251,7 @@ theorem selectedRawSquareTsum_scaled_deriv_bound {n : ℕ} {A₀ : ℝ}
           funext y
           simp [bump, activeIntrinsicRawBump_eq_zero_of_not_active hnot]
         dsimp [df] at hkzero
-        rw [hzero, iteratedFDeriv_zero_fun, Pi.zero_apply] at hkzero
+        rw [hzero, iteratedFDeriv_fun_zero, Pi.zero_apply] at hkzero
         exact hkzero rfl
       have hclosed := support_iteratedFDeriv_activeIntrinsicRawBump_sq_subset_closedBall
         hε hcenter k j (by simpa [df, bump] using hkzero)
@@ -2612,7 +2617,8 @@ theorem exists_uniform_sqrtQuotient_first_deriv_bound
   rw [hfun]
   have hfd : fderiv ℝ (fun y => f y * g y) x =
       f x • fderiv ℝ g x + g x • fderiv ℝ f x := by
-    simpa only [Pi.mul_apply] using fderiv_mul hfDiff hgDiff
+    change fderiv ℝ (f * g) x = _
+    exact fderiv_mul hfDiff hgDiff
   rw [hfd]
   calc
     ‖f x • fderiv ℝ g x + g x • fderiv ℝ f x‖ * r ≤
@@ -2813,7 +2819,12 @@ theorem exists_uniform_selectedSquareNormalizedFamily_positive_deriv_bound
       exact hqbound'.trans (hMbound q hq)
     have hfinal := hquot hri hbumpsmooth hSsmooth hSone hnumbound hdenbound
       j hjone hj
-    simpa [squareNormalizedFamily, bump, S, r, I] using hfinal
+    have hnormalized : squareNormalizedFamily bump i =
+        fun y => bump i y / Real.sqrt (S y) := by
+      funext y
+      simp only [squareNormalizedFamily, S]
+    rw [hnormalized]
+    simpa [bump, S, r, I] using hfinal
 
 /-- All-order derivative propagation, obtained by combining the elementary zeroth-order
 bound with the positive-order estimate. -/
@@ -2949,13 +2960,13 @@ theorem quantitativeSquarePartition_of_slowVariation {n : ℕ}
     have hRi : 0 ≤ nonnegativeJetScale u (I.value i) :=
       nonnegativeJetScale_nonneg u (I.value i)
     constructor
-    · simp only [radius, if_pos hi]
+    · simp only [radius, ite_eq_left hi]
       calc
         ε * nonnegativeJetScale u (I.value i) ≤
             1 * nonnegativeJetScale u (I.value i) :=
           mul_le_mul_of_nonneg_right hε_le_one hRi
         _ = nonnegativeJetScale u (I.value i) := one_mul _
-    · simp only [radius, if_pos hi]
+    · simp only [radius, ite_eq_left hi]
       calc
         nonnegativeJetScale u (I.value i) ≤
             (A * ε) * nonnegativeJetScale u (I.value i) :=
@@ -2997,14 +3008,14 @@ theorem quantitativeSquarePartition_of_slowVariation {n : ℕ}
   · intro i j hj x
     by_cases hi : i ∈ I.active
     · have hb := hderiv' i hi j hj x
-      simpa only [cutoff, bump, I, radius, if_pos hi] using
+      simpa only [cutoff, bump, I, radius, ite_eq_left hi] using
         hb.trans (show Aderiv ≤ A from le_max_left _ _)
     · have hzero : cutoff i = 0 := by
         funext y
         simp [cutoff, squareNormalizedFamily, bump, activeIntrinsicRawBump, hi]
       rw [hzero]
       change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ => (0 : ℝ)) x‖ * radius i ^ j ≤ A
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simpa using hA0
 
 /-- The complete scale-cover stage, assembled from its two analytic leaves. -/

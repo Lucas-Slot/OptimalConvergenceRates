@@ -406,11 +406,18 @@ theorem continuous_momentCoordinateEvaluation {n L : ℕ} :
     Continuous (momentCoordinateEvaluation (n := n) (L := L)) := by
   apply continuous_pi
   intro i
-  simpa only [momentCoordinateEvaluation_apply] using
-    (MvPolynomial.continuous_eval
-      ((Module.finBasis ℝ
-        (MvPolynomial.restrictTotalDegree (Fin n) ℝ L)) i).1).comp
-      continuous_subtype_val
+  rw [show (fun x : sphereSet n ↦
+      momentCoordinateEvaluation (n := n) (L := L) x i) =
+      (fun x : Fin n → ℝ ↦ MvPolynomial.eval x
+        ((Module.finBasis ℝ
+          (MvPolynomial.restrictTotalDegree (Fin n) ℝ L)) i).1) ∘
+        Subtype.val by
+          funext x
+          simpa only [Function.comp_apply, momentCoordinateEvaluation_apply]]
+  exact (MvPolynomial.continuous_eval
+    ((Module.finBasis ℝ
+      (MvPolynomial.restrictTotalDegree (Fin n) ℝ L)) i).1).comp
+    continuous_subtype_val
 
 /-- The finite moment-coordinate map is Bochner integrable for normalized
 surface measure. -/
@@ -458,22 +465,22 @@ theorem isCompact_convexHull_fin_pi (m : ℕ) {s : Set (Fin m → ℝ)}
   · simp
   letI : CompactSpace s := isCompact_iff_compactSpace.mp hs
   let I := Fin (m + 1)
-  let P := (stdSimplex ℝ I) × (I → s)
+  let P := (Convexity.StdSimplex ℝ I) × (I → s)
   let barycenter : P → (Fin m → ℝ) := fun p ↦
-    ∑ i, p.1.1 i • (p.2 i).1
+    ∑ i, p.1.weights i • (p.2 i).1
   have hbarycenter : Continuous barycenter := by
     dsimp [barycenter, P]
-    apply continuous_finset_sum _
+    apply continuous_finsetSum _
     intro i _
-    exact ((continuous_apply i).comp
-        (continuous_subtype_val.comp continuous_fst)).smul
+    exact ((Convexity.StdSimplex.continuous_weights_apply ℝ i).comp continuous_fst).smul
       (continuous_subtype_val.comp
         ((continuous_apply i).comp continuous_snd))
   have hrange : Set.range barycenter = convexHull ℝ s := by
     apply Set.Subset.antisymm
     · rintro x ⟨p, rfl⟩
-      exact mem_convexHull_of_exists_fintype (fun i ↦ p.1.1 i)
-        (fun i ↦ (p.2 i).1) p.1.2.1 p.1.2.2
+      exact mem_convexHull_of_exists_fintype (fun i ↦ p.1.weights i)
+        (fun i ↦ (p.2 i).1) p.1.weights_nonneg
+        ((p.1.weights.sum_fintype (fun _ r ↦ r) (fun _ ↦ rfl)).symm.trans p.1.total)
         (fun i ↦ (p.2 i).2) rfl
     · intro x hx
       let t := Caratheodory.minCardFinsetOfMemConvexHull hx
@@ -528,9 +535,17 @@ theorem isCompact_convexHull_fin_pi (m : ℕ) {s : Set (Fin m → ℝ)}
             · intro j
               simp [W, Z, e.injective.extend_apply]
           _ = x := (Finset.sum_finset_coe (fun y ↦ w y • y) t).trans hw_center
-      let a : stdSimplex ℝ I := ⟨W, hW_nonneg, hW_sum⟩
+      let W' : I →₀ ℝ := Finsupp.equivFunOnFinite.symm W
+      let a : Convexity.StdSimplex ℝ I :=
+        { weights := W'
+          nonneg := by
+            intro i
+            simpa [W'] using hW_nonneg i
+          total := by
+            rw [W'.sum_fintype (fun _ r ↦ r) (fun _ ↦ rfl)]
+            simpa [W'] using hW_sum }
       refine ⟨(a, Z), ?_⟩
-      exact hcenter
+      simpa [barycenter, a, W'] using hcenter
   rw [← hrange]
   exact isCompact_range hbarycenter
 
@@ -540,7 +555,7 @@ theorem totallyBounded_convexHull_range_momentCoordinateEvaluation
     {n L : ℕ} :
     TotallyBounded (convexHull ℝ
       (Set.range (momentCoordinateEvaluation (n := n) (L := L)))) :=
-  totallyBounded_convexHull _
+  (totallyBounded_convexHull).2
     isCompact_range_momentCoordinateEvaluation.totallyBounded
 
 /-- The remaining finite-dimensional topological input: the convex hull of the

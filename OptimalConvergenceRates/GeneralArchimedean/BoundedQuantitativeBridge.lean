@@ -338,7 +338,7 @@ theorem bounded_certificate_preordering_refutation_to_module_at_of_coordinate_bo
     RationalSquareRoot.package_nonempty_with_parameter_log_bounds
       heta hB0 heta hetaone
   refine ⟨pkg, hell, hJ, ?_⟩
-  simpa [boundedBridgeRefutationBudget, Bprime] using
+  simpa [boundedBridgeRefutationBudget, boundedBridgeGeneratorBudget, Bprime, eta] using
     bounded_refutation_of_oddAbsorptionCoefficient_with_denominator_at
       pkg a sigma hsigmaSOS hsigmaDegree hsigmaNorm hH
       csigma (by norm_num : (0 : ℝ) ≤ 1)

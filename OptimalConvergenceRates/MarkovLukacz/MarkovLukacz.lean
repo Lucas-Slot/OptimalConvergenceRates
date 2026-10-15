@@ -11,7 +11,7 @@ import Mathlib.FieldTheory.IsAlgClosed.Basic
 import Mathlib.Algebra.Polynomial.RingDivision
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Topology.Algebra.Polynomial
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 
 open Polynomial Real
 
@@ -138,7 +138,7 @@ private theorem factor_interior_root (p : Polynomial ℝ) (a : ℝ)
     · -- q(a) >= 0 by continuity: q(y) >= 0 for all y in [-1,1] \ {a}, and q is continuous
       rw [hxa]
       by_contra h_neg
-      push_neg at h_neg
+      push Not at h_neg
       -- q(a) < 0, so by continuity, q(y) < 0 near a, but then p(y) = (y-a)^2 * q(y) < 0
       -- for y near a, y != a. But p >= 0 on [-1,1]. Contradiction.
       have hq_cont := q.continuous
@@ -199,7 +199,7 @@ private theorem factor_sq_root (p : Polynomial ℝ) (a : ℝ)
     · -- q(a) >= 0 by continuity
       rw [hxa]
       by_contra h_neg
-      push_neg at h_neg
+      push Not at h_neg
       have hq_cont := q.continuous
       obtain ⟨δ, hδ_pos, hq_near⟩ := Metric.continuousAt_iff.mp hq_cont.continuousAt
         (-q.eval a / 2) (by linarith)
@@ -325,9 +325,9 @@ private theorem lukacs_deg_le_two (p : Polynomial ℝ) (_hp0 : p ≠ 0)
       have h2 : |a - c| ≤ sqD := by
         rw [← Real.sqrt_sq_eq_abs]; exact Real.sqrt_le_sqrt h1
       linarith [le_abs_self (a - c)]
-    · push_neg at h4ac
+    · push Not at h4ac
       suffices h_ca : c > a by linarith
-      by_contra h_not; push_neg at h_not
+      by_contra h_not; push Not at h_not
       by_cases ha_pos : (0 : ℝ) < a
       · have hb_le_2a : |b| ≤ 2 * a := by linarith
         have hx_star_mem : -b / (2 * a) ∈ Set.Icc (-1 : ℝ) 1 := by
@@ -344,7 +344,7 @@ private theorem lukacs_deg_le_two (p : Polynomial ℝ) (_hp0 : p ≠ 0)
         have h4a_pos : (0 : ℝ) < 4 * a := by linarith
         have h_mul := mul_nonneg (le_of_lt h4a_pos) h_nonneg
         rw [mul_sub, mul_div_cancel₀ _ (ne_of_gt h4a_pos)] at h_mul; linarith
-      · push_neg at ha_pos
+      · push Not at ha_pos
         have ha0 : a = 0 := by linarith
         have hc0 : c = 0 := by linarith
         have hb0 : b = 0 := by
@@ -456,7 +456,7 @@ private theorem nonneg_Ioo_to_Icc (f : Polynomial ℝ)
     (hf : ∀ x : ℝ, x ∈ Set.Ioo (-1 : ℝ) 1 → 0 ≤ f.eval x) :
     ∀ x : ℝ, x ∈ Set.Icc (-1 : ℝ) 1 → 0 ≤ f.eval x := by
   intro x hx
-  by_contra h_neg; push_neg at h_neg
+  by_contra h_neg; push Not at h_neg
   obtain ⟨δ, hδ_pos, hδ_near⟩ := Metric.continuousAt_iff.mp f.continuous.continuousAt
     (-f.eval x / 2) (by linarith)
   set ε := min (δ / 2) 1 with hε_def
@@ -684,7 +684,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
           ((X - C a) ^ 2).natDegree + ((1 - X ^ 2) * β' ^ 2).natDegree := natDegree_mul_le
       have h2 : ((X - C a) ^ 2).natDegree = 2 := by rw [natDegree_pow, natDegree_X_sub_C]
       omega
-  · push_neg at h_root
+  · push Not at h_root
     -- Case 3: No interior roots. Check boundary root multiplicities.
     -- Case 3a: Root at x = 1 with multiplicity >= 2
     by_cases h_mult1 : 2 ≤ p.rootMultiplicity 1
@@ -735,7 +735,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
             rw [natDegree_pow, natDegree_X_sub_C]
           omega
       · -- Case 3c: Both boundary root multiplicities <= 1.
-        push_neg at h_mult1 h_mult_neg1
+        push Not at h_mult1 h_mult_neg1
         -- Sub-case: p has roots at BOTH x = 1 and x = -1 (mult 1 each)
         by_cases h_root1 : IsRoot p 1
         · by_cases h_root_neg1 : IsRoot p (-1)
@@ -763,7 +763,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
                 have h_at_1 : x = 1 := by linarith
                 subst h_at_1
                 by_contra h_neg
-                push_neg at h_neg
+                push Not at h_neg
                 -- q.eval 1 > 0, so by continuity, q > 0 near 1
                 have hq_cont := q.continuous
                 have hq1_pos : 0 < q.eval 1 := by linarith
@@ -799,7 +799,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
                   have h_at_neg1 : x = -1 := by linarith
                   subst h_at_neg1
                   by_contra h_neg
-                  push_neg at h_neg
+                  push Not at h_neg
                   have hq_cont := q.continuous
                   have hq_neg1_pos : 0 < q.eval (-1) := by linarith
                   obtain ⟨δ, hδ_pos, hq_near⟩ := Metric.continuousAt_iff.mp
@@ -830,7 +830,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
                   have h_prod_neg : (x - 1) * (x - (-1)) < 0 :=
                     mul_neg_of_neg_of_pos h1_lt h2_gt
                   by_contra h_neg
-                  push_neg at h_neg
+                  push Not at h_neg
                   have : (x - 1) * (x - (-1)) * q.eval x < 0 :=
                     mul_neg_of_neg_of_pos h_prod_neg (by linarith)
                   linarith
@@ -888,7 +888,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
             -- Same factorization approach: find degree-2 monic factor, IVT, compose
             by_cases hdeg : p.natDegree ≤ 2
             · exact lukacs_deg_le_two p hp0 hdeg r hr hp_Icc
-            · push_neg at hdeg
+            · push Not at hdeg
               obtain ⟨q, hq_monic, hq_deg2, hq_dvd⟩ :=
                 exists_monic_deg_two_factor p (by omega)
               have hq0 : q ≠ 0 := hq_monic.ne_zero
@@ -926,12 +926,12 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
                   exact hq_no_interior c hc_Ioo (by rwa [IsRoot.def])
                 rcases lt_or_gt_of_ne hq0_ne with hq0_neg | hq0_pos
                 · right; intro x hx
-                  by_contra h; push_neg at h
+                  by_contra h; push Not at h
                   rcases eq_or_lt_of_le h with heq | hlt
                   · exact hq_no_interior x hx (by rw [IsRoot.def]; linarith)
                   · exact ivt_sign_change 0 x h0_mem hx hq0_neg hlt
                 · left; intro x hx
-                  by_contra h; push_neg at h
+                  by_contra h; push Not at h
                   rcases eq_or_lt_of_le h with heq | hlt
                   · exact hq_no_interior x hx (by rw [IsRoot.def]; linarith)
                   · exact ivt_sign_change x 0 hx h0_mem hlt hq0_pos
@@ -978,7 +978,7 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
           -- Same logic as above branch
           by_cases hdeg : p.natDegree ≤ 2
           · exact lukacs_deg_le_two p hp0 hdeg r hr hp_Icc
-          · push_neg at hdeg
+          · push Not at hdeg
             obtain ⟨q, hq_monic, hq_deg2, hq_dvd⟩ :=
               exists_monic_deg_two_factor p (by omega)
             have hq0 : q ≠ 0 := hq_monic.ne_zero
@@ -1016,12 +1016,12 @@ private theorem lukacs_poly_decomp_aux (n : ℕ) :
                 exact hq_no_interior c hc_Ioo (by rwa [IsRoot.def])
               rcases lt_or_gt_of_ne hq0_ne with hq0_neg | hq0_pos
               · right; intro x hx
-                by_contra h; push_neg at h
+                by_contra h; push Not at h
                 rcases eq_or_lt_of_le h with heq | hlt
                 · exact hq_no_interior x hx (by rw [IsRoot.def]; linarith)
                 · exact ivt_sign_change 0 x h0_mem hx hq0_neg hlt
               · left; intro x hx
-                by_contra h; push_neg at h
+                by_contra h; push Not at h
                 rcases eq_or_lt_of_le h with heq | hlt
                 · exact hq_no_interior x hx (by rw [IsRoot.def]; linarith)
                 · exact ivt_sign_change x 0 hx h0_mem hlt hq0_pos

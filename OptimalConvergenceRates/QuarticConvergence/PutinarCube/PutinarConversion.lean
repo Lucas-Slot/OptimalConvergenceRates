@@ -66,7 +66,7 @@ theorem putinarSplitSetProduct_totalDegree_le
   calc
     (∏ i ∈ L, putinarSplitS k i).totalDegree ≤
         ∑ i ∈ L, (putinarSplitS k i).totalDegree :=
-      MvPolynomial.totalDegree_finset_prod L _
+      MvPolynomial.totalDegree_finsetProd L _
     _ ≤ ∑ _i ∈ L, 2 * k := by
       apply Finset.sum_le_sum
       intro i hi
@@ -218,7 +218,7 @@ theorem putinarConvertedSubsetTerm_mem_BoxQuadraticModule
     have hmono : 4 * J.card * k + p.totalDegree ≤ 2 * R + 4 * n * k :=
       (Nat.add_le_add_left hpdegree (4 * J.card * k)).trans horder
     have hout := BoxQuadraticModule_mono hmono hmul
-    simpa [putinarConvertedSubsetTerm, p, hlarge] using hout
+    simpa [putinarConvertedSubsetTerm, putinarFactorSetProduct, p, hlarge] using hout
   · have hcard : J.card ≤ 1 := by omega
     rcases Nat.le_one_iff_eq_zero_or_eq_one.mp hcard with hzero | hone
     · have hJ : J = ∅ := Finset.card_eq_zero.mp hzero

@@ -24,7 +24,7 @@ noncomputable def homPoly6 (c : HomExp6 → ℝ) : MvPolynomial (Fin 3) ℝ :=
   ∑ α : HomExp6, MvPolynomial.monomial α.1.1 (c α)
 
 @[simp] theorem coeff_homPoly6 (c : HomExp6 → ℝ) (α : HomExp6) :
-    MvPolynomial.coeff α.1.1 (homPoly6 c) = c α := by
+    legacyMvCoeff α.1.1 (homPoly6 c) = c α := by
   unfold homPoly6
   rw [MvPolynomial.coeff_sum, Finset.sum_eq_single α]
   · simp
@@ -91,7 +91,7 @@ lemma homEvalLinear6_injective : Function.Injective homEvalLinear6 := by
     · exact eval_eq_zero_of_unit_eq_zero (homPoly6_isHomogeneous (c - d)) hunit
   apply sub_eq_zero.mp
   funext α
-  have hc := congrArg (MvPolynomial.coeff α.1.1) hpzero
+  have hc := congrArg (legacyMvCoeff α.1.1) hpzero
   simpa using hc
 
 /-- A uniform constant converting the cube sup norm of a homogeneous ternary
@@ -117,16 +117,16 @@ theorem motzkinDegreeSixNormConst_pos : 0 < motzkinDegreeSixNormConst := by
 
 lemma homPoly6_coefficients (p : MvPolynomial (Fin 3) ℝ)
     (hp : homogeneousPart3 6 p = p) :
-    homPoly6 (fun α => MvPolynomial.coeff α.1.1 p) = p := by
+    homPoly6 (fun α => legacyMvCoeff α.1.1 p) = p := by
   ext β
   by_cases hβ : expDegree β = 6
   · let α : HomExp6 := ⟨⟨β, hβ.le⟩, hβ⟩
-    simpa [α] using coeff_homPoly6 (fun γ => MvPolynomial.coeff γ.1.1 p) α
-  · have hpzero : MvPolynomial.coeff β p = 0 :=
+    simpa [α] using coeff_homPoly6 (fun γ => legacyMvCoeff γ.1.1 p) α
+  · have hpzero : legacyMvCoeff β p = 0 :=
       (isHomogeneous_of_homogeneousPart3_eq hp).coeff_eq_zero (by
         simpa [expDegree, Finsupp.degree_eq_sum, Finsupp.sum_fintype] using hβ)
-    have hqzero : MvPolynomial.coeff β
-        (homPoly6 (fun α => MvPolynomial.coeff α.1.1 p)) = 0 :=
+    have hqzero : legacyMvCoeff β
+        (homPoly6 (fun α => legacyMvCoeff α.1.1 p)) = 0 :=
       (homPoly6_isHomogeneous _).coeff_eq_zero (by
         simpa [expDegree, Finsupp.degree_eq_sum, Finsupp.sum_fintype] using hβ)
     rw [hpzero, hqzero]
@@ -150,7 +150,7 @@ theorem motzkinCoeffNorm_homogeneous_six_le_cube_bound
     {B : ℝ} (hB : 0 ≤ B)
     (hbound : ∀ x : Fin 3 → ℝ, x ∈ Hypercube 3 → |MvPolynomial.eval x p| ≤ B) :
     motzkinCoeffNorm p ≤ motzkinDegreeSixNormConst * B := by
-  let c : HomExp6 → ℝ := fun α => MvPolynomial.coeff α.1.1 p
+  let c : HomExp6 → ℝ := fun α => legacyMvCoeff α.1.1 p
   let hex := (LinearMap.injective_iff_antilipschitz homEvalLinear6).mp
     homEvalLinear6_injective
   let K := Classical.choose hex

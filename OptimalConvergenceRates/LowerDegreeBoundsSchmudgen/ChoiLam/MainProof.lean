@@ -28,7 +28,7 @@ theorem schmuedgen_interior_lower_degree_bound_quarter
     (hmem : choiLamPerturbed epsilon ∈ BoxPreordering 4 r) :
     schmInteriorLowerBoundConst4 * epsilon ^ (-(1 : ℝ) / 4) ≤ (r : ℝ) := by
   by_contra hcontra
-  push_neg at hcontra
+  push Not at hcontra
   rw [choiLamPerturbed_eq] at hmem
   exact degree_four_comparison_error_bound_quarter heps heps0 (le_of_lt hcontra) hmem
 

@@ -110,12 +110,12 @@ theorem sharpTailPolynomial_support_degree {N D : Nat}
   have hhighOne : (fun k => (sharpHighPart D (q k)).coeff x.1) =
       fun _ => 0 := by
     funext k
-    rw [sharpHighPart_coeff, finsupp_sum_fin_two, if_neg]
+    rw [sharpHighPart_coeff, finsupp_sum_fin_two, ite_eq_right]
     omega
   have hhighTwo : (fun k => (sharpHighPart D (q k)).coeff x.2) =
       fun _ => 0 := by
     funext k
-    rw [sharpHighPart_coeff, finsupp_sum_fin_two, if_neg]
+    rw [sharpHighPart_coeff, finsupp_sum_fin_two, ite_eq_right]
     omega
   rw [hhighOne, hhighTwo]
   simp [OptimalConvergenceRates.vecDot]

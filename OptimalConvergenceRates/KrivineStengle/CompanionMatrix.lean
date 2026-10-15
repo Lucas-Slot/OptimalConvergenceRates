@@ -105,14 +105,14 @@ theorem companionMatrixOfDegree_eq_leftMulMatrix_root
       Algebra.leftMulMatrix (AdjoinRoot.powerBasis' hp).basis
         (AdjoinRoot.root p) := by
   ext i j
-  rw [Algebra.leftMulMatrix_eq_repr_mul]
+  rw [Algebra.leftMulMatrix_eq_repr_mul (AdjoinRoot.powerBasis' hp).basis (AdjoinRoot.root p) i j]
   rw [(AdjoinRoot.powerBasis' hp).basis_eq_pow j]
   change companionMatrixOfDegree p p.natDegree i j =
     ((AdjoinRoot.powerBasis' hp).basis.repr
       (AdjoinRoot.root p * AdjoinRoot.root p ^ (j : ℕ))) i
   rw [← pow_succ']
   by_cases hj : (j : ℕ) + 1 < p.natDegree
-  · rw [companionMatrixOfDegree, dif_pos hj]
+  · rw [companionMatrixOfDegree, dite_eq_left hj]
     change (if (i : ℕ) = (j : ℕ) + 1 then 1 else 0) =
       (AdjoinRoot.modByMonicHom hp
         (AdjoinRoot.root p ^ ((j : ℕ) + 1))).coeff i
@@ -124,7 +124,7 @@ theorem companionMatrixOfDegree_eq_leftMulMatrix_root
   · have hlast : (j : ℕ) + 1 = p.natDegree := by
       exact Nat.le_antisymm (Nat.succ_le_of_lt j.isLt)
         (Nat.le_of_not_gt hj)
-    rw [companionMatrixOfDegree, dif_neg hj]
+    rw [companionMatrixOfDegree, dite_eq_right hj]
     change -p.coeff i = (AdjoinRoot.modByMonicHom hp
       (AdjoinRoot.root p ^ ((j : ℕ) + 1))).coeff i
     rw [hlast]

@@ -39,7 +39,7 @@ theorem parameterFDeriv_eq_fderiv_section {g : (D × ℝ) → F}
   have hembed : HasFDerivAt (fun y : D ↦ (y, t)) inl x := by
     fun_prop
   have hchain := (hg.differentiable (by norm_num) (x, t)).hasFDerivAt.comp x hembed
-  simpa [parameterFDeriv, inl] using hchain.fderiv.symm
+  simpa [parameterFDeriv, inl, Function.comp_def] using hchain.fderiv.symm
 
 omit [CompleteSpace F] in
 /-- Differentiation under the fixed compact integral, with the derivative expressed by
@@ -75,7 +75,7 @@ theorem hasFDerivAt_setIntegral_Icc {g : (D × ℝ) → F}
     exact fun x hx ↦ hbound x hx t ht
   · exact continuousOn_const.integrableOn_compact isCompact_Icc
   · refine Filter.Eventually.of_forall fun t x hx ↦ ?_
-    simpa [F₀, F'] using
+    simpa [F₀, F', parameterFDeriv, Function.comp_def] using
       (hg.differentiable (by norm_num) (x, t)).hasFDerivAt.comp x
         (show HasFDerivAt (fun y : D ↦ (y, t))
             (ContinuousLinearMap.inl ℝ D ℝ) x by fun_prop)

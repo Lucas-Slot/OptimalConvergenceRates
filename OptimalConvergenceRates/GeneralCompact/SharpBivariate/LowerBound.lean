@@ -51,7 +51,7 @@ theorem sharpRestrictA_natDegree_le (z : ℝ)
     ![Polynomial.X, Polynomial.C z] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [sharpRestrictA] using h
 
 /-- Restrict a bivariate polynomial to the `z`-line at fixed `a`. -/
 def sharpRestrictZAt (a : ℝ) (p : MvPolynomial (Fin 2) ℝ) : Polynomial ℝ :=
@@ -78,7 +78,7 @@ theorem sharpRestrictZAt_natDegree_le (a : ℝ)
     ![Polynomial.C a, Polynomial.X] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [sharpRestrictZAt] using h
 
 @[simp] theorem eval_sharpH (a z : ℝ) :
     MvPolynomial.eval ![a, z] sharpH = z * (a ^ 2 + z ^ 2) := by

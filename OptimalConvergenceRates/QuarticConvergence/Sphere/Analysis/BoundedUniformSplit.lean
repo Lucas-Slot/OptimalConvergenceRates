@@ -119,7 +119,7 @@ theorem fderiv_globalizedBoundedSplitFunction_normal {n : ℕ}
     rfl]
   rw [fderiv_add (hχ.mul hF) (honeSub.mul hq)]
   rw [fderiv_mul hχ hF, fderiv_mul honeSub hq]
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, smul_eq_mul,
+  simp only [add_apply, smul_apply, smul_eq_mul,
     Pi.one_apply, Pi.sub_apply]
   have hχnormal : fderiv ℝ χ z (splitNormalDirection n) = 0 := by
     have hcut : HasFDerivAt (boundedSplitTangentialCutoff input)
@@ -181,7 +181,7 @@ theorem fderiv_second_globalizedBoundedSplitFunction_normal {n : ℕ}
     exact fderiv_globalizedBoundedSplitFunction_normal input w]
   rw [fderiv_add (hχ.mul hN) (honeSub.mul hl)]
   rw [fderiv_mul hχ hN, fderiv_mul honeSub hl]
-  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, smul_eq_mul,
+  simp only [add_apply, smul_apply, smul_eq_mul,
     Pi.one_apply, Pi.sub_apply]
   have hχnormal : fderiv ℝ χ z (splitNormalDirection n) = 0 := by
     have hcut : HasFDerivAt (boundedSplitTangentialCutoff input)
@@ -589,7 +589,7 @@ theorem BoundedUniformLocalSplitData.fderiv_residual_eq_tangential
   rw [fderiv_comp y hfDiff hGDiff]
   rw [show fderiv ℝ G y = (fderiv ℝ data.graph.graph y).prod
       (ContinuousLinearMap.id ℝ (Fin n → ℝ)) by
-    simpa [G, fderiv_id'] using hgraphDiff.fderiv_prodMk differentiableAt_id]
+    simpa [G, fderiv_fun_id] using hgraphDiff.fderiv_prodMk differentiableAt_id]
   ext v
   simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.prod_apply,
     ContinuousLinearMap.id_apply]
@@ -649,7 +649,7 @@ theorem MinimizingGraphData.norm_fderiv_graph_le_of_second_deriv_bound
   have hGderiv : fderiv ℝ G y =
       (fderiv ℝ graph.graph y).prod
         (ContinuousLinearMap.id ℝ (Fin n → ℝ)) := by
-    simpa [G, fderiv_id'] using hgraphDiff.fderiv_prodMk differentiableAt_id
+    simpa [G, fderiv_fun_id] using hgraphDiff.fderiv_prodMk differentiableAt_id
   have hcurvature : (1 / 4 : ℝ) ≤
       fderiv ℝ N (G y) (splitNormalDirection n) := by
     simpa [N, G] using input.normal_curvature (graph.graph y, y)
@@ -755,7 +755,7 @@ theorem MinimizingGraphData.fderiv_graph_eq_normalCurvature_inv_smul
   have hGderiv : fderiv ℝ G y =
       (fderiv ℝ graph.graph y).prod
         (ContinuousLinearMap.id ℝ (Fin n → ℝ)) := by
-    simpa [G, fderiv_id'] using hgraphDiff.fderiv_prodMk differentiableAt_id
+    simpa [G, fderiv_fun_id] using hgraphDiff.fderiv_prodMk differentiableAt_id
   have hcurvature : (1 / 4 : ℝ) ≤ minimizingGraphNormalCurvature graph y := by
     exact input.normal_curvature (graph.graph y, y) (graph.graph_point_mem y)
   have hcurvatureNe : minimizingGraphNormalCurvature graph y ≠ 0 :=
@@ -807,7 +807,7 @@ theorem MinimizingGraphData.norm_fderiv_fderiv_graph_le_of_third_deriv_bound
         (ContinuousLinearMap.id ℝ (Fin n → ℝ)) := by
     have hgdiff : DifferentiableAt ℝ graph.graph w :=
       graph.graph_contDiff.differentiable (by norm_num) w
-    simpa [G, fderiv_id'] using hgdiff.fderiv_prodMk differentiableAt_id
+    simpa [G, fderiv_fun_id] using hgdiff.fderiv_prodMk differentiableAt_id
   have hGnorm : ‖fderiv ℝ G y‖ ≤ max (4 * A) 1 := by
     rw [hGderiv]
     apply ContinuousLinearMap.opNorm_le_bound _ (zero_le_one.trans (le_max_right _ _))
@@ -925,8 +925,8 @@ theorem MinimizingGraphData.norm_fderiv_fderiv_graph_le_of_third_deriv_bound
       rw [← hproductDeriv, hzeroDeriv]
     have happ := congrArg (fun L : (Fin n → ℝ) →L[ℝ] ℝ ↦ L u) hmap
     rw [hcDeriv] at happ
-    simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.comp_apply,
-      ContinuousLinearMap.flip_apply, ContinuousLinearMap.zero_apply] at happ
+    simp only [add_apply, ContinuousLinearMap.comp_apply,
+      ContinuousLinearMap.flip_apply, zero_apply] at happ
     rw [hqDeriv, hqValue] at happ
     exact happ
   have hnormalTerm :
@@ -1020,7 +1020,8 @@ theorem BoundedUniformLocalSplitData.norm_iteratedFDeriv_two_residual_le
       boundedSplitCylinder input.normalRadius input.tangentialRadius := ⟨hnormal, hy⟩
   have hsecondPoint :
       ‖iteratedFDeriv ℝ 2 F (G y)‖ ≤ A := by
-    simpa [F, G] using hsecond (data.graph.graph y, y) hpoint
+    simpa [F, G, globalizedBoundedSplitInput] using
+      hsecond (data.graph.graph y, y) hpoint
   have hgraphBound : ‖fderiv ℝ data.graph.graph y‖ ≤ 4 * A :=
     data.graph.norm_fderiv_graph_le_of_second_deriv_bound y hsecondPoint
   have hgraphDiff : DifferentiableAt ℝ data.graph.graph y :=
@@ -1030,7 +1031,7 @@ theorem BoundedUniformLocalSplitData.norm_iteratedFDeriv_two_residual_le
   have hGderiv : fderiv ℝ G y =
       (fderiv ℝ data.graph.graph y).prod
         (ContinuousLinearMap.id ℝ (Fin n → ℝ)) := by
-    simpa [G, fderiv_id'] using hgraphDiff.fderiv_prodMk differentiableAt_id
+    simpa [G, fderiv_fun_id] using hgraphDiff.fderiv_prodMk differentiableAt_id
   have hGnorm : ‖fderiv ℝ G y‖ ≤ max (4 * A) 1 := by
     rw [hGderiv]
     apply ContinuousLinearMap.opNorm_le_bound _ (zero_le_one.trans (le_max_right _ _))
@@ -1200,7 +1201,7 @@ theorem exists_global_iteratedFDeriv_bound_of_compactSupport
   have hM : ∀ j, j ≤ m → ∀ x, ‖iteratedFDeriv ℝ j f x‖ ≤ M j := by
     intro j hj x
     dsimp only [M]
-    rw [dif_pos hj]
+    rw [dite_eq_left hj]
     exact Classical.choose_spec (hbound j hj) x
   let A := max (((Finset.range (m + 1)).image M).max' (by simp)) 0
   refine ⟨A, le_max_right _ _, ?_⟩
@@ -1503,7 +1504,7 @@ theorem curvatureMainRoot_uniform_deriv_bound_of_local
       have hprod : (∏ _ : Fin k, ‖T.toContinuousLinearMap‖) ≤ (2 : ℝ) ^ k := by
         calc
           (∏ _ : Fin k, ‖T.toContinuousLinearMap‖) ≤ ∏ _ : Fin k, (2 : ℝ) :=
-            Finset.prod_le_prod (fun _ _ ↦ norm_nonneg _) (fun _ _ ↦ hnormT)
+            Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg _) (fun _ _ ↦ hnormT)
           _ = (2 : ℝ) ^ k := by simp
       have hpow : (2 : ℝ) ^ k ≤ 16 := by
         interval_cases k <;> norm_num
@@ -1732,11 +1733,12 @@ theorem exists_globalizedBoundedSplitFunction_first_deriv_bound
   have hchiBound : ∀ k, k ≤ 1 →
       ‖iteratedFDeriv ℝ k chi z‖ ≤ Achi := by
     intro k hk
-    simpa [chi, tangentialCoordinatePullback] using
-      (norm_iteratedFDeriv_tangentialCoordinatePullback_le
-        ((boundedSplitTangentialCutoff_contDiff input).of_le (by norm_num))
-        (hk.trans (by norm_num)) z).trans
-          (hchi input htangentialEq k hk z.2)
+    change ‖iteratedFDeriv ℝ k
+      (tangentialCoordinatePullback (boundedSplitTangentialCutoff input)) z‖ ≤ Achi
+    exact (norm_iteratedFDeriv_tangentialCoordinatePullback_le
+      ((boundedSplitTangentialCutoff_contDiff input).of_le (by norm_num))
+      (hk.trans (by norm_num)) z).trans
+        (hchi input htangentialEq k hk z.2)
   have honeBound : ∀ k, k ≤ 1 →
       ‖iteratedFDeriv ℝ k oneSubChi z‖ ≤ 1 + Achi := by
     intro k hk
@@ -1912,7 +1914,7 @@ theorem exists_boundedSplitComparisonQuadratic_second_deriv_bound
       ‖iteratedFDeriv ℝ j (boundedSplitComparisonQuadratic (n := n)) z‖ ≤ K j := by
     intro j hj z hz
     dsimp only [K]
-    rw [dif_pos hj]
+    rw [dite_eq_left hj]
     exact Classical.choose_spec (hbound j hj) z hz
   let A := max (((Finset.range 3).image K).max' (by simp)) 0
   refine ⟨A, le_max_right _ _, ?_⟩
@@ -1964,11 +1966,12 @@ theorem exists_globalizedBoundedSplitFunction_second_deriv_bound
     · exact hz.2.trans htangentialNormal
   have hchiBound : ∀ k, k ≤ j → ‖iteratedFDeriv ℝ k chi z‖ ≤ Achi := by
     intro k hk
-    simpa [chi, tangentialCoordinatePullback] using
-      (norm_iteratedFDeriv_tangentialCoordinatePullback_le
-        ((boundedSplitTangentialCutoff_contDiff input).of_le (by norm_num))
-        (by exact_mod_cast hk.trans (hj.trans (by norm_num : 2 ≤ 4))) z).trans
-          (hchi input htangentialEq k (hk.trans hj) z.2)
+    change ‖iteratedFDeriv ℝ k
+      (tangentialCoordinatePullback (boundedSplitTangentialCutoff input)) z‖ ≤ Achi
+    exact (norm_iteratedFDeriv_tangentialCoordinatePullback_le
+      ((boundedSplitTangentialCutoff_contDiff input).of_le (by norm_num))
+      (by exact_mod_cast hk.trans (hj.trans (by norm_num : 2 ≤ 4))) z).trans
+        (hchi input htangentialEq k (hk.trans hj) z.2)
   have honeBound : ∀ k, k ≤ j →
       ‖iteratedFDeriv ℝ k oneSubChi z‖ ≤ 1 + Achi := by
     intro k hk
@@ -2078,7 +2081,7 @@ theorem norm_iteratedFDeriv_tangentialCoordinatePullback_le_six {n j : ℕ}
   have hL : ‖L‖ ≤ 1 := by
     apply ContinuousLinearMap.opNorm_le_bound _ zero_le_one
     intro w
-    simpa only [one_mul] using norm_snd_le w
+    simpa only [L, ContinuousLinearMap.coe_snd', one_mul] using norm_snd_le w
   have hcomp : iteratedFDeriv ℝ j (f ∘ L) z =
       (iteratedFDeriv ℝ j f (L z)).compContinuousLinearMap (fun _ ↦ L) :=
     L.iteratedFDeriv_comp_right hf z (by exact_mod_cast hj)
@@ -2090,7 +2093,7 @@ theorem norm_iteratedFDeriv_tangentialCoordinatePullback_le_six {n j : ℕ}
       ContinuousMultilinearMap.norm_compContinuousLinearMap_le _ _
     _ ≤ ‖iteratedFDeriv ℝ j f (L z)‖ * ∏ _ : Fin j, (1 : ℝ) :=
       mul_le_mul_of_nonneg_left
-        (Finset.prod_le_prod (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hL))
+        (Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hL))
         (norm_nonneg _)
     _ = ‖iteratedFDeriv ℝ j f z.2‖ := by simp [L]
 
@@ -2135,7 +2138,7 @@ theorem exists_boundedSplitComparisonQuadratic_six_deriv_bound
       ‖iteratedFDeriv ℝ j (boundedSplitComparisonQuadratic (n := n)) z‖ ≤ K j := by
     intro j hj z hz
     dsimp only [K]
-    rw [dif_pos hj]
+    rw [dite_eq_left hj]
     exact Classical.choose_spec (hbound j hj) z hz
   let A := max (((Finset.range 7).image K).max' (by simp)) 0
   refine ⟨A, le_max_right _ _, ?_⟩
@@ -2187,11 +2190,12 @@ theorem exists_globalizedBoundedSplitFunction_six_deriv_bound
     · exact hz.2.trans htangentialNormal
   have hchiBound : ∀ k, k ≤ j → ‖iteratedFDeriv ℝ k chi z‖ ≤ Achi := by
     intro k hk
-    simpa [chi, tangentialCoordinatePullback] using
-      (norm_iteratedFDeriv_tangentialCoordinatePullback_le_six
-        (boundedSplitTangentialCutoff_contDiff input)
-        (hk.trans hj) z).trans
-          (hchi input htangentialEq k (hk.trans hj) z.2)
+    change ‖iteratedFDeriv ℝ k
+      (tangentialCoordinatePullback (boundedSplitTangentialCutoff input)) z‖ ≤ Achi
+    exact (norm_iteratedFDeriv_tangentialCoordinatePullback_le_six
+      (boundedSplitTangentialCutoff_contDiff input)
+      (hk.trans hj) z).trans
+        (hchi input htangentialEq k (hk.trans hj) z.2)
   have honeBound : ∀ k, k ≤ j →
       ‖iteratedFDeriv ℝ k oneSubChi z‖ ≤ 1 + Achi := by
     intro k hk
@@ -2577,7 +2581,9 @@ theorem uniformBoundedLocalSplitPositiveDerivativeBounds_of_functionJets
       have hw' : ‖w‖ ≤ tangentialRadius := by simpa [htangentialEq] using hw
       have h := norm_iteratedFDeriv_implicitGraphLift_le graph w hBgraph
         (fun q hqOne hq ↦ hgraphJets w hw' q hqOne (hq.trans hk)) hkOne hk
-      simpa [data, graph, implicitGraphLift] using h
+      change ‖iteratedFDeriv ℝ k (fun v ↦ (graph.graph v, v)) w‖ ≤ Bgraph ^ k at h
+      change ‖iteratedFDeriv ℝ k (fun v ↦ (graph.graph v, v)) w‖ ≤ Bgraph ^ k
+      exact h
     have hresidual := data.norm_iteratedFDeriv_residual_le_global_of_lift_jets
       hMglobal hBgraph hambientData hliftData (by omega) hj y
     exact hresidual.trans

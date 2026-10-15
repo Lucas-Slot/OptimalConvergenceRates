@@ -59,7 +59,7 @@ theorem restrictScaledArc_natDegree_le (j : Fin 3)
       fin_cases j <;> fin_cases i <;>
         simp [scaledArcSubstitution, Matrix.cons_val_zero, Matrix.cons_val_one,
           Matrix.cons_val_two])
-  simpa [Nat.mul_comm] using h
+  simpa [restrictScaledArc, Nat.mul_comm] using h
 
 /-- The coefficient of `tau^2` in each restricted generator. -/
 def arcGeneratorCoeffTwo (j : Fin 3) : Fin 5 → ℝ :=

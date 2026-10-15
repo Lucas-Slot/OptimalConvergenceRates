@@ -62,7 +62,7 @@ theorem preorderingMulFactorEnvelope_mono
   have hprod :
       (∏ i ∈ IJ.1 ∩ IJ.2, e i) ≤
         ∏ i ∈ IJ.1 ∩ IJ.2, f i := by
-    apply Finset.prod_le_prod
+    apply Finset.prod_le_prod₀
     · intro i hi
       exact he i
     · intro i hi
@@ -210,8 +210,8 @@ def boundedAddPowSubPow
     ∀ N, BoundedPreorderingCertificate g ((c + h) ^ N - c ^ N)
       (N * d) (powerDifferenceBound F Hc Hh N)
   | 0 => by
-      convert BoundedPreorderingCertificate.constantNonneg g 0 le_rfl using 1 <;>
-        simp
+      simpa [powerDifferenceBound] using
+        BoundedPreorderingCertificate.constantNonneg g 0 le_rfl
   | N + 1 => by
       let cplus := cc.add ch
       let previous := boundedAddPowSubPow hfactor cc ch N

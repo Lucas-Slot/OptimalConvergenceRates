@@ -106,10 +106,10 @@ theorem eval_guardedPolynomialMatrixEval {n d : ℕ} {F : Type*}
   · simp only [List.map_ofFn, List.sum_ofFn]
     rw [Polynomial.aeval_eq_sum_range' (x := evalGuardedMatrix coeff x A)]
     · rw [← Fin.sum_univ_eq_sum_range]
-      rw [Finset.sum_apply, Finset.sum_apply]
+      rw [Matrix.sum_apply]
+      simp only [Function.comp_apply, Matrix.smul_apply, smul_eq_mul]
       apply Finset.sum_congr rfl
       intro k _
-      simp only [Function.comp_apply]
       rw [GuardedRational.eval_mul coeff x
         (GuardedRational.valid_ofPolynomial coeff x (h.coeff k))
         (GuardedMatrixValid.pow coeff x hA k i j)]
@@ -164,7 +164,10 @@ theorem eval_guardedHermiteMatrix {n : ℕ} {F : Type*} [Field F]
   have hC : GuardedMatrixValid coeff x C :=
     guardedCompanionMatrix_valid coeff x f d hdegree
   ext i j
-  rw [guardedHermiteMatrix, evalGuardedMatrix]
+  change (guardedHermiteMatrix f h d i j).eval coeff x =
+    companionHermiteMatrix (monicNormalizeSpecialization coeff x f d)
+      (specializePolynomial coeff x h) d i j
+  rw [guardedHermiteMatrix, companionHermiteMatrix]
   rw [eval_guardedMatrixTrace coeff x
     ((guardedPolynomialMatrixEval_valid coeff x h hC).mul coeff x
       (GuardedMatrixValid.pow coeff x hC ((i : ℕ) + (j : ℕ))))]
@@ -174,7 +177,6 @@ theorem eval_guardedHermiteMatrix {n : ℕ} {F : Type*} [Field F]
   rw [eval_guardedPolynomialMatrixEval coeff x h hC,
     evalGuardedMatrix_pow coeff x hC,
     eval_guardedCompanionMatrix]
-  rfl
 
 /-- The companion construction recovers the existing intrinsic Hermite
 trace matrix. -/

@@ -98,11 +98,11 @@ def matrixPivotEquiv {k : ℕ}
 private theorem matrixQuadratic_split {k : ℕ}
     (M : Matrix (Fin (k + 1)) (Fin (k + 1)) F) (hM : M.IsSymm)
     (x : Fin (k + 1) → F) :
-    M.toQuadraticMap' x =
+    M.toQuadraticForm' x =
       M 0 0 * x 0 ^ 2 +
         2 * x 0 * headTailLinear M (fun j ↦ x j.succ) +
-        (matrixTail M).toQuadraticMap' (fun j ↦ x j.succ) := by
-  simp only [Matrix.toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply,
+        (matrixTail M).toQuadraticForm' (fun j ↦ x j.succ) := by
+  simp only [Matrix.toQuadraticForm', Matrix.toQuadraticForm', LinearMap.BilinMap.toQuadraticMap_apply,
     Matrix.toLinearMap₂'_apply', dotProduct, Matrix.mulVec, matrixTail,
     headTailLinear, pow_two]
   rw [Fin.sum_univ_succ, Fin.sum_univ_succ]
@@ -137,8 +137,8 @@ private theorem matrixQuadratic_split {k : ℕ}
 private theorem matrixSchurQuadratic {k : ℕ}
     (M : Matrix (Fin (k + 1)) (Fin (k + 1)) F) (hM : M.IsSymm)
     (y : Fin k → F) :
-    (matrixSchurComplement M).toQuadraticMap' y =
-      (matrixTail M).toQuadraticMap' y -
+    (matrixSchurComplement M).toQuadraticForm' y =
+      (matrixTail M).toQuadraticForm' y -
         (headTailLinear M y) ^ 2 / M 0 0 := by
   have hrank :
       (∑ i, y i * ∑ j,
@@ -163,7 +163,7 @@ private theorem matrixSchurQuadratic {k : ℕ}
       _ = B ^ 2 / M 0 0 := by
         simp only [div_eq_mul_inv, pow_two]
         ring
-  simp only [Matrix.toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply,
+  simp only [Matrix.toQuadraticForm', Matrix.toQuadraticForm', LinearMap.BilinMap.toQuadraticMap_apply,
     Matrix.toLinearMap₂'_apply', dotProduct, Matrix.mulVec,
     matrixSchurComplement, matrixTail, headTailLinear]
   have hcol (i : Fin k) : M i.succ 0 = M 0 i.succ :=
@@ -177,15 +177,15 @@ private theorem matrixPivotEquiv_isometry {k : ℕ}
     (hM : M.IsSymm) (hpivot : M 0 0 ≠ 0)
     (x : Fin (k + 1) → F) :
     ((weightedSumSquares F (fun _ : Fin 1 ↦ M 0 0)).prod
-      (matrixSchurComplement M).toQuadraticMap')
-        (matrixPivotEquiv M x) = M.toQuadraticMap' x := by
+      (matrixSchurComplement M).toQuadraticForm')
+        (matrixPivotEquiv M x) = M.toQuadraticForm' x := by
   let y : Fin k → F := fun j ↦ x j.succ
   let b : F := headTailLinear M y
   rw [QuadraticMap.prod_apply]
   rw [matrixQuadratic_split M hM x]
   change weightedSumSquares F (fun _ : Fin 1 ↦ M 0 0)
       (fun _ ↦ x 0 + headTailLinear M y / M 0 0) +
-      (matrixSchurComplement M).toQuadraticMap' y = _
+      (matrixSchurComplement M).toQuadraticForm' y = _
   rw [matrixSchurQuadratic M hM y]
   simp only [weightedSumSquares_apply, Fin.sum_univ_one, smul_eq_mul,
     y]
@@ -202,16 +202,16 @@ theorem matrixSignature_eq_orderedSign_add_schur {k : ℕ}
       orderedSign (M 0 0) + matrixSignature (matrixSchurComplement M) := by
   rw [matrixSignature, matrixSignature]
   calc
-    signature M.toQuadraticMap' =
+    signature M.toQuadraticForm' =
         signature ((weightedSumSquares F (fun _ : Fin 1 ↦ M 0 0)).prod
-          (matrixSchurComplement M).toQuadraticMap') :=
+          (matrixSchurComplement M).toQuadraticForm') :=
       signature_congr (matrixPivotEquiv M)
         (matrixPivotEquiv_isometry M hM hpivot)
     _ = signature (weightedSumSquares F (fun _ : Fin 1 ↦ M 0 0)) +
-        signature (matrixSchurComplement M).toQuadraticMap' :=
+        signature (matrixSchurComplement M).toQuadraticForm' :=
       signature_prod _ _
     _ = orderedSign (M 0 0) +
-        signature (matrixSchurComplement M).toQuadraticMap' := by
+        signature (matrixSchurComplement M).toQuadraticForm' := by
       rw [signature_weightedSumSquares, diagonalSignature,
         Fin.sum_univ_one]
 

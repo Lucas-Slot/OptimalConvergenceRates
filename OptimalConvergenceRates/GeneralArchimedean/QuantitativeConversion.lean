@@ -256,7 +256,8 @@ theorem errorBoundTerm_le_scalarBoundTerm_at
   have hthirdRaw := hsecond.sos_mul_right hVSOS
   have hthird := hthirdRaw.mono
     (Nat.add_le_add_left hVProdDegree R₂)
-  convert hthird using 1
+  simpa only [conversionScalarTermOrder, R₂, R₁, Rprod, F,
+    errorBoundTerm, scalarBoundTerm] using hthird
 
 
 /-- Order used to replace every genuine error factor by its interval bound. -/
@@ -459,9 +460,8 @@ theorem convertedOdd_le_oddAbsorptionCoefficient_at
       rw [scalarBoundTerm_eq_coefficient_mul_denominator
         (fun _ => pkg) a H Bprime I K hKI] at hterm
       exact hterm)
-  convert houter using 1
-  simp only [oddAbsorptionCoefficient,
-    map_sum, Finset.sum_mul]
+  simpa only [convertedOdd, oddAbsorptionCoefficient,
+    map_sum, Finset.sum_mul] using houter
 
 /-- Degree of one expanded term under common input and package bounds. -/
 theorem errorExpansionTerm_totalDegree_le
@@ -636,7 +636,7 @@ theorem refutation_of_oddAbsorptionCoefficient_at
     simpa [gamma] using hscaled
   have hDminusOne : D - 1 ∈ GenQuadraticModule g Rden := by
     have hden := one_le_denominatorProduct_const pkg a ha haDegree hδ
-    simpa [ModuleLEAt, D, Rden, F] using hden
+    simpa [ModuleLEAt, D, Rden, F, conversionFactorDegree] using hden
   have hfinal := genQuadraticModule_add hminusD hDminusOne
   have hpoly : -D + (D - 1) = (-1 : MvPolynomial (Fin n) ℝ) := by
     ring

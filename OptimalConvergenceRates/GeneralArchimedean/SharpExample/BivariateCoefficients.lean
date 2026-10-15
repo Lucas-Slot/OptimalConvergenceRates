@@ -15,20 +15,20 @@ namespace OptimalConvergenceRates.GeneralArchimedean
 after fixing the second coordinate. -/
 def restrictSecond (b : Real) (p : MvPolynomial (Fin 2) Real) :
     Polynomial Real :=
-  p.sum fun alpha c => Polynomial.monomial (alpha 0) (c * b ^ alpha 1)
+  (AddMonoidAlgebra.coeff p).sum fun alpha c => Polynomial.monomial (alpha 0) (c * b ^ alpha 1)
 
 /-- The polynomial in the second coordinate formed by the coefficients of
 a fixed power of the first coordinate. -/
 def firstCoefficientPolynomial (i : Nat)
     (p : MvPolynomial (Fin 2) Real) : Polynomial Real :=
-  p.sum fun alpha c =>
+  (AddMonoidAlgebra.coeff p).sum fun alpha c =>
     if alpha 0 = i then Polynomial.monomial (alpha 1) c else 0
 
 theorem restrictSecond_eval (a b : Real)
     (p : MvPolynomial (Fin 2) Real) :
     (restrictSecond b p).eval a = MvPolynomial.eval ![a, b] p := by
   rw [restrictSecond, MvPolynomial.sum_def, MvPolynomial.eval_eq]
-  simp_rw [Polynomial.eval_finset_sum]
+  simp_rw [Polynomial.eval_finsetSum]
   apply Finset.sum_congr rfl
   intro alpha _halpha
   simp only [Polynomial.eval_monomial]
@@ -46,7 +46,7 @@ theorem firstCoefficientPolynomial_eval (i : Nat) (b : Real)
     (firstCoefficientPolynomial i p).eval b =
       (restrictSecond b p).coeff i := by
   rw [firstCoefficientPolynomial, restrictSecond, MvPolynomial.sum_def, MvPolynomial.sum_def]
-  rw [Polynomial.eval_finset_sum]
+  rw [Polynomial.eval_finsetSum]
   rw [<- Polynomial.lcoeff_apply, map_sum]
   simp only [Polynomial.lcoeff_apply]
   apply Finset.sum_congr rfl
@@ -72,10 +72,10 @@ theorem firstCoefficientPolynomial_natDegree_le (i : Nat)
   apply Polynomial.natDegree_sum_le_of_forall_le
   intro alpha halpha
   by_cases hi : alpha 0 = i
-  · rw [if_pos hi]
+  · rw [ite_eq_left hi]
     exact (Polynomial.natDegree_monomial_le _).trans
       (support_coordinate_le_totalDegree p halpha 1)
-  · rw [if_neg hi]
+  · rw [ite_eq_right hi]
     simp
 
 theorem firstCoefficientPolynomial_coeff (i j : Nat)

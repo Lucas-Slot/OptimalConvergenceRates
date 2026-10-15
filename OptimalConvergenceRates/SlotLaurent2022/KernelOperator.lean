@@ -78,10 +78,10 @@ theorem kernelOperator_diag (r : ℕ) (κ : Fin n → ℕ) (hκ : multiDegree κ
   -- The sum reduces to a single term at κ
   rw [Finset.sum_eq_single κ
     (fun μ hμ hμκ => by
-      rw [chebyCoeff_chebyshev r μ κ hμ hκ_mem, if_neg (Ne.symm hμκ)]
+      rw [chebyCoeff_chebyshev r μ κ hμ hκ_mem, ite_eq_right (Ne.symm hμκ)]
       simp)
     (fun h => absurd hκ_mem h)]
-  rw [chebyCoeff_chebyshev r κ κ hκ_mem hκ_mem, if_pos rfl, mul_one]
+  rw [chebyCoeff_chebyshev r κ κ hκ_mem hκ_mem, ite_eq_left rfl, mul_one]
 
 /-! ## Inverse properties -/
 
@@ -287,7 +287,7 @@ private theorem chebyInnerMulti_self_le {n : ℕ} (p : MvPolynomial (Fin n) ℝ)
   rw [MeasureTheory.integral_const] at hint_le
   -- From orthogonality: (1/π)^n * μ.real(univ) = 1
   have hT0 := chebyshevMulti_orthogonality (n := n) (fun _ => 0) (fun _ => 0)
-  rw [if_pos rfl, hammingWeight_zero, Int.ofNat_zero, neg_zero, zpow_zero] at hT0
+  rw [ite_eq_left rfl, hammingWeight_zero, Int.ofNat_zero, neg_zero, zpow_zero] at hT0
   unfold chebyInnerMulti at hT0
   simp only [eval_chebyshevMulti_cos, Nat.cast_zero, zero_mul, Real.cos_zero,
     Finset.prod_const_one, one_mul] at hT0
@@ -461,7 +461,7 @@ theorem kernel_property_P2 (r d : ℕ) (p : MvPolynomial (Fin n) ℝ)
         intro κ hκ_r hκ_not_d
         have hκ_deg : d < multiDegree κ := by
           by_contra h
-          push_neg at h
+          push Not at h
           exact hκ_not_d (multiDegree_le_mem h)
         have hcoeff_zero := chebyCoeff_zero_of_degree_lt r p κ (by omega)
         simp [hcoeff_zero]

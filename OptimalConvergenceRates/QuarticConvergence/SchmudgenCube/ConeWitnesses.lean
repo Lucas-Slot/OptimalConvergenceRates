@@ -33,7 +33,7 @@ theorem boxSemialgebraicGeneratorProd_totalDegree_le_two_mul_card
   calc
     (∏ j ∈ J, BoxSemialgebraicGenerator j).totalDegree ≤
         ∑ j ∈ J, (BoxSemialgebraicGenerator j).totalDegree :=
-      MvPolynomial.totalDegree_finset_prod J _
+      MvPolynomial.totalDegree_finsetProd J _
     _ ≤ ∑ _j ∈ J, 2 := by
       apply Finset.sum_le_sum
       intro j _

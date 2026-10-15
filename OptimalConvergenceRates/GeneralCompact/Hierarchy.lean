@@ -64,7 +64,7 @@ theorem genLasserreBoundPO_ge_feasible
     (l : WithBot ℝ) ≤ genLasserreBoundPO g f r := by
   unfold genLasserreBoundPO
   have hset : {l : ℝ | f - C l ∈ GenPreordering g r}.Nonempty := ⟨l, hl⟩
-  rw [dif_pos hset]
+  rw [dite_eq_left hset]
   exact WithBot.coe_le_coe.mpr
     (le_csSup (genLasserrePO_feasible_bddAbove hne hcompact f r) hl)
 

@@ -62,7 +62,7 @@ theorem generatorProd_eval_ge_alpha0 (J : Finset (Fin 4)) (x : Fin 4 → ℝ)
   have hprod :
       (∏ i ∈ J, (15 / 16 : ℝ)) ≤
         ∏ i ∈ J, MvPolynomial.eval x (BoxSemialgebraicGenerator i) := by
-    exact Finset.prod_le_prod (fun _ _ => by norm_num) (fun i _ => hpoint i)
+    exact Finset.prod_le_prod₀ (fun _ _ => by norm_num) (fun i _ => hpoint i)
   have hcard : J.card ≤ 4 := by
     simpa [Fintype.card_fin] using (Finset.card_le_univ J)
   have hpow : (15 / 16 : ℝ) ^ 4 ≤ (15 / 16 : ℝ) ^ J.card := by

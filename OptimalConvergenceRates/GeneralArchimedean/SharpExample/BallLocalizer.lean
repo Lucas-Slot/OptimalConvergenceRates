@@ -172,7 +172,7 @@ theorem sharpMomentFunctional_ball_sq_nonneg
         Finsupp.single (0 : Fin 2) 2 := by
       ext k
       fin_cases k <;> simp
-    rw [pow_two, monomial_mul, he]
+    rw [pow_two, monomial_mul_monomial, he]
     norm_num
   have hb2 : monomial (bivarExponent 0 2) (1 : ℝ) = obstructionB ^ 2 := by
     rw [show bivarExponent 0 2 = Finsupp.single (1 : Fin 2) 2 by
@@ -184,7 +184,7 @@ theorem sharpMomentFunctional_ball_sq_nonneg
         Finsupp.single (1 : Fin 2) 2 := by
       ext k
       fin_cases k <;> simp
-    rw [pow_two, monomial_mul, he]
+    rw [pow_two, monomial_mul_monomial, he]
     norm_num
   rw [hzero, one_mul, ha2, hb2] at hcompare
   have hρq : sharpMomentFunctional η (C ρ * q ^ 2) =

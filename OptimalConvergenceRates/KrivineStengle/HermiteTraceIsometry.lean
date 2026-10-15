@@ -20,16 +20,18 @@ variable {F : Type u} [Field F]
 form to the quadratic form represented by the Hermite matrix. -/
 noncomputable def hermiteTraceIsometry (f h : F[X]) (hf : f.Monic) :
     (hermiteTraceForm f h hf).toQuadraticMap.IsometryEquiv
-      (hermiteTraceMatrix f h hf).toQuadraticMap' where
+      (hermiteTraceMatrix f h hf).toQuadraticForm' where
   toLinearEquiv := (AdjoinRoot.powerBasis' hf).basis.equivFun
   map_app' x := by
-    let b := (AdjoinRoot.powerBasis' hf).basis
     change Matrix.toLinearMap₂' F (hermiteTraceMatrix f h hf)
-        (b.equivFun x) (b.equivFun x) = hermiteTraceForm f h hf x x
+        ((AdjoinRoot.powerBasisAux' hf).equivFun x)
+        ((AdjoinRoot.powerBasisAux' hf).equivFun x) =
+      hermiteTraceForm f h hf x x
+    rw [Matrix.toLinearMap₂'_apply']
     rw [← hermiteTraceForm_toMatrix]
-    simpa [Matrix.toLinearMap₂'_apply'] using
-      (LinearMap.BilinForm.dotProduct_toMatrix_mulVec
-        (b := b) (hermiteTraceForm f h hf) (b.equivFun x) (b.equivFun x))
+    rw [Module.Basis.equivFun_apply]
+    exact (LinearMap.BilinForm.apply_eq_dotProduct_toMatrix_mulVec
+      (b := AdjoinRoot.powerBasisAux' hf) (hermiteTraceForm f h hf) x x).symm
 
 /-- Intrinsic signature of the weighted trace form.  The finite-dimensional
 instances are obtained canonically from the power basis. -/

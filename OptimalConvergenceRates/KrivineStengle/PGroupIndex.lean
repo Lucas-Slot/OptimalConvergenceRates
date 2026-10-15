@@ -28,7 +28,7 @@ theorem IsPGroup.exists_le_index_eq_prime
   letI : Group.IsNilpotent G := IsPGroup.isNilpotent hG
   letI : K.Normal :=
     Subgroup.NormalizerCondition.normal_of_coatom K
-      (normalizerCondition_of_isNilpotent (G := G)) hK
+      (Group.normalizerCondition_of_isNilpotent (G := G)) hK
   let Q := G ⧸ K
   have hQ : IsPGroup p Q := hG.to_quotient K
   letI : Nontrivial Q := QuotientGroup.nontrivial_iff.mpr hK.ne_top

@@ -38,7 +38,7 @@ theorem finrank_eq_one_of_isPGroup_two_of_no_quadratic
   have hfinrank : Module.finrank K L = J.index := by
     calc
       Module.finrank K L = L.fixingSubgroup.index :=
-        IntermediateField.finrank_eq_fixingSubgroup_index L
+        IntermediateField.finrank_eq_fixingSubgroup_index E L
       _ = J.index := by
         dsimp [L]
         rw [IntermediateField.fixingSubgroup_fixedField]

@@ -22,8 +22,11 @@ theorem norm_sub_sub_fderiv_le_of_global_fderiv_lipschitz
     (hF.differentiable (by norm_num)).sub (fderiv ℝ F x).differentiable
   have hHderiv (z : E) :
       fderiv ℝ H z = fderiv ℝ F z - fderiv ℝ F x := by
-    dsimp [H]
-    simpa using (((hF.differentiable (by norm_num)).differentiableAt.hasFDerivAt).sub
+    have hH : H = F - (fderiv ℝ F x : E → G) := by
+      funext w
+      rfl
+    rw [hH]
+    exact (((hF.differentiable (by norm_num)).differentiableAt.hasFDerivAt).sub
       (fderiv ℝ F x).hasFDerivAt).fderiv
   have hHbound : ∀ z ∈ segment ℝ x y,
       ‖fderiv ℝ H z‖ ≤ M * ‖y - x‖ := by
@@ -116,8 +119,8 @@ theorem norm_centered_transformed_pair_le
       dsimp [remR]
       abel
     rw [hFL, hFR]
-    simp only [map_add, map_sub, ContinuousLinearMap.add_apply,
-      ContinuousLinearMap.sub_apply, ContinuousLinearMap.coe_smul',
+    simp only [map_add, map_sub, add_apply,
+      sub_apply, FunLike.coe_smul,
       ContinuousLinearMap.coe_id', Pi.smul_apply, id_eq, map_nsmul]
     abel
   have hterm (T : G →L[ℝ] G) (u : G) {a b : ℝ}

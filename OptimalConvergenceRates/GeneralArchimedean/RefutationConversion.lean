@@ -978,7 +978,7 @@ theorem errorBoundTerm_le_scalarBoundTerm
   have hthird := ModuleLE.mul
     (IsSOS_mul (IsSOS_mul (hsigma I) hPlower) hElower)
     hVprod hsecond (ModuleLE.refl g _)
-  convert hthird using 1
+  simpa only [errorBoundTerm, scalarBoundTerm] using hthird
 
 /-- The numerical coefficient multiplying the common denominator in the
 scalar bound for one pair `K ⊆ I`. -/
@@ -1075,9 +1075,8 @@ theorem convertedOdd_le_oddAbsorptionCoefficient
       rw [scalarBoundTerm_eq_coefficient_mul_denominator
         pkg a H Bprime I K hKI] at h₃
       exact h₃)
-  convert houter using 1
-  simp only [oddAbsorptionCoefficient, map_sum,
-    Finset.sum_mul]
+  simpa only [convertedOdd, oddAbsorptionCoefficient, map_sum,
+    Finset.sum_mul] using houter
 
 /-- The scalar absorption inequality closes the converted refutation. -/
 theorem refutation_of_oddAbsorptionCoefficient

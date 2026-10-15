@@ -62,7 +62,7 @@ theorem putinarShiftCorrectionRatio_le_half
       apply Finset.sum_le_sum
       intro j hj
       by_cases htwo : 2 ≤ j
-      · simp only [htwo, if_pos]
+      · simp only [htwo, ite_eq_left]
         have hchooseNat : I.card.choose j ≤ I.card ^ j :=
           Nat.choose_le_pow I.card j
         have hchoose : (I.card.choose j : ℝ) ≤ (I.card : ℝ) ^ j := by
@@ -81,7 +81,7 @@ theorem putinarShiftCorrectionRatio_le_half
             pow_le_pow_left₀ (mul_nonneg (Nat.cast_nonneg _) ht) hcardt j
           _ ≤ (1 / 2 : ℝ) ^ j :=
             pow_le_pow_left₀ (mul_nonneg (Nat.cast_nonneg _) ht) hnt j
-      · simp only [htwo, if_false, mul_zero]
+      · simp only [htwo, ite_false, mul_zero]
         exact le_rfl
     _ = ∑ j ∈ Finset.Ico 2 (I.card + 1), (1 / 2 : ℝ) ^ j := by
       rw [← Finset.sum_filter]
@@ -105,11 +105,11 @@ theorem putinarShiftCorrection_eq_pow_mul_ratio
   have hJI : J ⊆ I := Finset.mem_powerset.mp hJ
   have hcard : J.card ≤ I.card := Finset.card_le_card hJI
   by_cases htwo : 2 ≤ J.card
-  · simp only [htwo, if_pos]
+  · simp only [htwo, ite_eq_left]
     rw [pow_sub₀ η hη hcard, div_pow]
     simp only [div_eq_mul_inv]
     ring
-  · simp only [htwo, if_false, mul_zero]
+  · simp only [htwo, ite_false, mul_zero]
 
 /-- Under the manuscript hypothesis `η ≥ 2nμ`, the leading scalar in
 the shifted localized-factor expansion is nonnegative. -/
@@ -200,14 +200,14 @@ theorem putinarShiftedFactorProduct_eq_leading_add_sum
     apply Finset.sum_congr rfl
     intro J hJ
     by_cases htwo : 2 ≤ J.card
-    · simp only [htwo, if_pos]
+    · simp only [htwo, ite_eq_left]
       rw [map_mul]
       ring
-    · simp only [htwo, if_false, map_zero, add_zero]
+    · simp only [htwo, ite_false, map_zero, add_zero]
   have hemptyTerm :
       putinarShiftAugmentedTerm k η I ∅ = MvPolynomial.C (η ^ I.card) := by
     simp [putinarShiftAugmentedTerm, putinarShiftFactorSetProduct]
-  have hsplit := Finset.sum_eq_add_sum_diff_singleton hempty
+  have hsplit := Finset.sum_eq_add_sum_sdiff_singleton_of_mem hempty
     (f := putinarShiftAugmentedTerm k η I)
   rw [hemptyTerm] at hsplit
   have hsplitErase :
@@ -275,7 +275,7 @@ theorem putinarShiftAugmentedTerm_mem_BoxQuadraticModule
           (if 2 ≤ J.card then MvPolynomial.C (putinarPairMu k ^ J.card) else 0) ∈
         BoxQuadraticModule n (4 * J.card * k) := by
     by_cases htwo : 2 ≤ J.card
-    · simp only [htwo, if_pos]
+    · simp only [htwo, ite_eq_left]
       exact putinarLocalizedProduct_finset_mem_BoxQuadraticModule k hk J htwo
     · have hcardOne : J.card = 1 := by
         have hone : 1 ≤ J.card := Finset.one_le_card.mpr hJne
@@ -285,7 +285,7 @@ theorem putinarShiftAugmentedTerm_mem_BoxQuadraticModule
         (show 2 * k ≤ 4 * 1 * k by omega)
         (putinarPairFactor_mem_BoxQuadraticModule k hk i)
       simpa only [putinarShiftFactorSetProduct, Finset.prod_singleton,
-        Finset.card_singleton, mul_one, Nat.not_ofNat_le_one, if_false,
+        Finset.card_singleton, mul_one, Nat.not_ofNat_le_one, ite_false,
         add_zero] using hmono
   have hinnerMono := BoxQuadraticModule_mono
     (Nat.mul_le_mul_right k (Nat.mul_le_mul_left 4 hcard)) hinner
@@ -347,7 +347,7 @@ theorem putinarShiftResidualProduct_totalDegree_le
   calc
     (∏ i ∈ L, putinarSplitS k i).totalDegree ≤
         ∑ i ∈ L, (putinarSplitS k i).totalDegree :=
-      MvPolynomial.totalDegree_finset_prod L _
+      MvPolynomial.totalDegree_finsetProd L _
     _ ≤ ∑ _i ∈ L, 2 * k := by
       apply Finset.sum_le_sum
       intro i hi

@@ -71,10 +71,10 @@ theorem sum_orderedSign_pow_one_two (a : F) :
   by_cases ha : a = 0
   · simp [ha]
   · by_cases hpos : 0 < a
-    · rw [if_neg ha, orderedSign_eq_one_iff.mpr hpos, if_pos hpos]
+    · rw [ite_eq_right ha, orderedSign_eq_one_iff.mpr hpos, ite_eq_left hpos]
       norm_num
     · have hneg : a < 0 := lt_of_le_of_ne (le_of_not_gt hpos) ha
-      rw [if_neg ha, orderedSign_eq_neg_one_iff.mpr hneg, if_neg hpos]
+      rw [ite_eq_right ha, orderedSign_eq_neg_one_iff.mpr hneg, ite_eq_right hpos]
       norm_num
 
 /-- The `{1,2}` exponent sum is `2^s` exactly when all entries are
@@ -102,11 +102,11 @@ theorem sum_orderedSign_products_pow_one_two {s : ℕ} (a : Fin s → F) :
     _ = if ∀ i, 0 < a i then (2 : ℤ) ^ s else 0 := by
       by_cases h : ∀ i, 0 < a i
       · simp [h]
-      · simp only [h, if_false]
-        push_neg at h
+      · simp only [h, ite_false]
+        push Not at h
         obtain ⟨i, hi⟩ := h
         exact Finset.prod_eq_zero (Finset.mem_univ i)
-          (if_neg (not_lt_of_ge hi))
+          (ite_eq_right (not_lt_of_ge hi))
 
 end OptimalConvergenceRates.KrivineStengle
 

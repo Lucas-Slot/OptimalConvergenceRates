@@ -46,7 +46,7 @@ theorem complexVecHermitianPoly_eval {N : ℕ} (F : Fin N → Polynomial ℂ) (z
       complexVecHermitianEval (fun i : Fin N => (F i).eval (star z))
         (fun i : Fin N => (F i).eval z) := by
   unfold complexVecHermitianPoly complexVecHermitianEval
-  simp [Polynomial.eval_finset_sum, Polynomial.eval_mul, complexConjPoly_eval]
+  simp [Polynomial.eval_finsetSum, Polynomial.eval_mul, complexConjPoly_eval]
 
 /-- Complexification of a real univariate polynomial. -/
 def complexifyPoly (p : Polynomial ℝ) : Polynomial ℂ :=
@@ -363,7 +363,7 @@ theorem complexMatVecPoly_eval {N : ℕ} (J : Fin N → Fin N → ℂ)
       complexMatVec J (fun i : Fin N => (F i).eval z) := by
   funext i
   unfold complexMatVecPoly complexMatVec
-  simp [Polynomial.eval_finset_sum, Polynomial.eval_mul]
+  simp [Polynomial.eval_finsetSum, Polynomial.eval_mul]
 
 /-- Evaluation formula for the factor-stripping numerator. -/
 theorem complexStripNumerator_eval {N : ℕ} (a : ℝ) (J : Fin N → Fin N → ℂ)
@@ -373,7 +373,7 @@ theorem complexStripNumerator_eval {N : ℕ} (a : ℝ) (J : Fin N → Fin N → 
         complexMatVec J (fun j : Fin N => (F j).eval z) i := by
   funext i
   unfold complexStripNumerator complexMatVecPoly complexMatVec
-  simp [Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_finset_sum]
+  simp [Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_finsetSum]
 
 /-- If `J` has the two prescribed eigenspace values at the imaginary roots, then every
 coordinate of `(I - i*a*z*J)F` is divisible by `1 + a^2 z^2`. -/
@@ -423,7 +423,7 @@ theorem complexMatVec_identity {N : ℕ} (v : Fin N → ℂ) :
   rw [Finset.sum_eq_single i]
   · simp
   · intro j _hj hji
-    simp [if_neg (Ne.symm hji)]
+    simp [ite_eq_right (Ne.symm hji)]
   · intro hi
     exact False.elim (hi (Finset.mem_univ i))
 
@@ -437,16 +437,16 @@ theorem complexIdentityMat_involutive {N : ℕ} :
     rw [Finset.sum_eq_single i]
     · simp
     · intro j _hj hji
-      simp [if_neg hji, if_neg (Ne.symm hji)]
+      simp [ite_eq_right hji, ite_eq_right (Ne.symm hji)]
     · intro hi
       exact False.elim (hi (Finset.mem_univ i))
   · rw [Finset.sum_eq_zero]
-    · simp [if_neg hik]
+    · simp [ite_eq_right hik]
     · intro j _hj
       by_cases hji : j = i
       · subst j
-        simp [if_neg hik]
-      · simp [if_neg (Ne.symm hji)]
+        simp [ite_eq_right hik]
+      · simp [ite_eq_right (Ne.symm hji)]
 
 /-- The identity matrix preserves the Hermitian self-product. -/
 theorem complexIdentityMat_hermitian_isometry {N : ℕ} :
@@ -539,7 +539,7 @@ theorem complexMatVecPoly_apply_twice_of_involutive {N : ℕ}
           rw [Finset.sum_eq_single i]
           · simp
           · intro k _hk hki
-            simp [if_neg (Ne.symm hki)]
+            simp [ite_eq_right (Ne.symm hki)]
           · intro hi
             exact False.elim (hi (Finset.mem_univ i))
 
@@ -586,7 +586,7 @@ theorem complexPlusFactorApply_derivative_eval_zero {N : ℕ}
   unfold complexPlusFactorApply complexMatVecPoly complexMatVec
   rw [Polynomial.derivative_add, Polynomial.eval_add]
   rw [Polynomial.derivative_mul, Polynomial.eval_add]
-  simp [Polynomial.derivative_mul, Polynomial.eval_finset_sum, Polynomial.eval_mul]
+  simp [Polynomial.derivative_mul, Polynomial.eval_finsetSum, Polynomial.eval_mul]
 
 /-- Derivative at zero of the minus numerator `(I - i*a*z*J)F`. -/
 theorem complexStripNumerator_derivative_eval_zero {N : ℕ}
@@ -599,7 +599,7 @@ theorem complexStripNumerator_derivative_eval_zero {N : ℕ}
   unfold complexStripNumerator complexMatVecPoly complexMatVec
   rw [Polynomial.derivative_sub, Polynomial.eval_sub]
   rw [Polynomial.derivative_mul, Polynomial.eval_add]
-  simp [Polynomial.derivative_mul, Polynomial.eval_finset_sum, Polynomial.eval_mul]
+  simp [Polynomial.derivative_mul, Polynomial.eval_finsetSum, Polynomial.eval_mul]
 
 /-- Algebraic factor-stripping reconstruction: if the numerator is divisible by the
 spectral factor coordinatewise and `J^2 = I`, then the quotient vector reconstructs

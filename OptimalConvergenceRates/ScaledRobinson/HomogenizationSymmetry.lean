@@ -560,7 +560,7 @@ theorem IsSOSUni.eval_zero_of_iterated_witness
     ∀ j : Fin M, ∀ i : Fin N, (Q j i).eval t = 0 := by
   have hsum : (∑ j : Fin M, ∑ i : Fin N, (Q j i).eval t ^ 2) = 0 := by
     rw [hQ] at ht
-    simpa only [Polynomial.eval_finset_sum, Polynomial.eval_pow] using ht
+    simpa only [Polynomial.eval_finsetSum, Polynomial.eval_pow] using ht
   have hprod : (∑ ji : Fin M × Fin N, (Q ji.1 ji.2).eval t ^ 2) = 0 := by
     rw [← hsum]
     rw [← Finset.univ_product_univ, Finset.sum_product]
@@ -645,7 +645,6 @@ theorem axisRestriction_stripped_norm_identity_prod
     exact sum_finProdFinEquiv_symm_swap (fun j i => (F j i) ^ 2)
   apply axisRestriction_stripped_norm_identity
   rw [hF]
-  dsimp [G]
   exact (sum_finProdFinEquiv_symm_swap
     (fun j i => ((Polynomial.C (lambda - 1) * Polynomial.X ^ 2 - 1) * F j i) ^ 2)).symm
 
@@ -665,7 +664,6 @@ theorem diagonalRestriction_stripped_norm_identity_prod
     exact sum_finProdFinEquiv_symm_swap (fun j i => (F j i) ^ 2)
   apply diagonalRestriction_stripped_norm_identity
   rw [hF]
-  dsimp [G]
   exact (sum_finProdFinEquiv_symm_swap
     (fun j i =>
       ((Polynomial.C ((lambda - 2) / 2) * Polynomial.X ^ 2 - 1) * F j i) ^ 2)).symm

@@ -198,10 +198,10 @@ theorem pderiv_boxSemialgebraicGenerator (k : ℕ) (i j : Fin k) :
   by_cases hji : j = i
   · subst j
     simp only [map_sub, pderiv_one, pderiv_pow, pderiv_X_self,
-      if_pos, Nat.cast_ofNat, mul_one]
+      ite_eq_left, Nat.cast_ofNat, mul_one]
     ring
   · simp only [map_sub, pderiv_one, pderiv_pow,
-      pderiv_X_of_ne (Ne.symm hji), if_neg hji, mul_zero, sub_zero]
+      pderiv_X_of_ne (Ne.symm hji), ite_eq_right hji, mul_zero, sub_zero]
 
 
 theorem boxSemialgebraicGenerator_activeGradientIndependent (k : ℕ) :

@@ -427,7 +427,7 @@ theorem sphereForwardRotationCLM_sub_id_factor {n : ℕ}
   apply ContinuousLinearMap.ext
   intro z
   simp only [sphereForwardRotationCLM, ContinuousLinearMap.comp_apply,
-    ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
+    sub_apply, ContinuousLinearMap.id_apply]
   have hxx : sphereAxialReflectionCoordinateCLM x
       (sphereAxialReflectionCoordinateCLM x z) = z := by
     simpa only [ContinuousLinearMap.comp_apply,
@@ -445,7 +445,7 @@ theorem sphereReverseRotationCLM_sub_id_factor {n : ℕ}
   apply ContinuousLinearMap.ext
   intro z
   simp only [sphereReverseRotationCLM, ContinuousLinearMap.comp_apply,
-    ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
+    sub_apply, ContinuousLinearMap.id_apply]
   have haa : sphereAxialReflectionCoordinateCLM a
       (sphereAxialReflectionCoordinateCLM a z) = z := by
     simpa only [ContinuousLinearMap.comp_apply,

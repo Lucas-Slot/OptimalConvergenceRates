@@ -92,7 +92,7 @@ theorem complexVecHermitianPoly_coeff_two_mul_of_natDegree_le
     (complexVecHermitianPoly F).coeff (2 * d) =
       (∑ i : Fin N, Complex.normSq ((F i).coeff d) : ℝ) := by
   unfold complexVecHermitianPoly
-  rw [Polynomial.finset_sum_coeff]
+  rw [Polynomial.finsetSum_coeff]
   rw [Complex.ofReal_sum]
   apply Finset.sum_congr rfl
   intro i _
@@ -125,7 +125,7 @@ theorem complexVecHermitianPoly_eq_one_natDegree_zero
       dsimp [d]
       exact Finset.le_max' _ _ (by simp)
     by_contra hbad
-    push_neg at hbad
+    push Not at hbad
     obtain ⟨i0, hi0⟩ := hbad
     have hdpos : 0 < d := lt_of_lt_of_le (Nat.pos_of_ne_zero hi0) (hdeg i0)
     have hcoeffNorm := complexVecHermitianPoly_coeff_two_mul_of_natDegree_le (N := N) (d := d)

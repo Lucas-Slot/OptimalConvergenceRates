@@ -12,12 +12,12 @@ namespace OptimalConvergenceRates.GeneralArchimedean
 /-- Terms whose total monomial degree is strictly below `D`. -/
 def sharpLowPart (D : Nat) (p : MvPolynomial (Fin 2) Real) :
     MvPolynomial (Fin 2) Real :=
-  p.filter fun alpha => alpha.sum (fun _ e => e) < D
+  AddMonoidAlgebra.ofCoeff <| p.coeff.filter fun alpha => alpha.sum (fun _ e => e) < D
 
 /-- Terms whose total monomial degree is at least `D`. -/
 def sharpHighPart (D : Nat) (p : MvPolynomial (Fin 2) Real) :
     MvPolynomial (Fin 2) Real :=
-  p.filter fun alpha => D <= alpha.sum (fun _ e => e)
+  AddMonoidAlgebra.ofCoeff <| p.coeff.filter fun alpha => D <= alpha.sum (fun _ e => e)
 
 @[simp] theorem sharpLowPart_coeff (D : Nat)
     (p : MvPolynomial (Fin 2) Real) (alpha : Fin 2 →₀ Nat) :
@@ -38,10 +38,10 @@ theorem sharpLowPart_add_highPart (D : Nat)
   change (sharpLowPart D p).coeff alpha + (sharpHighPart D p).coeff alpha = p.coeff alpha
   by_cases h : alpha.sum (fun _ e => e) < D
   · have hnle : ¬ D <= alpha.sum (fun _ e => e) := Nat.not_le_of_lt h
-    rw [sharpLowPart_coeff, sharpHighPart_coeff, if_pos h, if_neg hnle]
+    rw [sharpLowPart_coeff, sharpHighPart_coeff, ite_eq_left h, ite_eq_right hnle]
     simp
   · have hle : D <= alpha.sum (fun _ e => e) := Nat.le_of_not_gt h
-    rw [sharpLowPart_coeff, sharpHighPart_coeff, if_neg h, if_pos hle]
+    rw [sharpLowPart_coeff, sharpHighPart_coeff, ite_eq_right h, ite_eq_left hle]
     simp
 
 theorem sharpLowPart_totalDegree_add_one_le {D : Nat} (hD : 1 <= D)
@@ -55,7 +55,7 @@ theorem sharpLowPart_totalDegree_add_one_le {D : Nat} (hD : 1 <= D)
     MvPolynomial.mem_support_iff.mp halpha
   rw [sharpLowPart_coeff] at hcoeff
   by_contra hnot
-  rw [if_neg hnot] at hcoeff
+  rw [ite_eq_right hnot] at hcoeff
   exact hcoeff rfl
 
 theorem sharpHighPart_support_degree {D : Nat}
@@ -66,7 +66,7 @@ theorem sharpHighPart_support_degree {D : Nat}
     MvPolynomial.mem_support_iff.mp halpha
   rw [sharpHighPart_coeff] at hcoeff
   by_contra hnot
-  rw [if_neg hnot] at hcoeff
+  rw [ite_eq_right hnot] at hcoeff
   exact hcoeff rfl
 
 theorem sharpLowPart_support_degree {D : Nat}
@@ -77,7 +77,7 @@ theorem sharpLowPart_support_degree {D : Nat}
     MvPolynomial.mem_support_iff.mp halpha
   rw [sharpLowPart_coeff] at hcoeff
   by_contra hnot
-  rw [if_neg hnot] at hcoeff
+  rw [ite_eq_right hnot] at hcoeff
   exact hcoeff rfl
 
 theorem sharpTruncatedMoment_sum_low_sq_nonneg

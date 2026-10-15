@@ -96,7 +96,9 @@ lemma motzkinCoeffNorm_boxGenerator_le_two (i : Fin 3) :
         motzkinCoeffNorm_add_le (1 : MvPolynomial (Fin 3) ℝ) (-(X i ^ 2))
     _ ≤ 2 := by
       have hOne : motzkinCoeffNorm (1 : MvPolynomial (Fin 3) ℝ) ≤ 1 := by
-        convert motzkinCoeffNorm_monomial_le (0 : Fin 3 →₀ ℕ) (1 : ℝ) using 1; simp
+        rw [← MvPolynomial.C_1]
+        simpa only [MvPolynomial.monomial_zero', abs_one] using
+          motzkinCoeffNorm_monomial_le (0 : Fin 3 →₀ ℕ) (1 : ℝ)
       have hX : motzkinCoeffNorm (X i ^ 2 : MvPolynomial (Fin 3) ℝ) ≤ 1 := by
         rw [MvPolynomial.X_pow_eq_monomial]
         simpa using motzkinCoeffNorm_monomial_le (Finsupp.single i 2) (1 : ℝ)
@@ -110,13 +112,16 @@ lemma motzkinCoeffNorm_boxGeneratorProd_le_eight (J : Finset (Fin 3)) :
         ∏ j ∈ J, motzkinCoeffNorm (BoxSemialgebraicGenerator j) := by
       induction J using Finset.induction_on with
       | empty =>
-          convert motzkinCoeffNorm_monomial_le (0 : Fin 3 →₀ ℕ) (1 : ℝ) using 1; simp
+          simp only [Finset.prod_empty]
+          rw [← MvPolynomial.C_1]
+          simpa only [MvPolynomial.monomial_zero', abs_one] using
+            motzkinCoeffNorm_monomial_le (0 : Fin 3 →₀ ℕ) (1 : ℝ)
       | @insert a s ha ih =>
           rw [Finset.prod_insert ha, Finset.prod_insert ha]
           exact (motzkinCoeffNorm_mul_le _ _).trans
             (mul_le_mul_of_nonneg_left ih (motzkinCoeffNorm_nonneg _))
     _ ≤ ∏ _j ∈ J, (2 : ℝ) := by
-      exact Finset.prod_le_prod (fun _ _ => motzkinCoeffNorm_nonneg _)
+      exact Finset.prod_le_prod₀ (fun _ _ => motzkinCoeffNorm_nonneg _)
         (fun j _ => motzkinCoeffNorm_boxGenerator_le_two j)
     _ = (2 : ℝ) ^ J.card := by simp
     _ ≤ 2 ^ 3 := by
@@ -235,7 +240,7 @@ theorem motzkin_certificate_root_jet_eval_bounds
       (homogeneousPartVec3 1 Q) hv).trans hlow.2.1, ?_⟩
   refine ⟨(interiorVecNorm_eval_le_motzkinVecCoeffNorm_of_motzkinSqNorm_eq_one
       (homogeneousPartVec3 2 Q) hv).trans hlow.2.2, ?_⟩
-  simpa [motzkinHighJetConst] using hh
+  simpa [motzkinHighJetConst, homogeneousPartVec3] using hh
 
 
 lemma homogeneousPart3_zero_boxGeneratorProd (J : Finset (Fin 3)) :
@@ -243,7 +248,7 @@ lemma homogeneousPart3_zero_boxGeneratorProd (J : Finset (Fin 3)) :
   rw [homogeneousPart3_eq_homogeneousComponent, MvPolynomial.homogeneousComponent_zero]
   rw [← MvPolynomial.C_1]
   congr 1
-  rw [← congrFun MvPolynomial.constantCoeff_eq
+  rw [← MvPolynomial.constantCoeff_eq
     (BoxSemialgebraicGeneratorProd J : MvPolynomial (Fin 3) ℝ)]
   rw [← MvPolynomial.eval_zero]
   unfold BoxSemialgebraicGeneratorProd
@@ -713,6 +718,8 @@ theorem motzkinSextic_isHomogeneous : motzkinSextic.IsHomogeneous 6 := by
   have hcross :
       (3 * X (0 : Fin 3) ^ 2 * X (1 : Fin 3) ^ 2 * X (2 : Fin 3) ^ 2 :
         MvPolynomial (Fin 3) ℝ).IsHomogeneous 6 := by
+    rw [show (3 : MvPolynomial (Fin 3) ℝ) = MvPolynomial.C (3 : ℝ) from
+      (MvPolynomial.C_eq_coe_nat 3).symm]
     simpa [Nat.add_assoc] using (((hx2.C_mul 3).mul hy2).mul hz2)
   simpa [motzkinSextic, Nat.add_assoc] using
     (((hx4.mul hy2).add (hx2.mul hy4)).add hz6).sub hcross
@@ -720,7 +727,7 @@ theorem motzkinSextic_isHomogeneous : motzkinSextic.IsHomogeneous 6 := by
 @[simp] lemma homogeneousPart3_motzkinSextic :
     homogeneousPart3 6 motzkinSextic = motzkinSextic := by
   rw [homogeneousPart3_eq_homogeneousComponent]
-  simpa using MvPolynomial.homogeneousComponent_of_mem motzkinSextic_isHomogeneous
+  exact MvPolynomial.homogeneousComponent_eq_self motzkinSextic_isHomogeneous
 
 lemma homogeneousPart3_C_six (epsilon : ℝ) :
     homogeneousPart3 6 (MvPolynomial.C epsilon : MvPolynomial (Fin 3) ℝ) = 0 := by
@@ -893,7 +900,7 @@ lemma motzkinDegreeSixError_isHomogeneous
     (Q : ∀ J, Fin (N J) → MvPolynomial (Fin 3) ℝ) :
     homogeneousPart3 6 (motzkinDegreeSixError Q) = motzkinDegreeSixError Q := by
   rw [homogeneousPart3_eq_homogeneousComponent]
-  simpa using MvPolynomial.homogeneousComponent_of_mem
+  exact MvPolynomial.homogeneousComponent_eq_self
     (motzkinDegreeSixError_isHomogeneous Q)
 
 theorem motzkinDegreeSixError_coeffNorm_le

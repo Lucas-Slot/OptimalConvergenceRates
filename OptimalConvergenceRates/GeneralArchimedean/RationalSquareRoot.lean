@@ -247,7 +247,7 @@ theorem denominator_eval_self_pos
       (gridProduct δ ell J).eval (-t) =
         (numerator δ ell J).eval δ -
           t * (denominator δ ell J).eval δ := by
-    simpa [numerator, denominator] using hminus
+    simpa only [numerator, denominator, sub_eq_add_neg, neg_mul] using hminus
   rw [hzero] at hminus'
   have htV : 0 < t * (denominator δ ell J).eval δ := by
     linarith

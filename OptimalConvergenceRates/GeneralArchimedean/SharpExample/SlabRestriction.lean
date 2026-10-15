@@ -317,7 +317,8 @@ theorem sharpTwoVariableRefutation_of_certificate
     sharpArchimedeanObjective + C eps = sigma0 +
         (sigma 0 * sharpArchimedeanA + sigma 1 * sharpArchimedeanB +
           sigma 2 * sharpArchimedeanW + sigma 3 * sharpArchimedeanGenerators 3) := by
-      simpa [Fin.sum_univ_four] using hidentity
+      simpa [Fin.sum_univ_four, sharpArchimedeanGenerators,
+        KrivineStengle.sharpSeedGenerators] using hidentity
     _ = sigma0 + sigma 0 * sharpArchimedeanA +
           sigma 1 * sharpArchimedeanB + sigma 2 * sharpArchimedeanW +
           sigma 3 * sharpArchimedeanGenerators 3 := by

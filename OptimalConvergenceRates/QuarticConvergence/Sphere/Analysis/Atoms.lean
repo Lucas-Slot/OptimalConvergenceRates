@@ -246,7 +246,7 @@ noncomputable def singleLocalizedEuclideanAtomFamily {n : ℕ}
       intro i
       by_cases hi : i = 0
       · simp [hi, hrootSmooth]
-      · rw [if_neg hi]
+      · rw [ite_eq_right hi]
         exact contDiff_const
     root_compact_support := by
       intro i
@@ -279,10 +279,10 @@ noncomputable def singleLocalizedEuclideanAtomFamily {n : ℕ}
       by_cases hi : i = 0
       · subst i
         simpa using hjets j hj x
-      · simp only [if_neg hi]
+      · simp only [ite_eq_right hi]
         change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ ↦ (0 : ℝ)) x‖ * r ^ j ≤
           C * r ^ 2
-        rw [iteratedFDeriv_zero_fun]
+        rw [iteratedFDeriv_fun_zero]
         simp only [Pi.zero_apply, norm_zero, zero_mul]
         exact mul_nonneg hC (sq_nonneg r) }
   dilated_ball_subset_parent := by
@@ -393,7 +393,7 @@ noncomputable def flattenLocalizedEuclideanAtomFamilies {n : ℕ}
         have hscale : 0 < nonnegativeJetScale u x :=
           support_subset_nonnegativeJetScale_pos hu hxSupport
         have hcutSummable : Summable (fun i ↦ cover.cutoff i x ^ 2) := by
-          apply summable_of_finite_support
+          apply summable_of_hasFiniteSupport
           exact (cover.point_finite x).subset (by
             intro i hi
             simpa [Function.mem_support] using hi)
@@ -416,7 +416,8 @@ noncomputable def flattenLocalizedEuclideanAtomFamilies {n : ℕ}
       rwa [htsum] at h
     have hreindexed : HasSum (f ∘ Nat.pairEquiv.symm) (u x) :=
       (Nat.pairEquiv.symm.hasSum_iff).2 hprod
-    simpa [f, Function.comp_def] using hreindexed
+    change HasSum (f ∘ Nat.pairEquiv.symm) (u x)
+    exact hreindexed
   dilated_overlap := by
     intro x s
     let pairTarget : Set (ℕ × ℕ) := {p |
@@ -550,7 +551,7 @@ def zeroEuclideanAtomFamily {n : ℕ} (A radiusCap C : ℝ) (hC : 0 ≤ C) :
   dilated_overlap := by simp
   scaled_jets := by
     intro i j hj x
-    rw [iteratedFDeriv_zero_fun]
+    rw [iteratedFDeriv_fun_zero]
     simpa using mul_nonneg hC (sq_nonneg radiusCap)
 
 /-- Enlarge the advertised overlap budget without changing an atom family. -/
@@ -649,8 +650,12 @@ noncomputable def EuclideanAtomFamily.constScale {n : ℕ} {u : (Fin n → ℝ) 
     exact (atoms.root_contDiff i).const_smul (Real.sqrt lambda)
   root_compact_support := by
     intro i
-    simpa only [Pi.smul_apply, smul_eq_mul] using
-      (atoms.root_compact_support i).smul_left (f := fun _ ↦ Real.sqrt lambda)
+    rw [show Real.sqrt lambda • atoms.root i =
+      (fun _ ↦ Real.sqrt lambda) * atoms.root i by
+        funext x
+        simp]
+    exact (atoms.root_compact_support i).smul_left
+      (f := fun _ ↦ Real.sqrt lambda)
   supported := by
     intro i x hx
     apply atoms.supported i
@@ -720,7 +725,7 @@ noncomputable def EuclideanAtomFamily.translate {n : ℕ} {u : (Fin n → ℝ) �
         {i | i ∈ s ∧ i ∈ atoms.active ∧
           x - c ∈ Metric.ball (atoms.center i) (A * atoms.radius i)} := by
       ext i
-      simp only [Set.mem_setOf_eq, Metric.mem_ball]
+      simp only [Set.mem_ofPred_eq, Metric.mem_ball]
       have hdist : dist x (c + atoms.center i) = dist (x - c) (atoms.center i) := by
         simp only [dist_eq_norm]
         congr 1
@@ -800,7 +805,7 @@ noncomputable def EuclideanAtomFamily.contractRadius {n : ℕ}
         {i | i ∈ s ∧ i ∈ atoms.active ∧
           rho⁻¹ • x ∈ Metric.ball (atoms.center i) (A * atoms.radius i)} := by
       ext i
-      simp only [Set.mem_setOf_eq, Metric.mem_ball]
+      simp only [Set.mem_ofPred_eq, Metric.mem_ball]
       have hdist : dist x (rho • atoms.center i) =
           rho * dist (rho⁻¹ • x) (atoms.center i) := by
         calc
@@ -847,7 +852,7 @@ noncomputable def EuclideanAtomFamily.contractRadius {n : ℕ}
       have hprod : (∏ _ : Fin j, ‖L‖) ≤ (rho⁻¹) ^ j := by
         calc
           (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, rho⁻¹ :=
-            Finset.prod_le_prod (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
+            Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
           _ = (rho⁻¹) ^ j := by simp
       have hradius : 0 < atoms.radius i := atoms.radius_pos i hia
       have hscaled_nonneg : 0 ≤ (rho * atoms.radius i) ^ j :=
@@ -888,7 +893,7 @@ noncomputable def EuclideanAtomFamily.contractRadius {n : ℕ}
       change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ ↦ (0 : ℝ)) x‖ *
           (rho * atoms.radius i) ^ j ≤
         (C / rho ^ 2) * (rho * atoms.radius i) ^ 2
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simp only [Pi.zero_apply, norm_zero, zero_mul]
       have hold := atoms.scaled_jets i 0 (by norm_num) (L x)
       rw [hzero, norm_iteratedFDeriv_zero] at hold
@@ -989,7 +994,7 @@ noncomputable def EuclideanAtomFamily.affineRescaleUnitCap {n : ℕ}
         {i | i ∈ s ∧ i ∈ atoms.active ∧
           R⁻¹ • (x - c) ∈ Metric.ball (atoms.center i) (A * atoms.radius i)} := by
       ext i
-      simp only [Set.mem_setOf_eq, Metric.mem_ball]
+      simp only [Set.mem_ofPred_eq, Metric.mem_ball]
       have hdist : dist x (c + R • atoms.center i) =
           R * dist (R⁻¹ • (x - c)) (atoms.center i) := by
         calc
@@ -1051,7 +1056,7 @@ noncomputable def EuclideanAtomFamily.affineRescaleUnitCap {n : ℕ}
     have hprod : (∏ _ : Fin j, ‖L‖) ≤ (R⁻¹) ^ j := by
       calc
         (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, R⁻¹ :=
-          Finset.prod_le_prod (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
+          Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
         _ = (R⁻¹) ^ j := by simp
     have hinvpow : (R⁻¹) ^ j * R ^ j = 1 := by
       rw [← mul_pow, inv_mul_cancel₀ hR.ne', one_pow]
@@ -1102,7 +1107,7 @@ noncomputable def EuclideanAtomFamily.affineRescaleUnitCap {n : ℕ}
       rw [hfun]
       change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ ↦ (0 : ℝ)) x‖ *
         (R * atoms.radius i) ^ j ≤ C * (R * atoms.radius i) ^ 2
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simp only [Pi.zero_apply, norm_zero, zero_mul]
       have hold := atoms.scaled_jets i 0 (by norm_num) (L (x - c))
       rw [hzero, norm_iteratedFDeriv_zero] at hold
@@ -1310,7 +1315,9 @@ theorem liftedAtom_square_identity_nat {n : ℕ}
   have hreindexed : HasSum
       ((fun p : ℕ × ℕ ↦ (v p.1 x * η p.2 x) ^ 2) ∘ Nat.pairEquiv.symm) 1 :=
     (Nat.pairEquiv.symm.hasSum_iff).2 hp
-  simpa only [Function.comp_apply] using hreindexed
+  change HasSum
+    ((fun p : ℕ × ℕ ↦ (v p.1 x * η p.2 x) ^ 2) ∘ Nat.pairEquiv.symm) 1
+  exact hreindexed
 
 /-- Products of two `C⁴` atom factors remain `C⁴`. -/
 theorem atomProduct_contDiff_four {n : ℕ}
@@ -1527,7 +1534,10 @@ theorem normalized_cutoffResidual {n : ℕ} {zeta psi : (Fin n → ℝ) → ℝ}
   have hK : 0 < K := lt_of_lt_of_le zero_lt_one (le_max_left _ _)
   have hcompact : HasCompactSupport (fun x ↦ square x * psi x) := by
     have hsquareCompact : HasCompactSupport square := by
-      simpa [square] using hzeta_compact.mul_right (f' := zeta)
+      rw [show square = zeta * zeta by
+        funext x
+        simp [square, pow_two]]
+      exact hzeta_compact.mul_right
     exact hsquareCompact.mul_right
   have hnormalized := normalizedNonnegativeC6_of_bound
     (u := fun x ↦ square x * psi x)
@@ -1641,7 +1651,7 @@ theorem uniformEuclideanAtoms_zero : HasUniformEuclideanAtomDecomposition 0 := b
       funext i
       by_cases hi : i = 0
       · subst i
-        simp only [root, if_pos]
+        simp only [root, ite_eq_left]
         exact Real.sq_sqrt (hu.nonnegative 0)
       · simp [root, hi]
     · intro x s

@@ -43,7 +43,7 @@ theorem chebyshev_extrapolate_d2_scale
       _ ≤ C * M := by
           calc M = 1 * M := by ring
             _ ≤ C * M := mul_le_mul_of_nonneg_right hC_one hM_nonneg
-  · push_neg at hinside
+  · push Not at hinside
     set y := x / A
     set q : Polynomial ℝ := h.comp (Polynomial.C A * Polynomial.X)
     have hq_eval : q.eval y = h.eval x := by
@@ -182,7 +182,7 @@ theorem affine_chebyshev_extrapolate
       _ ≤ C * M := by
           calc M = 1 * M := by ring
             _ ≤ C * M := mul_le_mul_of_nonneg_right hC_one hM_nonneg
-  · push_neg at hy_inside
+  · push Not at hy_inside
     have hy_ge : 1 ≤ |y| := le_of_lt hy_inside
     have hcheb := chebyshev_extremal_pointwise q d hqdeg y hy_ge
     rw [hq_eval] at hcheb
@@ -247,7 +247,7 @@ theorem chebyshevT_abs_le_exp_six_near_one
     exact (chebyshevT_abs_le_one d y hyI.1 hyI.2).trans (by
       calc (1 : ℝ) ≤ Real.exp 0 := by simp
         _ ≤ Real.exp 6 := Real.exp_le_exp.mpr (by norm_num))
-  · push_neg at hyin
+  · push Not at hyin
     have hyge : 1 ≤ |y| := le_of_lt hyin
     have hdeg : (chebyshevT d).natDegree ≤ d := by rw [natDegree_chebyshevT]
     have hext := chebyshevT_extremal d (chebyshevT d) hdeg y hyge

@@ -13,14 +13,14 @@ namespace OptimalConvergenceRates
 
 /-- Coefficient ℓ¹ distance between multivariate polynomials. -/
 def coeffL1Distance {n : ℕ} (p q : MvPolynomial (Fin n) ℝ) : ℝ :=
-  ∑ α ∈ (p - q).support, |MvPolynomial.coeff α (p - q)|
+  ∑ α ∈ (p - q).support, |(p - q).coeff α|
 
 /-- The coefficient ℓ¹ norm, defined from the existing coefficient distance. -/
 def coeffL1Norm {n : ℕ} (p : MvPolynomial (Fin n) ℝ) : ℝ :=
   coeffL1Distance p 0
 
 theorem coeffL1Norm_eq_sum {n : ℕ} (p : MvPolynomial (Fin n) ℝ) :
-    coeffL1Norm p = ∑ α ∈ p.support, |MvPolynomial.coeff α p| := by
+    coeffL1Norm p = ∑ α ∈ p.support, |p.coeff α| := by
   simp [coeffL1Norm, coeffL1Distance]
 
 theorem coeffL1Norm_nonneg {n : ℕ} (p : MvPolynomial (Fin n) ℝ) :
@@ -35,14 +35,15 @@ theorem coeffL1Norm_zero {n : ℕ} :
 
 theorem abs_coeff_le_coeffL1Norm {n : ℕ} (p : MvPolynomial (Fin n) ℝ)
     (α : Fin n →₀ ℕ) :
-    |MvPolynomial.coeff α p| ≤ coeffL1Norm p := by
+    |p.coeff α| ≤ coeffL1Norm p := by
   classical
   rw [coeffL1Norm_eq_sum]
   by_cases hα : α ∈ p.support
   · exact Finset.single_le_sum
-      (f := fun β ↦ |MvPolynomial.coeff β p|)
+      (f := fun β ↦ |p.coeff β|)
       (fun _ _ ↦ abs_nonneg _) hα
-  · rw [MvPolynomial.notMem_support_iff.mp hα, abs_zero]
+  · change |AddMonoidAlgebra.coeff p α| ≤ _
+    rw [MvPolynomial.notMem_support_iff.mp hα, abs_zero]
     exact Finset.sum_nonneg fun _ _ ↦ abs_nonneg _
 
 /-- Triangle inequality for the coefficient ℓ¹ norm. -/
@@ -51,31 +52,34 @@ theorem coeffL1Norm_add_le {n : ℕ} (p q : MvPolynomial (Fin n) ℝ) :
   classical
   simp only [coeffL1Norm_eq_sum]
   have hp :
-      ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α p| =
-        ∑ α ∈ p.support, |MvPolynomial.coeff α p| := by
+      ∑ α ∈ p.support ∪ q.support, |p.coeff α| =
+        ∑ α ∈ p.support, |p.coeff α| := by
     rw [← Finset.sum_subset Finset.subset_union_left]
     intro α _ hα
     simp [MvPolynomial.notMem_support_iff.mp hα]
   have hq :
-      ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α q| =
-        ∑ α ∈ q.support, |MvPolynomial.coeff α q| := by
+      ∑ α ∈ p.support ∪ q.support, |q.coeff α| =
+        ∑ α ∈ q.support, |q.coeff α| := by
     rw [← Finset.sum_subset Finset.subset_union_right]
     intro α _ hα
     simp [MvPolynomial.notMem_support_iff.mp hα]
   calc
-    ∑ α ∈ (p + q).support, |MvPolynomial.coeff α (p + q)|
+    ∑ α ∈ (p + q).support, |(p + q).coeff α|
         ≤ ∑ α ∈ (p + q).support,
-            (|MvPolynomial.coeff α p| + |MvPolynomial.coeff α q|) := by
+            (|p.coeff α| + |q.coeff α|) := by
           apply Finset.sum_le_sum
           intro α _
-          simpa using abs_add_le (MvPolynomial.coeff α p) (MvPolynomial.coeff α q)
+          change |AddMonoidAlgebra.coeff (p + q) α| ≤
+            |AddMonoidAlgebra.coeff p α| + |AddMonoidAlgebra.coeff q α|
+          rw [AddMonoidAlgebra.coeff_add]
+          exact abs_add_le _ _
     _ ≤ ∑ α ∈ p.support ∪ q.support,
-          (|MvPolynomial.coeff α p| + |MvPolynomial.coeff α q|) := by
+          (|p.coeff α| + |q.coeff α|) := by
           apply Finset.sum_le_sum_of_subset_of_nonneg MvPolynomial.support_add
           intro α _ _
           positivity
-    _ = ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α p| +
-          ∑ α ∈ p.support ∪ q.support, |MvPolynomial.coeff α q| := by
+    _ = ∑ α ∈ p.support ∪ q.support, |p.coeff α| +
+          ∑ α ∈ p.support ∪ q.support, |q.coeff α| := by
           rw [← Finset.sum_add_distrib]
     _ = _ := by rw [hp, hq]
 
@@ -106,14 +110,14 @@ theorem coeffL1Norm_C_mul_le {n : ℕ} (c : ℝ) (p : MvPolynomial (Fin n) ℝ) 
     rw [MvPolynomial.coeff_C_mul] at hα
     exact fun hp ↦ hα (by simp [hp])
   calc
-    ∑ α ∈ (C c * p).support, |MvPolynomial.coeff α (C c * p)|
-        = ∑ α ∈ (C c * p).support, |c| * |MvPolynomial.coeff α p| := by
+    ∑ α ∈ (C c * p).support, |(C c * p).coeff α|
+        = ∑ α ∈ (C c * p).support, |c| * |p.coeff α| := by
           apply Finset.sum_congr rfl
           intro α _
           simp [MvPolynomial.coeff_C_mul, abs_mul]
-    _ = |c| * ∑ α ∈ (C c * p).support, |MvPolynomial.coeff α p| := by
+    _ = |c| * ∑ α ∈ (C c * p).support, |p.coeff α| := by
           rw [Finset.mul_sum]
-    _ ≤ |c| * ∑ α ∈ p.support, |MvPolynomial.coeff α p| := by
+    _ ≤ |c| * ∑ α ∈ p.support, |p.coeff α| := by
           apply mul_le_mul_of_nonneg_left _ (abs_nonneg c)
           exact Finset.sum_le_sum_of_subset_of_nonneg hsupp fun _ _ _ ↦ abs_nonneg _
 
@@ -155,31 +159,31 @@ theorem coeffL1Norm_mul_le {n : ℕ} (p q : MvPolynomial (Fin n) ℝ) :
   calc
     coeffL1Norm
         (∑ x ∈ p.support, ∑ y ∈ q.support,
-          MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-            MvPolynomial.monomial y (MvPolynomial.coeff y q))
+          MvPolynomial.monomial x (p.coeff x) *
+            MvPolynomial.monomial y (q.coeff y))
         ≤ ∑ x ∈ p.support, coeffL1Norm
-            (∑ y ∈ q.support, MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)) :=
+            (∑ y ∈ q.support, MvPolynomial.monomial x (p.coeff x) *
+              MvPolynomial.monomial y (q.coeff y)) :=
           coeffL1Norm_sum_le p.support fun x ↦
-            ∑ y ∈ q.support, MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)
+            ∑ y ∈ q.support, MvPolynomial.monomial x (p.coeff x) *
+              MvPolynomial.monomial y (q.coeff y)
     _ ≤ ∑ x ∈ p.support, ∑ y ∈ q.support, coeffL1Norm
-            (MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)) :=
+            (MvPolynomial.monomial x (p.coeff x) *
+              MvPolynomial.monomial y (q.coeff y)) :=
           Finset.sum_le_sum fun x _ ↦ coeffL1Norm_sum_le q.support fun y ↦
-            MvPolynomial.monomial x (MvPolynomial.coeff x p) *
-              MvPolynomial.monomial y (MvPolynomial.coeff y q)
+            MvPolynomial.monomial x (p.coeff x) *
+              MvPolynomial.monomial y (q.coeff y)
     _ ≤ ∑ x ∈ p.support, ∑ y ∈ q.support,
-          |MvPolynomial.coeff x p| * |MvPolynomial.coeff y q| := by
+          |p.coeff x| * |q.coeff y| := by
           apply Finset.sum_le_sum
           intro x _
           apply Finset.sum_le_sum
           intro y _
-          rw [MvPolynomial.monomial_mul]
+          rw [MvPolynomial.monomial_mul_monomial]
           simpa [abs_mul] using coeffL1Norm_monomial_le (x + y)
-            (MvPolynomial.coeff x p * MvPolynomial.coeff y q)
-    _ = ∑ x ∈ p.support, |MvPolynomial.coeff x p| *
-          (∑ y ∈ q.support, |MvPolynomial.coeff y q|) := by
+            (p.coeff x * q.coeff y)
+    _ = ∑ x ∈ p.support, |p.coeff x| *
+          (∑ y ∈ q.support, |q.coeff y|) := by
           apply Finset.sum_congr rfl
           intro x _
           rw [Finset.mul_sum]
@@ -223,8 +227,8 @@ theorem coeffL1Norm_aeval_le
   have hmonomial (α : Fin n →₀ ℕ) (hα : α ∈ p.support) :
       coeffL1Norm
           (MvPolynomial.aeval f
-            (MvPolynomial.monomial α (MvPolynomial.coeff α p))) ≤
-        |MvPolynomial.coeff α p| * G ^ p.totalDegree := by
+            (MvPolynomial.monomial α (p.coeff α))) ≤
+        |p.coeff α| * G ^ p.totalDegree := by
     have hprod :
         coeffL1Norm (α.prod fun i k => f i ^ k) ≤
           G ^ α.sum (fun _ k => k) := by
@@ -234,13 +238,13 @@ theorem coeffL1Norm_aeval_le
             ∏ i ∈ α.support, coeffL1Norm (f i ^ α i) :=
           coeffL1Norm_prod_le α.support (fun i => f i ^ α i)
         _ ≤ ∏ i ∈ α.support, coeffL1Norm (f i) ^ α i := by
-          apply Finset.prod_le_prod
+          apply Finset.prod_le_prod₀
           · intro i hi
             exact coeffL1Norm_nonneg (f i ^ α i)
           · intro i hi
             exact coeffL1Norm_pow_le (f i) (α i)
         _ ≤ ∏ i ∈ α.support, G ^ α i := by
-          apply Finset.prod_le_prod
+          apply Finset.prod_le_prod₀
           · intro i hi
             exact pow_nonneg (coeffL1Norm_nonneg (f i)) (α i)
           · intro i hi
@@ -254,7 +258,7 @@ theorem coeffL1Norm_aeval_le
           G ^ p.totalDegree :=
       hprod.trans (pow_le_pow_right₀ hG hdegree)
     rw [MvPolynomial.aeval_monomial, MvPolynomial.algebraMap_eq]
-    exact (coeffL1Norm_C_mul_le (MvPolynomial.coeff α p)
+    exact (coeffL1Norm_C_mul_le (p.coeff α)
       (α.prod fun i k => f i ^ k)).trans
         (mul_le_mul_of_nonneg_left hprod' (abs_nonneg _))
   conv_lhs => rw [MvPolynomial.as_sum p]
@@ -263,16 +267,16 @@ theorem coeffL1Norm_aeval_le
     coeffL1Norm
         (∑ α ∈ p.support,
           MvPolynomial.aeval f
-            (MvPolynomial.monomial α (MvPolynomial.coeff α p))) ≤
+            (MvPolynomial.monomial α (p.coeff α))) ≤
         ∑ α ∈ p.support,
           coeffL1Norm
             (MvPolynomial.aeval f
-              (MvPolynomial.monomial α (MvPolynomial.coeff α p))) :=
+              (MvPolynomial.monomial α (p.coeff α))) :=
       coeffL1Norm_sum_le p.support fun α =>
         MvPolynomial.aeval f
-          (MvPolynomial.monomial α (MvPolynomial.coeff α p))
+          (MvPolynomial.monomial α (p.coeff α))
     _ ≤ ∑ α ∈ p.support,
-          |MvPolynomial.coeff α p| * G ^ p.totalDegree := by
+          |p.coeff α| * G ^ p.totalDegree := by
       exact Finset.sum_le_sum fun α hα => hmonomial α hα
     _ = coeffL1Norm p * G ^ p.totalDegree := by
       rw [coeffL1Norm_eq_sum, Finset.sum_mul]

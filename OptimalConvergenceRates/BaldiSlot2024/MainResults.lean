@@ -124,12 +124,12 @@ theorem upperBoundConvergenceRateBoxQM (f : MvPolynomial (Fin n) ℝ) (d r : ℕ
     unfold lasserre_bound_box_qm
     set S := { l : ℝ | (f - MvPolynomial.C l) ∈ BoxQuadraticModule n (r * n) }
     have hne : S.Nonempty := ⟨polyMin f - 1, key _ (by linarith)⟩
-    rw [dif_pos hne]; apply WithBot.coe_le_coe.mpr
+    rw [dite_eq_left hne]; apply WithBot.coe_le_coe.mpr
     have hbdd : BddAbove S := ⟨polyMin f, fun l hl => by
       have := BoxQuadraticModule_subset_nonneg hl
       obtain ⟨x, hx, heval⟩ := polyMin_mem f
       have := this x hx; simp [map_sub, MvPolynomial.eval_C] at this; linarith [heval]⟩
-    by_contra h_neg; push_neg at h_neg
+    by_contra h_neg; push Not at h_neg
     have : (sSup S + polyMin f) / 2 ∈ S := key _ (by linarith)
     linarith [le_csSup hbdd this]
   -- Main case: Δ > 0. Set gap = C·Δ/r.
@@ -262,7 +262,7 @@ theorem lowerBoundConvergenceRateBoxQM (r : ℕ) (hr : 0 < r) :
         _ ≤ ↑r := by exact_mod_cast hr
     linarith
   -- Case 0 < -l < 1: apply Theorem 4 to get (-l) ≥ (c/r)^8
-  push_neg at hge1
+  push Not at hge1
   have hbound := lower_degree_bound (-l) hpos hge1 r hl
   -- From c · (-l)^{-1/8} ≤ r, derive (c/r)^8 ≤ -l
   have h1 : lower_bound_const / ↑r ≤ (-l) ^ ((1:ℝ)/8) := by

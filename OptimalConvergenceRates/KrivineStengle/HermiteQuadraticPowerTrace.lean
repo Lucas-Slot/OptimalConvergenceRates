@@ -56,7 +56,7 @@ theorem trace_aeval_adjoinRoot_quadratic_pow {q : F[X]}
     omega
   have hr : r = C (r.coeff 1) * X + C (r.coeff 0) :=
     eq_X_add_C_of_natDegree_le_one hrDegree
-  have hdecomp : r + q * d = h := modByMonic_add_div h hqMonic
+  have hdecomp : r + q * d = h := modByMonic_add_div h q
   have htraceN :
       Algebra.trace F (AdjoinRoot (q ^ n))
           (aeval (AdjoinRoot.root (q ^ n)) h) =

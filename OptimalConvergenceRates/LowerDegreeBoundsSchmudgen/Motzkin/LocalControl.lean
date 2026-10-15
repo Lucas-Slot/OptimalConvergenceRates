@@ -85,7 +85,7 @@ theorem generatorProd_eval_ge_alpha0 (J : Finset (Fin 3)) (x : Fin 3 → ℝ)
   have hprod :
       (∏ i ∈ J, (15 / 16 : ℝ)) ≤
         ∏ i ∈ J, MvPolynomial.eval x (BoxSemialgebraicGenerator i) := by
-    exact Finset.prod_le_prod (fun _ _ => by norm_num) (fun i _ => hpoint i)
+    exact Finset.prod_le_prod₀ (fun _ _ => by norm_num) (fun i _ => hpoint i)
   have hcard : J.card ≤ 4 := by
     have h := Finset.card_le_univ J
     simp [Fintype.card_fin] at h
@@ -518,6 +518,7 @@ private lemma eq_quadraticNormalForm {p : MvPolynomial (Fin 3) ℝ}
       rw [← h, Finsupp.degree_eq_sum, Fin.sum_univ_three]
       simp [qexp]
       omega
+    change p.coeff d = 0 at hc
     rw [hc]
     simp [quadraticNormalForm, hne]
 
@@ -592,7 +593,8 @@ theorem linear_unisolvence
       funext i
       have h := eval_linear_eq_sum_coeff (hhom i) (motzkinZeroDirection 0)
       simp [motzkinZeroDirection, motzkinAxisX, Fin.sum_univ_three] at h
-      simpa [motzkinZeroDirection] using h.symm
+      change coeff (Finsupp.single (0 : Fin 3) 1) (H i) = eval motzkinAxisX (H i)
+      simpa [coeff, motzkinAxisX] using h.symm
     rw [heq]
     exact hEval 0
   have hc1 : interiorVecNorm
@@ -603,7 +605,8 @@ theorem linear_unisolvence
       funext i
       have h := eval_linear_eq_sum_coeff (hhom i) (motzkinZeroDirection 1)
       simp [motzkinZeroDirection, motzkinAxisY, Fin.sum_univ_three] at h
-      simpa [motzkinZeroDirection] using h.symm
+      change coeff (Finsupp.single (1 : Fin 3) 1) (H i) = eval motzkinAxisY (H i)
+      simpa [coeff, motzkinAxisY] using h.symm
     rw [heq]
     exact hEval 1
   have hzEq :
@@ -700,9 +703,9 @@ theorem quadratic_unisolvence
     have h5 := eval_quadratic_eq_coeffs (hhom i) (motzkinZeroDirection 5)
     exact ⟨
       by simpa [V, A, D, E, C, F, Y, motzkinZeroDirection, motzkinSignDirection] using h2,
-      by simpa [V, A, D, E, C, F, Y, motzkinZeroDirection, motzkinSignDirection] using h3,
-      by simpa [V, A, D, E, C, F, Y, motzkinZeroDirection, motzkinSignDirection] using h4,
-      by simpa [V, A, D, E, C, F, Y, motzkinZeroDirection, motzkinSignDirection] using h5⟩
+      by simpa [coeff, V, A, D, E, C, F, Y, sub_eq_add_neg, motzkinZeroDirection, motzkinSignDirection] using h3,
+      by simpa [coeff, V, A, D, E, C, F, Y, sub_eq_add_neg, motzkinZeroDirection, motzkinSignDirection] using h4,
+      by simpa [coeff, V, A, D, E, C, F, Y, sub_eq_add_neg, motzkinZeroDirection, motzkinSignDirection] using h5⟩
   have hAeq : A = V 0 := by
     funext i
     have h := eval_quadratic_eq_coeffs (hhom i) (motzkinZeroDirection 0)

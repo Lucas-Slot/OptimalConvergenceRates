@@ -25,7 +25,7 @@ theorem totalDegree_det_le_sum_rowBounds
         (∏ i, A (σ i) i).totalDegree :=
       MvPolynomial.totalDegree_smul_le _ _
     _ ≤ ∑ i, (A (σ i) i).totalDegree :=
-      MvPolynomial.totalDegree_finset_prod Finset.univ (fun i ↦ A (σ i) i)
+      MvPolynomial.totalDegree_finsetProd Finset.univ (fun i ↦ A (σ i) i)
     _ ≤ ∑ i, b (σ i) := Finset.sum_le_sum fun i _ ↦ hA (σ i) i
     _ = ∑ i, b i := Equiv.sum_comp σ b
 
@@ -67,7 +67,7 @@ theorem totalDegree_adjugate_le
             ∑ _k ∈ Finset.univ.erase j, D := by
         apply Finset.sum_congr rfl
         intro k hk
-        rw [if_neg (Finset.ne_of_mem_erase hk)]
+        rw [ite_eq_right (Finset.ne_of_mem_erase hk)]
       rw [hsum]
       simp
 

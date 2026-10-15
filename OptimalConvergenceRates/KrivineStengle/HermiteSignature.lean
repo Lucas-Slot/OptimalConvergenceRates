@@ -69,7 +69,7 @@ theorem exists_hermite_diagonalization_with_signature
       (e : (Fin f.natDegree → F) ≃ₗ[F]
         (Fin (Module.finrank F (Fin f.natDegree → F)) → F)),
       (∀ x, weightedSumSquares F diagonal (e x) =
-        (hermiteTraceMatrix f h hf).toQuadraticMap' x) ∧
+        (hermiteTraceMatrix f h hf).toQuadraticForm' x) ∧
       diagonalSignature diagonal = hermiteSignature f h hf := by
   simpa [hermiteSignature] using
     exists_diagonalization_with_signature

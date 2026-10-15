@@ -78,12 +78,12 @@ theorem abs_sub_clamp_le (x : ℝ) (ε : ℝ) (hε : 0 ≤ ε)
     · -- x ∈ [-1, 1], so clamp x = x
       rw [min_eq_left h1, max_eq_right h2, sub_self, abs_zero]; exact hε
     · -- x < -1, so min x 1 = x (since x < -1 < 1) and max(-1, x) = -1 (since x < -1)
-      push_neg at h2
+      push Not at h2
       rw [min_eq_left (by linarith : x ≤ 1), max_eq_left (by linarith : x ≤ -1)]
       rw [abs_of_nonpos (by linarith)]
       linarith [hx_bounds.1]
   · -- x > 1, so min x 1 = 1 and max(-1, 1) = 1
-    push_neg at h1
+    push Not at h1
     rw [min_eq_right (by linarith : 1 ≤ x)]
     rw [show max (-1 : ℝ) 1 = 1 from by norm_num]
     rw [abs_of_nonneg (by linarith)]
@@ -523,7 +523,7 @@ private theorem ScaledBoxPreordering_eq_GenPreordering_scaledGen (q : ℕ) :
     intro J; unfold ScaledBoxGeneratorProd
     exact Finset.prod_congr rfl (fun j _ => hgen j)
   ext p
-  simp only [ScaledBoxPreordering, GenPreordering, Set.mem_setOf_eq]
+  simp only [ScaledBoxPreordering, GenPreordering, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨σ, hsos, hdeg, hsum⟩
     refine ⟨σ, hsos, fun J => ?_, ?_⟩
@@ -1182,7 +1182,7 @@ theorem upper_degree_bound_weak (f : MvPolynomial (Fin n) ℝ) (d r : ℕ)
   by_cases hn0 : n = 0
   · subst hn0
     have hf_const : ∃ c > 0, f = MvPolynomial.C c := by
-      set c := MvPolynomial.coeff 0 f
+      set c := legacyMvCoeff 0 f
       have hf_eq : f = MvPolynomial.C c := by
         ext m; rw [show m = 0 from Subsingleton.elim m 0]; simp [c, MvPolynomial.coeff_C]
       obtain ⟨x, hx⟩ := Hypercube_nonempty (n := 0)
@@ -1195,7 +1195,7 @@ theorem upper_degree_bound_weak (f : MvPolynomial (Fin n) ℝ) (d r : ℕ)
   -- Edge case: d = 0 (f is constant > 0)
   by_cases hd0 : d = 0
   · subst hd0
-    set c := MvPolynomial.coeff 0 f
+    set c := legacyMvCoeff 0 f
     have hf_eq : f = MvPolynomial.C c :=
       MvPolynomial.totalDegree_eq_zero_iff_eq_C.mp (Nat.le_zero.mp hd)
     have hc_pos : 0 < c := by
@@ -1254,7 +1254,7 @@ theorem upper_degree_bound_weak (f : MvPolynomial (Fin n) ℝ) (d r : ℕ)
     have h_eq : (r_s + 2 * q) * n = r * n := by rw [hr_decomp]
     exact BoxQuadraticModule_mono (by omega : (r_s + 1) * n + n * (2 * q - 2) ≤ r * n) hf_box_qm
   · -- n = 1 case: n ≥ 1 (from hn_pos) and n < 2 (from ¬(2 ≤ n))
-    push_neg at hn2
+    push Not at hn2
     have hn1 : n = 1 := by omega
     subst hn1
     -- f > 0 on B^1 = [-1,1], use BoxPreordering ⊆ BoxQuadraticModule for n=1
@@ -1266,7 +1266,7 @@ theorem upper_degree_bound_weak (f : MvPolynomial (Fin n) ℝ) (d r : ℕ)
       exact polyMin_le_eval f x hx
     -- Ensure r ≥ 1 (from hr and positivity of constants)
     have hr_ge1 : 1 ≤ r := by
-      by_contra h; push_neg at h
+      by_contra h; push Not at h
       interval_cases r
       have : 0 < constUpperBound 1 d * ↑d ^ 2 * (Real.log (1 : ℝ) + 1) *
           polySupNorm f / polyMin f := by
@@ -1488,7 +1488,7 @@ theorem upper_degree_bound (f : MvPolynomial (Fin n) ℝ) (d r : ℕ)
   by_cases hn0 : n = 0
   · subst hn0
     obtain ⟨c, hc_pos, hf_eq⟩ : ∃ c > 0, f = MvPolynomial.C c := by
-      set c := MvPolynomial.coeff 0 f
+      set c := legacyMvCoeff 0 f
       have hf_eq : f = MvPolynomial.C c := by
         ext m; rw [show m = 0 from Subsingleton.elim m 0]; simp [c, MvPolynomial.coeff_C]
       obtain ⟨x, hx⟩ := Hypercube_nonempty (n := 0)

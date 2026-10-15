@@ -85,7 +85,7 @@ theorem originalRestrictA_natDegree_le (b z : ℝ)
     ![Polynomial.X, Polynomial.C b, Polynomial.C z] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [originalRestrictA] using h
 
 /-- Restriction of a trivariate polynomial to the second coordinate line. -/
 def originalRestrictB (a z : ℝ)
@@ -115,7 +115,7 @@ theorem originalRestrictB_natDegree_le (a z : ℝ)
     ![Polynomial.C a, Polynomial.X, Polynomial.C z] (n := 1) (by
       intro i
       fin_cases i <;> simp)
-  simpa using h
+  simpa [originalRestrictB] using h
 
 private theorem originalGeneratorProd_ne_zero (J : Finset (Fin 4)) :
     (∏ j ∈ J, GeneralArchimedean.sharpArchimedeanGenerators j) ≠

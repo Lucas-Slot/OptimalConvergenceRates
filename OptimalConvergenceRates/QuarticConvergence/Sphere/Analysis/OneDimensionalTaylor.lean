@@ -20,7 +20,7 @@ theorem norm_sub_taylorWithinEval_three_le {f : ℝ → ℝ} {a b x : ℝ}
     (hab : a ≤ b) (hf : ContDiffOn ℝ 4 f (Icc a b)) (hx : x ∈ Icc a b)
     (hfourth : ∀ y ∈ Icc a b, ‖iteratedDerivWithin 4 f (Icc a b) y‖ ≤ 1) :
     ‖f x - taylorWithinEval f 3 (Icc a b) a x‖ ≤ (x - a) ^ 4 / 6 := by
-  simpa using taylor_mean_remainder_bound (n := 3) hab hf hx hfourth
+  convert taylor_mean_remainder_bound (n := 3) hab hf hx hfourth using 1 <;> norm_num
 
 /-- Scalar absolute-value form of the third-order Taylor remainder bound. -/
 theorem abs_sub_taylorWithinEval_three_le {f : ℝ → ℝ} {a b x : ℝ}
@@ -233,18 +233,13 @@ theorem linear_coefficient_eq_zero_of_quartic_nonnegative {b c e : ℝ}
     filter_upwards [] with t
     rw [hp0]
     exact hpoly t
-  have hlinear : HasDerivAt (fun t : ℝ => b * t) b 0 := by
-    convert (hasDerivAt_id (𝕜 := ℝ) 0).const_mul b using 1; norm_num
-  have hquadratic : HasDerivAt (fun t : ℝ => c * t ^ 2 / 2) 0 0 := by
-    convert (((hasDerivAt_id (𝕜 := ℝ) 0).pow 2).const_mul c).div_const 2 using 1;
-      norm_num
-  have hcubic : HasDerivAt (fun t : ℝ => e * t ^ 3 / 6) 0 0 := by
-    convert (((hasDerivAt_id (𝕜 := ℝ) 0).pow 3).const_mul e).div_const 6 using 1;
-      norm_num
-  have hquartic : HasDerivAt (fun t : ℝ => t ^ 4 / 6) 0 0 := by
-    convert ((hasDerivAt_id (𝕜 := ℝ) 0).pow 4).div_const 6 using 1; norm_num
   have hpderiv : HasDerivAt p b 0 := by
-    simpa [p] using ((hlinear.add hquadratic).add hcubic).add hquartic
+    have hlinear := hasDerivAt_const_mul (x := (0 : ℝ)) b
+    have hquadratic := (hasDerivAt_pow 2 (0 : ℝ)).const_smul (c / 2)
+    have hcubic := (hasDerivAt_pow 3 (0 : ℝ)).const_smul (e / 6)
+    have hquartic := (hasDerivAt_pow 4 (0 : ℝ)).const_smul (1 / 6 : ℝ)
+    convert ((hlinear.add hquadratic).add hcubic).add hquartic using 1 <;>
+      simp [p, smul_eq_mul] <;> ext t <;> simp [smul_eq_mul] <;> ring
   exact hmin.hasDerivAt_eq_zero hpderiv
 
 /-- The cubic coefficient bound remains valid at the degenerate scale

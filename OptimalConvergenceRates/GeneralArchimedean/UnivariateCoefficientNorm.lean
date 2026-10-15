@@ -158,7 +158,7 @@ theorem coeffL1Norm_polynomial_aeval_le_embedded
 variable of a multivariate polynomial ring. -/
 theorem coeff_toMvPolynomial_single
     {σ : Type*} [DecidableEq σ] (P : Polynomial ℝ) (i : σ) (k : ℕ) :
-    MvPolynomial.coeff (Finsupp.single i k) (P.toMvPolynomial i) =
+    (P.toMvPolynomial i).coeff (Finsupp.single i k) =
       P.coeff k := by
   induction P using Polynomial.induction_on' with
   | monomial n c =>
@@ -174,7 +174,7 @@ theorem coeff_toMvPolynomial_single
           rfl
       simp [MvPolynomial.coeff_X_pow, hs, eq_comm]
   | add P Q hP hQ =>
-      simp only [map_add, MvPolynomial.coeff_add, Polynomial.coeff_add]
+      simp only [map_add, AddMonoidAlgebra.coeff_add, Finsupp.add_apply, Polynomial.coeff_add]
       rw [hP, hQ]
 
 /-- The direct univariate coefficient norm is controlled by the embedded
@@ -201,9 +201,15 @@ theorem embeddedPolynomialCoeffL1Norm_le_polynomialCoeffL1Norm
     (P : Polynomial ℝ) :
     embeddedPolynomialCoeffL1Norm P ≤ polynomialCoeffL1Norm P := by
   have hX : coeffL1Norm (X (0 : Fin 1) : MvPolynomial (Fin 1) ℝ) ≤ 1 := by
-    simpa using coeffL1Norm_monomial_le
-      (n := 1) (Finsupp.single (0 : Fin 1) 1) (1 : ℝ)
-  simpa [embeddedPolynomialCoeffL1Norm] using
+    simpa only [← MvPolynomial.X_pow_eq_monomial, pow_one, abs_one] using
+      coeffL1Norm_monomial_le
+        (n := 1) (Finsupp.single (0 : Fin 1) 1) (1 : ℝ)
+  have hto := MvPolynomial.aeval_toMvPolynomial
+    (R := ℝ) (MvPolynomial.X : Fin 1 → MvPolynomial (Fin 1) ℝ)
+    (0 : Fin 1) P
+  rw [MvPolynomial.aeval_X_left_apply] at hto
+  rw [embeddedPolynomialCoeffL1Norm, hto]
+  simpa only [one_pow, mul_one] using
     coeffL1Norm_polynomial_aeval_le
       (X (0 : Fin 1) : MvPolynomial (Fin 1) ℝ) P le_rfl hX
 
@@ -214,7 +220,8 @@ theorem embeddedPolynomialCoeffL1Norm_C_le (c : ℝ) :
 
 theorem embeddedPolynomialCoeffL1Norm_X_le :
     embeddedPolynomialCoeffL1Norm (Polynomial.X : Polynomial ℝ) ≤ 1 := by
-  simpa [embeddedPolynomialCoeffL1Norm] using
+  rw [embeddedPolynomialCoeffL1Norm, Polynomial.toMvPolynomial_X]
+  simpa only [← MvPolynomial.X_pow_eq_monomial, pow_one, abs_one] using
     coeffL1Norm_monomial_le
       (n := 1) (Finsupp.single (0 : Fin 1) 1) (1 : ℝ)
 

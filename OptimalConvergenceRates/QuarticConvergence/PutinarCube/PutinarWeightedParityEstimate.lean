@@ -104,7 +104,17 @@ theorem FiniteControlledRootData.hasWeightedParityBound_of_paritySeed
             have hraw := circlePolynomialAngularDerivativeVector_step
               Q hdegree (productCircleFirstRotationBound R)
               (by positivity : (0 : ℝ) ≤ 10 * (R : ℝ))
-            simpa [Q, D, parityTermAngularDerivativeVector] using hraw
+            have hfamily :
+                parityTermAngularDerivativeVector
+                    data.productCirclePolynomial I =
+                  (fun is theta ↦ finiteEuclideanVector
+                    (fun nu phi ↦ MvPolynomial.eval
+                      (cosineSineCirclePoint phi)
+                      (iteratedCircleRotationDeriv is (Q nu))) theta) := by
+              funext is theta
+              rfl
+            rw [hfamily]
+            simpa [D] using hraw
           have hcore := eval_weightedParitySum_le_of_twoRotationSeed_hypercube
             data.productCirclePolynomial hJsubset a b remaining hselected
             hnodup (D := D) (H := 144 * C) (by positivity)

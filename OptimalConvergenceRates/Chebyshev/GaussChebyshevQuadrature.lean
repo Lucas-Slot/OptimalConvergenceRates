@@ -225,7 +225,7 @@ theorem discrete_chebyshev_orthogonality (r : ℕ) (k l : ℕ)
           exact cos_sum_eq_zero (r + 2) hN_pos (l - k)
             (by omega) (by omega)
         · -- k > l
-          push_neg at hkl_le
+          push Not at hkl_le
           have hle : l ≤ k := Nat.le_of_lt hkl_le
           have hconv : ∀ j ∈ Finset.range (r + 2),
               Real.cos ((↑k - ↑l) * ((2 * ↑j + 1) * Real.pi /

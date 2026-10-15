@@ -5,7 +5,7 @@
 -/
 import Mathlib.Topology.Algebra.MvPolynomial
 import Mathlib.Topology.Order.Compact
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Data.Finset.Powerset
 import Mathlib.Algebra.MvPolynomial.Basic
 import Mathlib.RingTheory.Polynomial.Basic
@@ -15,9 +15,22 @@ open MvPolynomial Finset
 
 noncomputable section
 
+/-- Syntax compatibility for the pre-v4.34 argument order of multivariate coefficients. -/
+macro "legacyMvCoeff" m:term:max p:term:max : term =>
+  `(AddMonoidAlgebra.coeff $p $m)
+
+/-- Partially applied form used by coefficient extensionality arguments. -/
+macro "legacyMvCoeff" m:term:max : term =>
+  `(fun p => AddMonoidAlgebra.coeff p $m)
+
 namespace OptimalConvergenceRates
 
 variable {n : ℕ}
+
+/-- Compatibility alias for the pre-v4.34 unqualified coefficient API. -/
+abbrev coeff {σ R : Type*} [CommSemiring R]
+    (m : σ →₀ ℕ) (p : MvPolynomial σ R) : R :=
+  AddMonoidAlgebra.coeff p m
 
 /-! ## The Hypercube B^n = [-1,1]^n -/
 
@@ -159,9 +172,9 @@ theorem Hypercube_image_nonempty (f : MvPolynomial (Fin n) ℝ) :
 theorem polyMin_le_polyMax (f : MvPolynomial (Fin n) ℝ) :
     polyMin f ≤ polyMax f := by
   exact csInf_le_csSup
+    (Hypercube_image_nonempty f)
     (Hypercube_image_compact f).bddBelow
     (Hypercube_image_compact f).bddAbove
-    (Hypercube_image_nonempty f)
 
 theorem polyMin_mem (f : MvPolynomial (Fin n) ℝ) :
     ∃ x ∈ Hypercube n, MvPolynomial.eval x f = polyMin f := by

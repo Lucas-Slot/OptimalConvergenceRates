@@ -206,7 +206,7 @@ theorem prod {ι : Type*}
               ∏ i ∈ s, coeffL1Norm (q i) :=
             coeffL1Norm_prod_le s q
           _ ≤ ∏ _i ∈ s, K := by
-            exact Finset.prod_le_prod
+            exact Finset.prod_le_prod₀
               (fun _ _ => coeffL1Norm_nonneg _)
               (fun i hi => hqNorm i (Finset.mem_insert_of_mem hi))
           _ = K ^ s.card := by simp

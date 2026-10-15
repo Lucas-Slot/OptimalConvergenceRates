@@ -99,7 +99,13 @@ theorem genPreordering_mul
     productCoefficient_isSOS g σ τ hσ hτ,
     productCoefficient_totalDegree_le σ τ hσdeg hτdeg, ?_⟩
   rw [hp, hq]
-  simpa [generatorProduct] using productCoefficient_sum g σ τ
+  have hproduct := productCoefficient_sum g σ τ
+  change
+    (∑ I ∈ Finset.univ.powerset, σ I * generatorProduct g I) *
+        (∑ J ∈ Finset.univ.powerset, τ J * generatorProduct g J) =
+      ∑ K ∈ Finset.univ.powerset,
+        productCoefficient g σ τ K * generatorProduct g K at hproduct
+  simpa [generatorProduct] using hproduct
 
 end OptimalConvergenceRates.KrivineStengle
 

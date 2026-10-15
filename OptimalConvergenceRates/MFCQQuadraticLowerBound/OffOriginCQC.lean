@@ -23,7 +23,7 @@ private theorem linearIndependent_of_card_le_two
   · obtain ⟨j, hji, _⟩ := hother
     have hall (k : ι) : k = i ∨ k = j := by
       by_contra hk
-      push_neg at hk
+      push Not at hk
       have hthree : ({i, j, k} : Finset ι).card = 3 := by
         simp [hji, Ne.symm hji, hk.1, hk.2, Ne.symm hk.1, Ne.symm hk.2]
       have hle := Finset.card_le_card
@@ -193,8 +193,8 @@ theorem cqc_off_origin {z : Fin 3 → ℝ} (hz : z ∈ feasibleSet)
         apply Finset.sum_congr rfl
         intro i _
         by_cases hi : active i
-        · rw [if_pos hi]
-        · rw [if_neg hi, hc_inactive i hi, zero_smul]
+        · rw [ite_eq_left hi]
+        · rw [ite_eq_right hi, hc_inactive i hi, zero_smul]
       _ = ∑ i : {i : Fin 5 // active i},
           c i.1 • gradientAt (generators i.1) z :=
         Finset.sum_subtype _ (by simp) _
@@ -275,9 +275,9 @@ theorem cqc_off_origin {z : Fin 3 → ℝ} (hz : z ∈ feasibleSet)
           apply Finset.sum_congr rfl
           intro i _
           by_cases hi : firstActive i
-          · rw [if_pos hi]
+          · rw [ite_eq_left hi]
           · have hinactive : ¬active i.castSucc := by simpa [firstActive, active]
-            rw [if_neg hi, hc_inactive i.castSucc hinactive, zero_smul]
+            rw [ite_eq_right hi, hc_inactive i.castSucc hinactive, zero_smul]
         _ = 0 := hsum4
     have hfirstZero := (Fintype.linearIndependent_iff.mp
       (first_active_linearIndependent huv))
@@ -296,7 +296,7 @@ theorem cqc_off_origin {z : Fin 3 → ℝ} (hz : z ∈ feasibleSet)
     calc
       a target = c target.1 := (hc_active target.1 target.2).symm
       _ = 0 := hcAll target.1
-  · push_neg at huv
+  · push Not at huv
     have ht : z 2 ≠ 0 := by
       intro ht
       apply hzOrigin

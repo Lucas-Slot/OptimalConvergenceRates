@@ -533,11 +533,11 @@ theorem totalDegree_scaledGenerator_eq (i : Fin n) (q : ℕ) :
     rw [MvPolynomial.mem_support_iff]
     simp only [scaledGenerator, MvPolynomial.coeff_sub]
     have hs_ne : s ≠ 0 := Finsupp.single_ne_zero.mpr (by omega)
-    have hC : MvPolynomial.coeff s (MvPolynomial.C (eta n q ^ 2) :
-        MvPolynomial (Fin n) ℝ) = 0 := by
+    have hC : (MvPolynomial.C (eta n q ^ 2) :
+        MvPolynomial (Fin n) ℝ).coeff s = 0 := by
       rw [MvPolynomial.coeff_C]
-      exact if_neg (fun h => hs_ne h.symm)
-    have hX : MvPolynomial.coeff s ((X i : MvPolynomial (Fin n) ℝ) ^ 2) = 1 := by
+      exact ite_eq_right (fun h => hs_ne h.symm)
+    have hX : ((X i : MvPolynomial (Fin n) ℝ) ^ 2).coeff s = 1 := by
       rw [MvPolynomial.coeff_X_pow]
       simp [hs_def]
     rw [hC, hX]
@@ -941,10 +941,10 @@ theorem totalDegree_nSubNorm_eq (q : ℕ) (hq : 1 ≤ q) (hn : 0 < n) :
     -- coeff s (C n - normPoly2q q) = 0 - 1 = -1 ≠ 0
     simp only [nSubNorm, MvPolynomial.coeff_sub]
     have hs_ne : s ≠ 0 := Finsupp.single_ne_zero.mpr (by omega)
-    have hC : MvPolynomial.coeff s (MvPolynomial.C (n : ℝ) : MvPolynomial (Fin n) ℝ) = 0 := by
+    have hC : (MvPolynomial.C (n : ℝ) : MvPolynomial (Fin n) ℝ).coeff s = 0 := by
       rw [MvPolynomial.coeff_C]
-      exact if_neg (fun h => hs_ne h.symm)
-    have hN : MvPolynomial.coeff s (normPoly2q (n := n) q) = 1 := by
+      exact ite_eq_right (fun h => hs_ne h.symm)
+    have hN : (normPoly2q (n := n) q).coeff s = 1 := by
       simp only [normPoly2q, MvPolynomial.coeff_sum, MvPolynomial.coeff_X_pow]
       rw [Finset.sum_eq_single j₀]
       · simp [hs_def]

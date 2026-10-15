@@ -106,7 +106,7 @@ theorem MinimizingGraphData.fderiv_eq_regularizedReciprocal_smul_tangential
   have hGderiv : fderiv ℝ G y =
       (fderiv ℝ graph.graph y).prod
         (ContinuousLinearMap.id ℝ (Fin n → ℝ)) := by
-    simpa [G, fderiv_id'] using
+    simpa [G, fderiv_fun_id] using
       (graph.graph_contDiff.differentiable (by norm_num) y).fderiv_prodMk differentiableAt_id
   have hstationary : N ∘ G = fun _ ↦ 0 := by
     funext w

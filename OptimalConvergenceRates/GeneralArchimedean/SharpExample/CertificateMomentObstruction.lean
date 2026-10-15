@@ -132,7 +132,8 @@ theorem sharpCertificate_moment_obstruction
           (sigma 0 * sharpArchimedeanA + sigma 1 * sharpArchimedeanB +
             sigma 2 * sharpArchimedeanW +
             sigma 3 * sharpArchimedeanGenerators 3) := by
-        simpa [Fin.sum_univ_four] using hidentity
+        simpa [Fin.sum_univ_four, sharpArchimedeanGenerators,
+        KrivineStengle.sharpSeedGenerators] using hidentity
       _ = _ := by ring
   exact sharpExplicitCertificate_moment_obstruction hr
     (by nlinarith [heps]) htsmall rfl

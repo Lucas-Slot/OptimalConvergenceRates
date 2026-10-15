@@ -48,7 +48,7 @@ theorem slackGramPolynomial_apply
     · intro j _ hji
       simp [hji]
     · simp
-  · simp only [if_neg hik]
+  · simp only [ite_eq_right hik]
     apply Finset.sum_eq_zero
     intro j _
     by_cases hji : j = i

@@ -49,8 +49,18 @@ theorem motzkin_low_jet_bounds
       exact (univariateRestriction_natDegree_le (Q i) (0 : Fin 3 → ℝ)
         (motzkinZeroDirection zi)).trans (hdeg i)
     · intro t ht
-      simpa [M, univariateRestriction_eval, Pi.smul_apply, smul_eq_mul, mul_assoc]
-        using hzeroLines zi t ht
+      have heval : (fun i : Fin N =>
+          (univariateRestriction (Q i) (0 : Fin 3 → ℝ)
+            (motzkinZeroDirection zi)).eval t) =
+          fun i : Fin N => MvPolynomial.eval
+            (fun j => t * motzkinZeroDirection zi j) (Q i) := by
+        funext i
+        rw [univariateRestriction_eval]
+        apply congrArg (fun w : Fin 3 → ℝ => MvPolynomial.eval w (Q i))
+        funext j
+        simp [Pi.smul_apply, smul_eq_mul]
+      rw [heval]
+      simpa [M] using hzeroLines zi t ht
   have hzero : motzkinVecCoeffNorm (homogeneousPartVec3 0 Q) ≤ M := by
     have hline := (hrestr 0).2 0 (by simpa using schmInteriorS_nonneg)
     have heval : (fun i : Fin N =>
@@ -367,8 +377,9 @@ theorem motzkin_high_jet_eval_bounds_of_tail_bound
       fun i : Fin N => 6 * MvPolynomial.eval v (homogeneousPartVec3 6 Q i) := by
     funext i
     dsimp [P, homogeneousPartVec3]
-    simpa using iterateDerivative_tail3_univariateRestriction_eval_zero_eq_homogeneousPart
-      (Q i) v 3
+    simpa [Nat.factorial] using
+      iterateDerivative_tail3_univariateRestriction_eval_zero_eq_homogeneousPart
+        (Q i) v 3
   rw [h0eq] at h0
   rw [hfirstEq] at hfirst
   rw [hsecondEq] at hsecond

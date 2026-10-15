@@ -31,7 +31,7 @@ theorem sharpTailPolynomial_coeff_eq {N D : Nat}
             (fun k => (sharpHighPart D (q k)).coeff x.2)) := by
   classical
   rw [sharpTailPolynomial, MvPolynomial.coeff_sum]
-  simp_rw [pow_two, MvPolynomial.coeff_add, MvPolynomial.coeff_C_mul,
+  simp_rw [pow_two, AddMonoidAlgebra.coeff_add, Finsupp.add_apply, MvPolynomial.coeff_C_mul,
     MvPolynomial.coeff_mul]
   calc
     ∑ k : Fin N,
@@ -78,7 +78,7 @@ theorem sharpLowPart_coeffVecNorm_le {N D d : Nat} {M : Real}
   · have hcoeff : (fun k => (sharpLowPart D (q k)).coeff alpha) =
         fun k => (q k).coeff alpha := by
       funext k
-      rw [sharpLowPart_coeff, if_pos halpha]
+      rw [sharpLowPart_coeff, ite_eq_left halpha]
     rw [hcoeff]
     have hmark := bivariate_vector_coeff_bound q hM hdeg hbound
       (i := alpha 0) (j := alpha 1)
@@ -87,7 +87,7 @@ theorem sharpLowPart_coeffVecNorm_le {N D d : Nat} {M : Real}
   · have hzero : (fun k => (sharpLowPart D (q k)).coeff alpha) =
         fun _ => 0 := by
       funext k
-      rw [sharpLowPart_coeff, if_neg halpha]
+      rw [sharpLowPart_coeff, ite_eq_right halpha]
     rw [hzero]
     calc
       OptimalConvergenceRates.interiorVecNorm (fun _ : Fin N => (0 : Real)) = 0 := by
@@ -111,7 +111,7 @@ theorem sharpHighPart_coeffVecNorm_le {N D d : Nat} {M : Real}
   · have hcoeff : (fun k => (sharpHighPart D (q k)).coeff alpha) =
         fun k => (q k).coeff alpha := by
       funext k
-      rw [sharpHighPart_coeff, if_pos halpha]
+      rw [sharpHighPart_coeff, ite_eq_left halpha]
     rw [hcoeff]
     have hmark := bivariate_vector_coeff_bound q hM hdeg hbound
       (i := alpha 0) (j := alpha 1)
@@ -120,7 +120,7 @@ theorem sharpHighPart_coeffVecNorm_le {N D d : Nat} {M : Real}
   · have hzero : (fun k => (sharpHighPart D (q k)).coeff alpha) =
         fun _ => 0 := by
       funext k
-      rw [sharpHighPart_coeff, if_neg halpha]
+      rw [sharpHighPart_coeff, ite_eq_right halpha]
     rw [hzero]
     calc
       OptimalConvergenceRates.interiorVecNorm (fun _ : Fin N => (0 : Real)) = 0 := by

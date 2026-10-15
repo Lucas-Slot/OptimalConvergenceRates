@@ -6,7 +6,7 @@
 -/
 import OptimalConvergenceRates.KrivineStengle.OneVariableElimination
 import OptimalConvergenceRates.KrivineStengle.FormulaTransfer
-import Mathlib.Data.Real.CompleteField
+import Mathlib.Algebra.Order.Archimedean.Real.Hom
 
 noncomputable section
 
@@ -53,7 +53,7 @@ def realCoeffOrderRingHom
     (coeff : ℝ →+* F) : ℝ →+*o F where
   toRingHom := coeff
   monotone' := ringHom_monotone
-    (fun r hr ↦ ⟨Real.sqrt r, Real.sq_sqrt hr⟩) coeff
+    (fun r hr ↦ ⟨Real.sqrt r, by simpa [pow_two] using (Real.sq_sqrt hr).symm⟩) coeff
 
 /-- Proved existential transfer for the repository's sign-formula language. -/
 theorem realClosedSignFormulaTransfer : RealClosedSignFormulaTransferStatement := by
@@ -68,6 +68,8 @@ theorem realClosedSignFormulaTransfer : RealClosedSignFormulaTransferStatement :
       (fun i ↦ Fin.elim0 i) := by
     apply hmap.mp
     convert hclosedF using 1
+    ext x
+    rfl
   exact (realizes_eliminateAll_iff_satisfiable
     (RingHom.id ℝ) formula).1 hclosedReal
 

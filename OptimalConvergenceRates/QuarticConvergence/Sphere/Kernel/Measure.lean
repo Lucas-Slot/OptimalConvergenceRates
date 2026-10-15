@@ -200,8 +200,8 @@ theorem euclideanUnitSphereMap_measurePreserving {n : ℕ}
       (normalizedEuclideanSphereMeasure n) := by
   have h := euclideanUnitSphereMap_measurePreserving_toSphere L
   refine ⟨h.measurable, ?_⟩
-  simp only [normalizedEuclideanSphereMeasure, Measure.map_smul]
-  rw [h.map_eq]
+  rw [normalizedEuclideanSphereMeasure, Measure.map_smul _ h.measurable.aemeasurable,
+    h.map_eq]
 
 /-- Normalization preserves positivity on nonempty open subsets of the
 Euclidean unit sphere. -/
@@ -250,7 +250,7 @@ theorem euclideanSphereCoordinates_mem_sphereSet {n : ℕ}
   rw [hxnorm] at hsq
   simp only [one_pow] at hsq
   simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X,
-    Set.mem_setOf_eq, euclideanSphereCoordinates]
+    Set.mem_ofPred_eq, euclideanSphereCoordinates]
   simpa [Real.norm_eq_abs, sq_abs, euclideanSphereCoordinates] using hsq.symm
 
 /-- An algebraic sphere point regarded as a Euclidean unit vector. -/
@@ -364,8 +364,10 @@ theorem normalizedSphereMeasure_isProbability (n : ℕ) (hn : 0 < n) :
     IsProbabilityMeasure (normalizedSphereMeasure n) := by
   letI : IsProbabilityMeasure (normalizedEuclideanSphereMeasure n) :=
     normalizedEuclideanSphereMeasure_isProbability n hn
-  exact Measure.isProbabilityMeasure_map
-    (euclideanSphereHomeomorphSphereSet n).measurable.aemeasurable
+  change IsProbabilityMeasure
+    (Measure.map (euclideanSphereHomeomorphSphereSet n)
+      (normalizedEuclideanSphereMeasure n))
+  infer_instance
 
 @[simp] theorem normalizedSphereMeasure_apply_univ (n : ℕ) (hn : 0 < n) :
     normalizedSphereMeasure n Set.univ = 1 := by

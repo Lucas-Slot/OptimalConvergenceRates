@@ -55,7 +55,9 @@ theorem norm_iteratedFDeriv_implicitGraphNormalCurvatureField_le
   calc
     ‖iteratedFDeriv ℝ q (implicitGraphNormalCurvatureField input) z‖ ≤
         ‖splitNormalDirection n‖ * ‖iteratedFDeriv ℝ q (fderiv ℝ N) z‖ := by
-      simpa [implicitGraphNormalCurvatureField, N] using houter
+      change ‖iteratedFDeriv ℝ q
+          (fun y ↦ fderiv ℝ N y (splitNormalDirection n)) z‖ ≤ _
+      simpa [N] using houter
     _ = ‖iteratedFDeriv ℝ (q + 1) N z‖ := by
       rw [norm_iteratedFDeriv_fderiv]
       simp [splitNormalDirection, Prod.norm_def]
@@ -104,7 +106,8 @@ theorem norm_iteratedFDeriv_implicitGraphNormalTangentialField_le
   calc
     ‖iteratedFDeriv ℝ q (implicitGraphNormalTangentialField input) z‖ ≤
         ‖precompose‖ * ‖iteratedFDeriv ℝ q (fderiv ℝ N) z‖ := by
-      simpa [implicitGraphNormalTangentialField, N, precompose, T] using hp
+      change ‖iteratedFDeriv ℝ q (precompose ∘ fderiv ℝ N) z‖ ≤ _
+      simpa [precompose, T] using hp
     _ ≤ ‖iteratedFDeriv ℝ q (fderiv ℝ N) z‖ := by
       calc
         _ ≤ 1 * ‖iteratedFDeriv ℝ q (fderiv ℝ N) z‖ :=

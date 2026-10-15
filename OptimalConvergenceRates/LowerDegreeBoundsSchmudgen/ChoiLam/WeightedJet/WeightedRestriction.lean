@@ -109,30 +109,32 @@ lemma coeff_weightedRestriction4_eq_coeff
     {m : ℕ} (hm : m ≤ 4) {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 m p = p) (α : Fin 4 →₀ ℕ)
     (hα : α.sum (fun _ e => e) = m) :
-    (weightedRestriction4 p).coeff (weightedDegree4 α) = MvPolynomial.coeff α p := by
+    (weightedRestriction4 p).coeff (weightedDegree4 α) = legacyMvCoeff α p := by
   conv_lhs => rw [MvPolynomial.as_sum p]
   unfold weightedRestriction4
   rw [map_sum]
   change (Polynomial.lcoeff ℝ (weightedDegree4 α))
       (∑ x ∈ p.support,
         MvPolynomial.aeval (R := ℝ) (fun i => (Polynomial.X : Polynomial ℝ) ^ weight4 i)
-          (MvPolynomial.monomial x (MvPolynomial.coeff x p))) = MvPolynomial.coeff α p
+          (MvPolynomial.monomial x (legacyMvCoeff x p))) = legacyMvCoeff α p
   rw [map_sum]
   change (∑ x ∈ p.support,
       (MvPolynomial.aeval (R := ℝ) (fun i => (Polynomial.X : Polynomial ℝ) ^ weight4 i)
-        (MvPolynomial.monomial x (MvPolynomial.coeff x p))).coeff (weightedDegree4 α)) =
-        MvPolynomial.coeff α p
+        (MvPolynomial.monomial x (legacyMvCoeff x p))).coeff (weightedDegree4 α)) =
+        legacyMvCoeff α p
   rw [Finset.sum_eq_single α]
   · rw [weightedAeval_monomial, Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     ring
   · intro β hβ hβα
     have hhom := isHomogeneous_of_homogeneousPart4_eq hp
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hβ)
     have hβsum : β.sum (fun _ e => e) = m := by
       have hdeg : Finsupp.degree β = m := by
-        simpa [Finsupp.degree_eq_weight_one] using hweight
-      simpa [Finsupp.degree_apply] using hdeg
+        rw [Finsupp.degree_eq_weight_one]
+        exact hweight
+      rw [finsupp_sum_fintype4_linear]
+      simpa only [Finsupp.degree_eq_sum] using hdeg
     have hne : weightedDegree4 α ≠ weightedDegree4 β := by
       intro hw
       have hαle : α.sum (fun _ e => e) ≤ 4 := by omega
@@ -140,10 +142,10 @@ lemma coeff_weightedRestriction4_eq_coeff
       exact hβα ((weightedDegree4_injective_of_sum_le_four
         (α := α) (β := β) hαle hβle hw).symm)
     rw [weightedAeval_monomial, Polynomial.coeff_C_mul, Polynomial.coeff_X_pow]
-    rw [if_neg hne]
+    rw [ite_eq_right hne]
     ring
   · intro hnot
-    have hcoeff : MvPolynomial.coeff α p = 0 := MvPolynomial.notMem_support_iff.mp hnot
+    have hcoeff : legacyMvCoeff α p = 0 := MvPolynomial.notMem_support_iff.mp hnot
     simp [hcoeff]
 
 
@@ -185,7 +187,7 @@ lemma weightedRestriction4_natDegree_le_500 {p : MvPolynomial (Fin 4) ℝ}
   intro α hα
   rw [weightedAeval_monomial]
   calc
-    (Polynomial.C (MvPolynomial.coeff α p) * Polynomial.X ^ weightedDegree4 α).natDegree ≤
+    (Polynomial.C (legacyMvCoeff α p) * Polynomial.X ^ weightedDegree4 α).natDegree ≤
         (Polynomial.X ^ weightedDegree4 α).natDegree := Polynomial.natDegree_C_mul_le _ _
     _ ≤ weightedDegree4 α := by simp
     _ ≤ 500 := by
@@ -356,7 +358,7 @@ lemma finsupp_degree_four_as_sum_single {a : Fin 4 →₀ ℕ} (ha : a.degree = 
 lemma coeffNorm4_cubic_le_ordered_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 3 p = p) :
     coeffNorm4 p ≤ ∑ ijk : Fin 4 × Fin 4 × Fin 4,
-      |MvPolynomial.coeff
+      |legacyMvCoeff
         (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
           Finsupp.single ijk.2.2 1) p| := by
   classical
@@ -368,18 +370,19 @@ lemma coeffNorm4_cubic_le_ordered_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     have hhom := isHomogeneous_of_homogeneousPart4_eq hp
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hα)
     have hdeg : Finsupp.degree α = 3 := by
-      simpa [Finsupp.degree_eq_weight_one] using hweight
+      rw [Finsupp.degree_eq_weight_one]
+      exact hweight
     rcases finsupp_degree_three_as_sum_single hdeg with ⟨i, j, k, rfl⟩
     exact Finset.mem_image.mpr ⟨(i, j, k), Finset.mem_univ _, rfl⟩
   calc
-    ∑ α ∈ p.support, |MvPolynomial.coeff α p| ≤
-        ∑ α ∈ Finset.univ.image f, |MvPolynomial.coeff α p| := by
+    ∑ α ∈ p.support, |legacyMvCoeff α p| ≤
+        ∑ α ∈ Finset.univ.image f, |legacyMvCoeff α p| := by
           apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
           intro x _ _
           exact abs_nonneg _
-    _ ≤ ∑ ijk : Fin 4 × Fin 4 × Fin 4, |MvPolynomial.coeff (f ijk) p| := by
+    _ ≤ ∑ ijk : Fin 4 × Fin 4 × Fin 4, |legacyMvCoeff (f ijk) p| := by
       exact finset_sum_image_le_sum_of_nonneg_weighted Finset.univ f
-        (fun α => |MvPolynomial.coeff α p|) (fun _ _ => abs_nonneg _)
+        (fun α => |legacyMvCoeff α p|) (fun _ _ => abs_nonneg _)
 
 /- Recursion-depth budget: expanding degree-four coefficient support into ordered
 quadruples creates deeply nested finite-product terms during elaboration. -/
@@ -387,7 +390,7 @@ set_option maxRecDepth 5000 in
 lemma coeffNorm4_quartic_le_ordered_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     (hp : homogeneousPart4 4 p = p) :
     coeffNorm4 p ≤ ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
-      |MvPolynomial.coeff
+      |legacyMvCoeff
         (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
           Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1) p| := by
   classical
@@ -400,35 +403,36 @@ lemma coeffNorm4_quartic_le_ordered_sum_coeff {p : MvPolynomial (Fin 4) ℝ}
     have hhom := isHomogeneous_of_homogeneousPart4_eq hp
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hα)
     have hdeg : Finsupp.degree α = 4 := by
-      simpa [Finsupp.degree_eq_weight_one] using hweight
+      rw [Finsupp.degree_eq_weight_one]
+      exact hweight
     rcases finsupp_degree_four_as_sum_single hdeg with ⟨i, j, k, l, rfl⟩
     exact Finset.mem_image.mpr ⟨(((i, j), k), l), Finset.mem_univ _, rfl⟩
   calc
-    ∑ α ∈ p.support, |MvPolynomial.coeff α p| ≤
-        ∑ α ∈ Finset.univ.image f, |MvPolynomial.coeff α p| := by
+    ∑ α ∈ p.support, |legacyMvCoeff α p| ≤
+        ∑ α ∈ Finset.univ.image f, |legacyMvCoeff α p| := by
           apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
           intro x _ _
           exact abs_nonneg _
-    _ ≤ ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4, |MvPolynomial.coeff (f ijkl) p| := by
+    _ ≤ ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4, |legacyMvCoeff (f ijkl) p| := by
       exact finset_sum_image_le_sum_of_nonneg_weighted Finset.univ f
-        (fun α => |MvPolynomial.coeff α p|) (fun _ _ => abs_nonneg _)
+        (fun α => |legacyMvCoeff α p|) (fun _ _ => abs_nonneg _)
 
 lemma vecCoeffNorm4_cubic_le_ordered_sum_coeff_vectors {N : ℕ}
     (H : Fin N → MvPolynomial (Fin 4) ℝ)
     (hhom : ∀ i, homogeneousPart4 3 (H i) = H i) :
     vecCoeffNorm4 H ≤ ∑ ijk : Fin 4 × Fin 4 × Fin 4, interiorVecNorm
-      (fun i : Fin N => MvPolynomial.coeff
+      (fun i : Fin N => legacyMvCoeff
         (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
           Finsupp.single ijk.2.2 1) (H i)) := by
   let f : Fin 4 × Fin 4 × Fin 4 → Fin 4 →₀ ℕ := fun ijk =>
     Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 + Finsupp.single ijk.2.2 1
   have hpoint : ∀ i : Fin N, coeffNorm4 (H i) ≤
-      ∑ ijk : Fin 4 × Fin 4 × Fin 4, |MvPolynomial.coeff (f ijk) (H i)| := by
+      ∑ ijk : Fin 4 × Fin 4 × Fin 4, |legacyMvCoeff (f ijk) (H i)| := by
     intro i
     exact coeffNorm4_cubic_le_ordered_sum_coeff (hhom i)
   have hnorm_point : vecCoeffNorm4 H ≤
       interiorVecNorm (fun i : Fin N => ∑ ijk : Fin 4 × Fin 4 × Fin 4,
-        |MvPolynomial.coeff (f ijk) (H i)|) := by
+        |legacyMvCoeff (f ijk) (H i)|) := by
     unfold vecCoeffNorm4 interiorVecNorm interiorVecSqNorm
     apply Real.sqrt_le_sqrt
     apply Finset.sum_le_sum
@@ -439,15 +443,15 @@ lemma vecCoeffNorm4_cubic_le_ordered_sum_coeff_vectors {N : ℕ}
     exact hpoint i
   calc
     vecCoeffNorm4 H ≤ interiorVecNorm (fun i : Fin N =>
-        ∑ ijk : Fin 4 × Fin 4 × Fin 4, |MvPolynomial.coeff (f ijk) (H i)|) :=
+        ∑ ijk : Fin 4 × Fin 4 × Fin 4, |legacyMvCoeff (f ijk) (H i)|) :=
       hnorm_point
     _ ≤ ∑ ijk : Fin 4 × Fin 4 × Fin 4, interiorVecNorm
-        (fun i : Fin N => |MvPolynomial.coeff (f ijk) (H i)|) := by
+        (fun i : Fin N => |legacyMvCoeff (f ijk) (H i)|) := by
           simpa using interiorVecNorm_finset_sum_le_sum_norm
             (Finset.univ : Finset (Fin 4 × Fin 4 × Fin 4))
-            (fun ijk i => |MvPolynomial.coeff (f ijk) (H i)|)
+            (fun ijk i => |legacyMvCoeff (f ijk) (H i)|)
     _ = ∑ ijk : Fin 4 × Fin 4 × Fin 4, interiorVecNorm
-        (fun i : Fin N => MvPolynomial.coeff (f ijk) (H i)) := by
+        (fun i : Fin N => legacyMvCoeff (f ijk) (H i)) := by
           apply Finset.sum_congr rfl
           intro ijk _
           exact interiorVecNorm_abs _
@@ -456,7 +460,7 @@ lemma vecCoeffNorm4_quartic_le_ordered_sum_coeff_vectors {N : ℕ}
     (H : Fin N → MvPolynomial (Fin 4) ℝ)
     (hhom : ∀ i, homogeneousPart4 4 (H i) = H i) :
     vecCoeffNorm4 H ≤ ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4, interiorVecNorm
-      (fun i : Fin N => MvPolynomial.coeff
+      (fun i : Fin N => legacyMvCoeff
         (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
           Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1) (H i)) := by
   let f : ((Fin 4 × Fin 4) × Fin 4) × Fin 4 → Fin 4 →₀ ℕ := fun ijkl =>
@@ -464,13 +468,13 @@ lemma vecCoeffNorm4_quartic_le_ordered_sum_coeff_vectors {N : ℕ}
       Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1
   have hpoint : ∀ i : Fin N, coeffNorm4 (H i) ≤
       ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
-        |MvPolynomial.coeff (f ijkl) (H i)| := by
+        |legacyMvCoeff (f ijkl) (H i)| := by
     intro i
     exact coeffNorm4_quartic_le_ordered_sum_coeff (hhom i)
   have hnorm_point : vecCoeffNorm4 H ≤
       interiorVecNorm (fun i : Fin N =>
         ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
-          |MvPolynomial.coeff (f ijkl) (H i)|) := by
+          |legacyMvCoeff (f ijkl) (H i)|) := by
     unfold vecCoeffNorm4 interiorVecNorm interiorVecSqNorm
     apply Real.sqrt_le_sqrt
     apply Finset.sum_le_sum
@@ -482,14 +486,14 @@ lemma vecCoeffNorm4_quartic_le_ordered_sum_coeff_vectors {N : ℕ}
   calc
     vecCoeffNorm4 H ≤ interiorVecNorm (fun i : Fin N =>
         ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
-          |MvPolynomial.coeff (f ijkl) (H i)|) := hnorm_point
+          |legacyMvCoeff (f ijkl) (H i)|) := hnorm_point
     _ ≤ ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4, interiorVecNorm
-        (fun i : Fin N => |MvPolynomial.coeff (f ijkl) (H i)|) := by
+        (fun i : Fin N => |legacyMvCoeff (f ijkl) (H i)|) := by
           simpa using interiorVecNorm_finset_sum_le_sum_norm
             (Finset.univ : Finset (((Fin 4 × Fin 4) × Fin 4) × Fin 4))
-            (fun ijkl i => |MvPolynomial.coeff (f ijkl) (H i)|)
+            (fun ijkl i => |legacyMvCoeff (f ijkl) (H i)|)
     _ = ∑ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4, interiorVecNorm
-        (fun i : Fin N => MvPolynomial.coeff (f ijkl) (H i)) := by
+        (fun i : Fin N => legacyMvCoeff (f ijkl) (H i)) := by
           apply Finset.sum_congr rfl
           intro ijkl _
           exact interiorVecNorm_abs _
@@ -515,7 +519,8 @@ lemma orderedTriple_degree (ijk : Fin 4 × Fin 4 × Fin 4) :
 lemma orderedTriple_sum (ijk : Fin 4 × Fin 4 × Fin 4) :
     (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
       Finsupp.single ijk.2.2 1 : Fin 4 →₀ ℕ).sum (fun _ e => e) = 3 := by
-  simpa [Finsupp.degree_apply] using orderedTriple_degree ijk
+  rw [finsupp_sum_fintype4_linear]
+  simpa only [Finsupp.degree_eq_sum] using orderedTriple_degree ijk
 
 lemma orderedQuad_degree (ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4) :
     (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
@@ -546,7 +551,8 @@ lemma orderedQuad_sum (ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4) :
     (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
       Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1 : Fin 4 →₀ ℕ).sum
       (fun _ e => e) = 4 := by
-  simpa [Finsupp.degree_apply] using orderedQuad_degree ijkl
+  rw [finsupp_sum_fintype4_linear]
+  simpa only [Finsupp.degree_eq_sum] using orderedQuad_degree ijkl
 
 theorem weightedJet_coeff_bound_of_unit_eval_bound
     {N m : ℕ} {C : ℝ}
@@ -557,7 +563,7 @@ theorem weightedJet_coeff_bound_of_unit_eval_bound
     (hunit : ∀ v : Fin 4 → ℝ, localSqNorm v = 1 →
       interiorVecNorm (fun i : Fin N => MvPolynomial.eval v (H i)) ≤ C)
     (α : Fin 4 →₀ ℕ) (hα : α.sum (fun _ e => e) = m) :
-    interiorVecNorm (fun i : Fin N => MvPolynomial.coeff α (H i)) ≤
+    interiorVecNorm (fun i : Fin N => legacyMvCoeff α (H i)) ≤
       (500 : ℝ) ^ (2 * weightedDegree4 α) * (2 ^ m * C) := by
   let P : Fin N → Polynomial ℝ := fun i => weightedRestriction4 (H i)
   let M : ℝ := 2 ^ m * C
@@ -586,12 +592,12 @@ theorem weightedJet_coeff_bound_of_unit_eval_bound
     (k := 500) (ell := weightedDegree4 α) P hM_nonneg hdegP hbound
   have hderiv : (fun i : Fin N => ((Polynomial.derivative^[weightedDegree4 α]) (P i)).eval 0) =
       fun i : Fin N => (Nat.factorial (weightedDegree4 α) : ℝ) *
-        MvPolynomial.coeff α (H i) := by
+        legacyMvCoeff α (H i) := by
     funext i
     dsimp [P]
     rw [polynomial_iterate_derivative_eval_zero]
     rw [coeff_weightedRestriction4_eq_coeff hmle (hhom i) α hα]
-  let V : Fin N → ℝ := fun i => MvPolynomial.coeff α (H i)
+  let V : Fin N → ℝ := fun i => legacyMvCoeff α (H i)
   have hfact_nonneg : 0 ≤ (Nat.factorial (weightedDegree4 α) : ℝ) := by positivity
   have hscale : interiorVecNorm
       (fun i : Fin N => (Nat.factorial (weightedDegree4 α) : ℝ) * V i) =
@@ -617,7 +623,7 @@ theorem weightedJet_ordered_cubic_coeff_bound_of_unit_eval_bound
     (hunit : ∀ v : Fin 4 → ℝ, localSqNorm v = 1 →
       interiorVecNorm (fun i : Fin N => MvPolynomial.eval v (H i)) ≤ C) :
     ∀ ijk : Fin 4 × Fin 4 × Fin 4,
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff
         (Finsupp.single ijk.1 1 + Finsupp.single ijk.2.1 1 +
           Finsupp.single ijk.2.2 1) (H i)) ≤
         (500 : ℝ) ^ (2 * weightedDegree4
@@ -639,7 +645,7 @@ theorem weightedJet_ordered_quartic_coeff_bound_of_unit_eval_bound
     (hunit : ∀ v : Fin 4 → ℝ, localSqNorm v = 1 →
       interiorVecNorm (fun i : Fin N => MvPolynomial.eval v (H i)) ≤ C) :
     ∀ ijkl : ((Fin 4 × Fin 4) × Fin 4) × Fin 4,
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff
         (Finsupp.single ijkl.1.1.1 1 + Finsupp.single ijkl.1.1.2 1 +
           Finsupp.single ijkl.1.2 1 + Finsupp.single ijkl.2 1) (H i)) ≤
         (500 : ℝ) ^ (2 * weightedDegree4

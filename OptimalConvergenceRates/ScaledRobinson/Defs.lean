@@ -7,7 +7,7 @@
 import OptimalConvergenceRates.BasicNotions.SOS
 import OptimalConvergenceRates.ExamplePolynomials.Robinson
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 
 open MvPolynomial Finset
 

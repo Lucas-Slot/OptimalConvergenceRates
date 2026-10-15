@@ -36,8 +36,8 @@ theorem exists_matrix_diagonalization {n : ℕ} (M : Matrix (Fin n) (Fin n) F)
     ∃ (diagonal : Fin (Module.finrank F (Fin n → F)) → F)
       (e : (Fin n → F) ≃ₗ[F]
         (Fin (Module.finrank F (Fin n → F)) → F)),
-      ∀ x, weightedSumSquares F diagonal (e x) = M.toQuadraticMap' x :=
-  exists_quadraticForm_diagonalization M.toQuadraticMap'
+      ∀ x, weightedSumSquares F diagonal (e x) = M.toQuadraticForm' x :=
+  exists_quadraticForm_diagonalization M.toQuadraticForm'
 
 /-- Evaluation of a diagonal quadratic form as an ordinary finite sum. -/
 theorem weightedSumSquares_eq_sum {n : ℕ} (diagonal x : Fin n → F) :

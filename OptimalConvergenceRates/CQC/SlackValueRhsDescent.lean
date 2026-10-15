@@ -36,7 +36,7 @@ theorem slackJacobian_mulVec_slackW_apply
             (MvPolynomial.pderiv (Fin.natAdd n i)
               (slackValueDeterminant g))) := by
     rw [Finset.sum_eq_single i]
-    · simp only [if_pos, slackW_slack_eq, neg_mul]
+    · simp only [ite_eq_left, slackW_slack_eq, neg_mul]
       have htwo : (2 : MvPolynomial (Fin (n + m)) ℝ) =
           MvPolynomial.C 2 :=
         (map_natCast

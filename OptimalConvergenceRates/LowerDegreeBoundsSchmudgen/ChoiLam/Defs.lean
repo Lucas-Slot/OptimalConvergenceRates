@@ -6,7 +6,7 @@
 import OptimalConvergenceRates.BasicNotions.SumsOfSquares
 import OptimalConvergenceRates.BasicNotions.SOSVector
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 
 open MvPolynomial Finset
 

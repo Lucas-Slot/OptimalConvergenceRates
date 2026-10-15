@@ -421,7 +421,7 @@ theorem bounded_errorExpansionTerm_le_errorBoundTerm_at
           ∏ i ∈ I \ K, coeffL1Norm (pkg.substP (a i) ^ 2) :=
         coeffL1Norm_prod_le _ _
       _ ≤ ∏ _i ∈ I \ K, Kfactor := by
-        exact Finset.prod_le_prod
+        exact Finset.prod_le_prod₀
           (fun _ _ => coeffL1Norm_nonneg _)
           (fun i hi => substP_sq_coeffL1Norm_le_conversionFactor
             pkg B' (a i) hG (haNorm i))
@@ -438,7 +438,7 @@ theorem bounded_errorExpansionTerm_le_errorBoundTerm_at
           ∏ i ∈ Iᶜ, coeffL1Norm (pkg.substV (a i) ^ 2) :=
         coeffL1Norm_prod_le _ _
       _ ≤ ∏ _i ∈ Iᶜ, Kfactor := by
-        exact Finset.prod_le_prod
+        exact Finset.prod_le_prod₀
           (fun _ _ => coeffL1Norm_nonneg _)
           (fun i hi => substV_sq_coeffL1Norm_le_conversionFactor
             pkg B' (a i) hG (haNorm i))
@@ -558,7 +558,7 @@ theorem coeffL1Norm_finset_prod_le_common_pow
         ∏ i ∈ S, coeffL1Norm (q i) :=
       coeffL1Norm_prod_le S q
     _ ≤ ∏ _i ∈ S, K := by
-      exact Finset.prod_le_prod
+      exact Finset.prod_le_prod₀
         (fun _ _ => coeffL1Norm_nonneg _)
         hq
     _ = K ^ S.card := by simp

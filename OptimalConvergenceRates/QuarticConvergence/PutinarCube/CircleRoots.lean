@@ -192,10 +192,11 @@ theorem FiniteControlledRootData.productCircle_square_approximation
     |MvPolynomial.eval (fun i ↦ z (i, false)) h -
         ∑ i, (MvPolynomial.eval z (data.productCirclePolynomial i)) ^ 2| ≤
       C / (k : ℝ) ^ 4 := by
-  simpa [FiniteControlledRootData.productCirclePolynomial,
-    FiniteFilteredRootScaleData.productCirclePolynomial] using
-    FiniteFilteredRootScaleData.productCircle_square_approximation
-      hn data.toFilteredRootScaleData hz
+  change |MvPolynomial.eval (fun i ↦ z (i, false)) h -
+      ∑ i, (MvPolynomial.eval z (productCircleSubstitution n
+        (data.filter.polynomial i))) ^ 2| ≤ C / (k : ℝ) ^ 4
+  exact FiniteFilteredRootScaleData.productCircle_square_approximation
+    hn data.toFilteredRootScaleData hz
 
 /-- The infinitesimal rotation in the `i`-th paired circle variables. -/
 def circleRotationDeriv {n : ℕ} (i : Fin n)
@@ -315,7 +316,7 @@ theorem hasDerivAt_eval_cosineSineCirclePoint_replaceAngle
       simpa [circleRotationDeriv] using
         (hasDerivAt_const (x := theta i) c)
   | add p q hp hq =>
-      simpa [circleRotationDeriv_add] using hp.add hq
+      simpa [circleRotationDeriv_add] using! hp.add hq
   | mul_X p ib hp =>
       obtain ⟨j, b⟩ := ib
       have hcoordinate : HasDerivAt
@@ -334,7 +335,7 @@ theorem hasDerivAt_eval_cosineSineCirclePoint_replaceAngle
             Real.hasDerivAt_sin (theta i)
         · simpa [cosineSineCirclePoint, replaceAngle, circleRotationDeriv, hji] using
             (hasDerivAt_const (x := theta i) (Real.sin (theta j)))
-      simpa [circleRotationDeriv_mul] using hp.mul hcoordinate
+      simpa [circleRotationDeriv_mul] using! hp.mul hcoordinate
 
 /-- Restricting an ambient polynomial and differentiating in one angle gives
 exactly its ambient block-rotation derivative at the scaled sphere point. -/

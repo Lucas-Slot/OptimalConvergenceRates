@@ -58,9 +58,9 @@ theorem guardedPivotMatrix_valid {n k : ℕ} {F : Type*} [Field F]
     (hM : GuardedMatrixValid coeff x M) :
     GuardedMatrixValid coeff x (guardedPivotMatrix p M) := by
   by_cases hp : p.1 = p.2
-  · simp only [guardedPivotMatrix, dif_pos hp]
+  · simp only [guardedPivotMatrix, dite_eq_left hp]
     exact guardedMatrixReindex_valid coeff x _ (symmetrizeGuardedMatrix_valid coeff x hM)
-  · simp only [guardedPivotMatrix, dif_neg hp]
+  · simp only [guardedPivotMatrix, dite_eq_right hp]
     exact guardedMatrixReindex_valid coeff x _
       (guardedTransvectionCongruence_valid coeff x p.2 p.1 hM)
 
@@ -69,10 +69,10 @@ theorem guardedPivotMatrix_isSymm {n k : ℕ}
     (M : Matrix (Fin (k + 1)) (Fin (k + 1)) (GuardedRational n)) :
     (guardedPivotMatrix p M).IsSymm := by
   by_cases hp : p.1 = p.2
-  · simp only [guardedPivotMatrix, dif_pos hp]
+  · simp only [guardedPivotMatrix, dite_eq_left hp]
     exact guardedMatrixReindex_isSymm _
       (symmetrizeGuardedMatrix_isSymm M)
-  · simp only [guardedPivotMatrix, dif_neg hp]
+  · simp only [guardedPivotMatrix, dite_eq_right hp]
     exact guardedMatrixReindex_isSymm _
       (guardedTransvectionCongruence_isSymm p.2 p.1 M)
 
@@ -92,9 +92,9 @@ theorem eval_guardedPivotMatrix {n k : ℕ} {F : Type*} [Field F]
             evalGuardedMatrix coeff x M *
               Matrix.transvection p.2 p.1 (1 : F)) := by
   by_cases hp : p.1 = p.2
-  · simp only [guardedPivotMatrix, dif_pos hp, eval_guardedMatrixReindex]
+  · simp only [guardedPivotMatrix, dite_eq_left hp, eval_guardedMatrixReindex]
     rw [eval_symmetrizeGuardedMatrix coeff x M hsymm]
-  · simp only [guardedPivotMatrix, dif_neg hp,
+  · simp only [guardedPivotMatrix, dite_eq_right hp,
       eval_guardedMatrixReindex]
     rw [eval_guardedTransvectionCongruence coeff x p.2 p.1 hM hsymm]
 
@@ -109,9 +109,9 @@ theorem matrixSignature_eval_guardedPivotMatrix {n k : ℕ}
       matrixSignature (evalGuardedMatrix coeff x M) := by
   rw [eval_guardedPivotMatrix coeff x p hM hsymm]
   by_cases hp : p.1 = p.2
-  · rw [dif_pos hp]
+  · rw [dite_eq_left hp]
     exact matrixSignature_reindex _ _
-  · rw [dif_neg hp]
+  · rw [dite_eq_right hp]
     rw [matrixSignature_reindex]
     exact matrixSignature_transvection_congruence _ p.2 p.1 (Ne.symm hp)
 
@@ -143,7 +143,7 @@ theorem eval_guardedPivotMatrix_zero_zero {n k : ℕ}
   rw [eval_guardedPivotMatrix coeff x p hM hsymm]
   by_cases hp : p.1 = p.2
   · simp [hp, Matrix.reindex_apply, Equiv.swap_apply_left]
-  · rw [dif_neg hp, if_neg hp]
+  · rw [dite_eq_right hp, ite_eq_right hp]
     simp only [Matrix.reindex_apply, Matrix.submatrix_apply, Equiv.symm_swap,
       Equiv.swap_apply_left]
     have htranspose :
@@ -188,7 +188,7 @@ theorem exists_guardedPivotMatrix_eval_zero_zero_ne_zero
       exact hdiag ⟨i, hi⟩
     have hentry : ∃ i j : Fin (k + 1), A i j ≠ 0 := by
       by_contra h
-      push_neg at h
+      push Not at h
       apply hne
       ext i j
       exact h i j
@@ -199,7 +199,7 @@ theorem exists_guardedPivotMatrix_eval_zero_zero_ne_zero
       exact hij_entry (hdiag_zero i)
     refine ⟨(i, j), ?_⟩
     rw [eval_guardedPivotMatrix_zero_zero coeff x (i, j) hvalid hsymm,
-      if_neg hij]
+      ite_eq_right hij]
     change A i i + A i j + A j i + A j j ≠ 0
     have hsymmA : A j i = A i j := hsymm.apply i j
     rw [hdiag_zero i, hdiag_zero j, hsymmA]

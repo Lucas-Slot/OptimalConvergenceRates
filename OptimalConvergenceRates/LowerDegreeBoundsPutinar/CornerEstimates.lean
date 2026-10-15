@@ -134,7 +134,7 @@ private theorem aeval_natDegree_le_totalDegree
   apply Polynomial.natDegree_sum_le_of_forall_le
   intro v hv
   rw [MvPolynomial.aeval_monomial, Polynomial.algebraMap_eq]
-  calc (Polynomial.C (MvPolynomial.coeff v p) * Finsupp.prod v fun i k => g i ^ k).natDegree
+  calc (Polynomial.C (legacyMvCoeff v p) * Finsupp.prod v fun i k => g i ^ k).natDegree
       ≤ (Finsupp.prod v fun i k => g i ^ k).natDegree :=
         Polynomial.natDegree_C_mul_le _ _
     _ ≤ ∑ i ∈ v.support, (g i ^ v i).natDegree :=
@@ -245,12 +245,12 @@ private theorem f_eps_totalDegree_ge_four (ε : ℝ) : 4 ≤ (f_eps ε).totalDeg
   rw [← hs_sum]
   apply MvPolynomial.le_totalDegree
   rw [MvPolynomial.mem_support_iff]
-  have hcoeff : MvPolynomial.coeff s (f_eps ε) = 1 := by
+  have hcoeff : legacyMvCoeff s (f_eps ε) = 1 := by
     unfold f_eps
     rw [show (1 - (X 0 : MvPolynomial (Fin 2) ℝ) ^ 2) * (1 - (X 1) ^ 2) + C ε =
         1 - (X 0)^2 - (X 1)^2 + (X 0)^2 * (X 1)^2 + C ε by ring]
     simp [s, s0, s1, hzero_ne_s, MvPolynomial.X_pow_eq_monomial,
-      MvPolynomial.monomial_mul, MvPolynomial.coeff_add, MvPolynomial.coeff_sub,
+      MvPolynomial.monomial_mul_monomial, AddMonoidAlgebra.coeff_add, Finsupp.add_apply, MvPolynomial.coeff_sub,
       MvPolynomial.coeff_monomial, MvPolynomial.coeff_C, MvPolynomial.coeff_one]
   rw [hcoeff]
   norm_num
@@ -303,7 +303,7 @@ private theorem vector_markov_increment_from_sup
         unfold vecDot
         change ((Finset.univ : Finset (Fin N)).sum (fun i => Polynomial.C (e i) * H i)).eval x =
           ∑ i : Fin N, e i * (H i).eval x
-        rw [Polynomial.eval_finset_sum]
+        rw [Polynomial.eval_finsetSum]
         simp only [Polynomial.eval_mul, Polynomial.eval_C]
       rw [hdot]
       exact (abs_vecDot_unit_le hD_zero (fun i => (H i).eval x)).trans (hsup x hx1 hx2)
@@ -316,7 +316,7 @@ private theorem vector_markov_increment_from_sup
                 (fun i => Polynomial.C (e i) * H i)).eval (1 + a) -
             ((Finset.univ : Finset (Fin N)).sum (fun i => Polynomial.C (e i) * H i)).eval 1 =
           ∑ i : Fin N, e i * ((H i).eval (1 + a) - (H i).eval 1)
-        rw [Polynomial.eval_finset_sum, Polynomial.eval_finset_sum, ← Finset.sum_sub_distrib]
+        rw [Polynomial.eval_finsetSum, Polynomial.eval_finsetSum, ← Finset.sum_sub_distrib]
         simp only [Polynomial.eval_mul, Polynomial.eval_C]
         congr 1
         ext i

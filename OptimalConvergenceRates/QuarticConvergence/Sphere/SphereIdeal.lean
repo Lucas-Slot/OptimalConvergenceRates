@@ -120,7 +120,7 @@ theorem sphere_vanishing_dvd_relation (m : ℕ)
     have hsphere_pos :
         Fin.cons t y ∈ SphereBallTransfers.sphereSet (m + 1) := by
       simp only [SphereBallTransfers.sphereSet,
-        SphereBallTransfers.sphereQuadratic, Set.mem_setOf_eq, map_sum,
+        SphereBallTransfers.sphereQuadratic, Set.mem_ofPred_eq, map_sum,
         map_pow, eval_X]
       rw [Fin.sum_univ_succ]
       change t ^ 2 + ∑ i, y i ^ 2 = 1
@@ -128,7 +128,7 @@ theorem sphere_vanishing_dvd_relation (m : ℕ)
     have hsphere_neg :
         Fin.cons (-t) y ∈ SphereBallTransfers.sphereSet (m + 1) := by
       simp only [SphereBallTransfers.sphereSet,
-        SphereBallTransfers.sphereQuadratic, Set.mem_setOf_eq, map_sum,
+        SphereBallTransfers.sphereQuadratic, Set.mem_ofPred_eq, map_sum,
         map_pow, eval_X]
       rw [Fin.sum_univ_succ]
       change (-t) ^ 2 + ∑ i, y i ^ 2 = 1
@@ -157,7 +157,7 @@ theorem sphere_vanishing_dvd_relation (m : ℕ)
       rw [← finSuccEquiv_sphereRelation,
         ← MvPolynomial.eval_eq_eval_mv_eval']
       exact SphereBallTransfers.eval_sphereRelation_of_mem hsphere_neg
-    have hdivision := Polynomial.modByMonic_add_div P hmonic
+    have hdivision := Polynomial.modByMonic_add_div P rel
     have hrempos :
         Polynomial.eval t (Polynomial.map (MvPolynomial.eval y) rem) = 0 := by
       have h := congrArg
@@ -198,7 +198,7 @@ theorem sphere_vanishing_dvd_relation (m : ℕ)
     calc
       rel * (P /ₘ rel) = 0 + rel * (P /ₘ rel) := by rw [zero_add]
       _ = rem + rel * (P /ₘ rel) := by rw [hremzero]
-      _ = P := Polynomial.modByMonic_add_div P hmonic
+      _ = P := Polynomial.modByMonic_add_div P rel
   let a := (MvPolynomial.finSuccEquiv ℝ m).symm (P /ₘ rel)
   refine ⟨a, ?_⟩
   apply (MvPolynomial.finSuccEquiv ℝ m).injective

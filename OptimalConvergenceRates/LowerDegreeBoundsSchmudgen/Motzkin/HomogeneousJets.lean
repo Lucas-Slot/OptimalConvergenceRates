@@ -59,7 +59,7 @@ This keeps exactly the monomials whose exponent sum is `m`. -/
 def homogeneousPart3 (m : ℕ) (p : MvPolynomial (Fin 3) ℝ) :
     MvPolynomial (Fin 3) ℝ :=
   ∑ α ∈ p.support.filter (fun α => (α.sum fun _ e => e) = m),
-    MvPolynomial.monomial α (MvPolynomial.coeff α p)
+    MvPolynomial.monomial α (legacyMvCoeff α p)
 
 /-- Degree-`m` homogeneous part of each component of a polynomial vector. -/
 def homogeneousPartVec3 {N : ℕ} (m : ℕ)
@@ -103,22 +103,23 @@ lemma homogeneousPart3_eq_homogeneousComponent (m : ℕ) (p : MvPolynomial (Fin 
     homogeneousPart3 m p = MvPolynomial.homogeneousComponent m p := by
   simp [homogeneousPart3, MvPolynomial.homogeneousComponent_apply, Finsupp.degree_apply,
     Finsupp.sum]
+  rfl
 
 lemma motzkinCoeffNorm_homogeneousPart3_zero (p : MvPolynomial (Fin 3) ℝ) :
     motzkinCoeffNorm (homogeneousPart3 0 p) = |MvPolynomial.eval 0 p| := by
   rw [MvPolynomial.eval_zero]
-  rw [congrFun MvPolynomial.constantCoeff_eq p]
+  rw [MvPolynomial.constantCoeff_eq p]
   rw [homogeneousPart3_eq_homogeneousComponent, MvPolynomial.homogeneousComponent_zero]
-  by_cases h : MvPolynomial.coeff 0 p = 0
+  by_cases h : legacyMvCoeff 0 p = 0
   · simp [motzkinCoeffNorm, h]
   · unfold motzkinCoeffNorm
     rw [MvPolynomial.support_C]
-    rw [if_neg h]
+    rw [ite_eq_right h]
     simp [MvPolynomial.coeff_C]
 
 lemma coeff_homogeneousPart3 (m : ℕ) (p : MvPolynomial (Fin 3) ℝ) (α : Fin 3 →₀ ℕ) :
-    MvPolynomial.coeff α (homogeneousPart3 m p) =
-      if α.sum (fun _ e => e) = m then MvPolynomial.coeff α p else 0 := by
+    legacyMvCoeff α (homogeneousPart3 m p) =
+      if α.sum (fun _ e => e) = m then legacyMvCoeff α p else 0 := by
   unfold homogeneousPart3
   rw [MvPolynomial.coeff_sum]
   by_cases hα : α ∈ p.support.filter (fun α => α.sum (fun _ e => e) = m)
@@ -130,7 +131,7 @@ lemma coeff_homogeneousPart3 (m : ℕ) (p : MvPolynomial (Fin 3) ℝ) (α : Fin 
       simp [hβα]
     · intro hnot
       exact (hnot hα).elim
-  · have hif : ¬ α.sum (fun _ e => e) = m ∨ MvPolynomial.coeff α p = 0 := by
+  · have hif : ¬ α.sum (fun _ e => e) = m ∨ legacyMvCoeff α p = 0 := by
       by_cases hdeg : α.sum (fun _ e => e) = m
       · right
         by_contra hcoeff
@@ -159,10 +160,10 @@ theorem motzkinCoeffNorm_homogeneousPart3_le (m : ℕ) (p : MvPolynomial (Fin 3)
     · simpa [hdeg] using hα
     · simp [hdeg] at hα
   calc
-    ∑ α ∈ (homogeneousPart3 m p).support, |MvPolynomial.coeff α (homogeneousPart3 m p)|
-        ≤ ∑ α ∈ p.support, |MvPolynomial.coeff α (homogeneousPart3 m p)| := by
+    ∑ α ∈ (homogeneousPart3 m p).support, |legacyMvCoeff α (homogeneousPart3 m p)|
+        ≤ ∑ α ∈ p.support, |legacyMvCoeff α (homogeneousPart3 m p)| := by
           exact Finset.sum_le_sum_of_subset_of_nonneg hsupp (fun _ _ _ => abs_nonneg _)
-    _ ≤ ∑ α ∈ p.support, |MvPolynomial.coeff α p| := by
+    _ ≤ ∑ α ∈ p.support, |legacyMvCoeff α p| := by
       apply Finset.sum_le_sum
       intro α _hα
       rw [coeff_homogeneousPart3]
@@ -175,13 +176,13 @@ lemma homogeneousPart3_idem (m : ℕ) (p : MvPolynomial (Fin 3) ℝ) :
   ext α
   rw [coeff_homogeneousPart3]
   by_cases h : α.sum (fun _ e => e) = m
-  · rw [if_pos h, coeff_homogeneousPart3, if_pos h]
-  · rw [if_neg h, coeff_homogeneousPart3, if_neg h]
+  · rw [ite_eq_left h, coeff_homogeneousPart3, ite_eq_left h]
+  · rw [ite_eq_right h, coeff_homogeneousPart3, ite_eq_right h]
 
 lemma homogeneousPart3_add (m : ℕ) (p q : MvPolynomial (Fin 3) ℝ) :
     homogeneousPart3 m (p + q) = homogeneousPart3 m p + homogeneousPart3 m q := by
   ext α
-  simp [coeff_homogeneousPart3, MvPolynomial.coeff_add]
+  simp [coeff_homogeneousPart3, AddMonoidAlgebra.coeff_add]
   split_ifs <;> ring
 
 lemma homogeneousPart3_sum {ι : Type*} (m : ℕ) (s : Finset ι)
@@ -244,7 +245,7 @@ lemma homogeneousPart3_one_mul (p q : MvPolynomial (Fin 3) ℝ) :
   ext α
   rw [coeff_homogeneousPart3]
   by_cases hα : α.sum (fun _ e => e) = 1
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     symm
     rw [← Finset.sum_add_distrib]
@@ -264,7 +265,7 @@ lemma homogeneousPart3_one_mul (p q : MvPolynomial (Fin 3) ℝ) :
       simp [h2]
     · have h2 : x.2.sum (fun _ e => e) = 0 := by omega
       simp [h2]
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     rw [← Finset.sum_add_distrib]
     symm
@@ -302,7 +303,7 @@ lemma homogeneousPart3_two_mul (p q : MvPolynomial (Fin 3) ℝ) :
   ext α
   rw [coeff_homogeneousPart3]
   by_cases hα : α.sum (fun _ e => e) = 2
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     symm
     rw [← Finset.sum_add_distrib]
@@ -325,7 +326,7 @@ lemma homogeneousPart3_two_mul (p q : MvPolynomial (Fin 3) ℝ) :
       simp [h2]
     · have h2 : x.2.sum (fun _ e => e) = 0 := by omega
       simp [h2]
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     rw [← Finset.sum_add_distrib]
     rw [← Finset.sum_add_distrib]
@@ -369,7 +370,7 @@ lemma homogeneousPart3_three_mul (p q : MvPolynomial (Fin 3) ℝ) :
   ext α
   rw [coeff_homogeneousPart3]
   by_cases hα : α.sum (fun _ e => e) = 3
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     symm
     rw [← Finset.sum_add_distrib]
@@ -395,7 +396,7 @@ lemma homogeneousPart3_three_mul (p q : MvPolynomial (Fin 3) ℝ) :
       simp [h2]
     · have h2 : x.2.sum (fun _ e => e) = 0 := by omega
       simp [h2]
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     rw [← Finset.sum_add_distrib]
     rw [← Finset.sum_add_distrib]
@@ -446,7 +447,7 @@ lemma homogeneousPart3_four_mul (p q : MvPolynomial (Fin 3) ℝ) :
   ext α
   rw [coeff_homogeneousPart3]
   by_cases hα : α.sum (fun _ e => e) = 4
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     symm
     rw [← Finset.sum_add_distrib]
@@ -475,7 +476,7 @@ lemma homogeneousPart3_four_mul (p q : MvPolynomial (Fin 3) ℝ) :
       simp [h2]
     · have h2 : x.2.sum (fun _ e => e) = 0 := by omega
       simp [h2]
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     rw [← Finset.sum_add_distrib]
     rw [← Finset.sum_add_distrib]
@@ -862,14 +863,14 @@ lemma isHomogeneous_eval_smul {m : ℕ} {p : MvPolynomial (Fin 3) ℝ}
   have hdeg : Finsupp.degree d = m := by
     simpa [Finsupp.degree_eq_weight_one] using hdeg_weight
   calc
-    MvPolynomial.coeff d p * ∏ i ∈ d.support, (c * x i) ^ d i
-        = MvPolynomial.coeff d p * (c ^ m * ∏ i ∈ d.support, x i ^ d i) := by
+    legacyMvCoeff d p * ∏ i ∈ d.support, (c * x i) ^ d i
+        = legacyMvCoeff d p * (c ^ m * ∏ i ∈ d.support, x i ^ d i) := by
           rw [← hdeg]
           simp_rw [mul_pow]
           rw [Finset.prod_mul_distrib]
           simp_rw [Finset.prod_pow_eq_pow_sum]
           simp [Finsupp.degree_apply]
-    _ = c ^ m * (MvPolynomial.coeff d p * ∏ i ∈ d.support, x i ^ d i) := by
+    _ = c ^ m * (legacyMvCoeff d p * ∏ i ∈ d.support, x i ^ d i) := by
       ring
 
 lemma abs_eval_le_motzkinCoeffNorm_of_motzkinSqNorm_eq_one (p : MvPolynomial (Fin 3) ℝ)
@@ -877,26 +878,29 @@ lemma abs_eval_le_motzkinCoeffNorm_of_motzkinSqNorm_eq_one (p : MvPolynomial (Fi
     |MvPolynomial.eval x p| ≤ motzkinCoeffNorm p := by
   rw [MvPolynomial.eval_eq]
   calc
-    |∑ d ∈ p.support, MvPolynomial.coeff d p * ∏ i ∈ d.support, x i ^ d i|
+    |∑ d ∈ p.support, legacyMvCoeff d p * ∏ i ∈ d.support, x i ^ d i|
         ≤ ∑ d ∈ p.support,
-            |MvPolynomial.coeff d p * ∏ i ∈ d.support, x i ^ d i| :=
+            |legacyMvCoeff d p * ∏ i ∈ d.support, x i ^ d i| :=
           Finset.abs_sum_le_sum_abs _ _
-    _ ≤ ∑ d ∈ p.support, |MvPolynomial.coeff d p| := by
+    _ ≤ ∑ d ∈ p.support, |legacyMvCoeff d p| := by
       apply Finset.sum_le_sum
       intro d _hd
       rw [abs_mul]
       have hprod_le : |∏ i ∈ d.support, x i ^ d i| ≤ 1 := by
         rw [Finset.abs_prod]
-        apply Finset.prod_le_one
-        · intro i _hi
-          exact abs_nonneg _
-        · intro i _hi
-          rw [abs_pow]
-          have hxi : |x i| ≤ 1 := by
-            rw [← sq_le_one_iff_abs_le_one]
-            have hsq := sq_coord_le_motzkinSqNorm x i
-            simpa [hx] using hsq
-          exact pow_le_one₀ (abs_nonneg _) hxi
+        calc
+          ∏ i ∈ d.support, |x i ^ d i| ≤ ∏ _i ∈ d.support, 1 := by
+            apply Finset.prod_le_prod₀
+            · intro i _hi
+              exact abs_nonneg _
+            · intro i _hi
+              rw [abs_pow]
+              have hxi : |x i| ≤ 1 := by
+                rw [← sq_le_one_iff_abs_le_one]
+                have hsq := sq_coord_le_motzkinSqNorm x i
+                simpa [hx] using hsq
+              exact pow_le_one₀ (abs_nonneg _) hxi
+          _ = 1 := by simp
       exact mul_le_of_le_one_right (abs_nonneg _) hprod_le
     _ = motzkinCoeffNorm p := rfl
 
@@ -997,7 +1001,7 @@ private lemma single_one_injective :
 
 private lemma motzkinCoeffNorm_linear_le_sum_coeff {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 1 p = p) :
-    motzkinCoeffNorm p ≤ ∑ j : Fin 3, |MvPolynomial.coeff (Finsupp.single j 1) p| := by
+    motzkinCoeffNorm p ≤ ∑ j : Fin 3, |legacyMvCoeff (Finsupp.single j 1) p| := by
   unfold motzkinCoeffNorm
   have hsubset : p.support ⊆ (Finset.univ.image fun j : Fin 3 => Finsupp.single j 1) := by
     intro a ha
@@ -1005,25 +1009,26 @@ private lemma motzkinCoeffNorm_linear_le_sum_coeff {p : MvPolynomial (Fin 3) ℝ
     have hweight := hhom (MvPolynomial.mem_support_iff.mp ha)
     have hsum : a.sum (fun _ e => e) = 1 := by
       have hdeg : Finsupp.degree a = 1 := by
-        simpa [Finsupp.degree_eq_weight_one] using hweight
-      simpa [Finsupp.degree_apply] using hdeg
+        rw [Finsupp.degree_eq_weight_one]
+        convert hweight using 1 <;> simp
+      simpa [Finsupp.degree_apply, Finsupp.sum] using hdeg
     obtain ⟨j, rfl⟩ := finsupp_degree_one_cases hsum
     simp
   calc
-    ∑ α ∈ p.support, |MvPolynomial.coeff α p|
+    ∑ α ∈ p.support, |legacyMvCoeff α p|
         ≤ ∑ α ∈ (Finset.univ.image fun j : Fin 3 => Finsupp.single j 1),
-            |MvPolynomial.coeff α p| := by
+            |legacyMvCoeff α p| := by
           apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
           intro x _hx _hnot
           exact abs_nonneg _
-    _ = ∑ j : Fin 3, |MvPolynomial.coeff (Finsupp.single j 1) p| := by
+    _ = ∑ j : Fin 3, |legacyMvCoeff (Finsupp.single j 1) p| := by
       rw [Finset.sum_image]
       exact fun i _ j _ hij => single_one_injective hij
 
 private lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 1 p = p) :
     p = ∑ j : Fin 3, MvPolynomial.monomial (Finsupp.single j 1)
-      (MvPolynomial.coeff (Finsupp.single j 1) p) := by
+      (legacyMvCoeff (Finsupp.single j 1) p) := by
   ext α
   rw [MvPolynomial.coeff_sum]
   by_cases hα : α ∈ p.support
@@ -1031,8 +1036,9 @@ private lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 3) ℝ}
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hα)
     have hsum : α.sum (fun _ e => e) = 1 := by
       have hdeg : Finsupp.degree α = 1 := by
-        simpa [Finsupp.degree_eq_weight_one] using hweight
-      simpa [Finsupp.degree_apply] using hdeg
+        rw [Finsupp.degree_eq_weight_one]
+        convert hweight using 1 <;> simp
+      simpa [Finsupp.degree_apply, Finsupp.sum] using hdeg
     obtain ⟨j, rfl⟩ := finsupp_degree_one_cases hsum
     rw [Finset.sum_eq_single j]
     · simp [MvPolynomial.coeff_monomial]
@@ -1043,7 +1049,7 @@ private lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 3) ℝ}
       simp [MvPolynomial.coeff_monomial, hne]
     · intro hj
       exact (hj (Finset.mem_univ j)).elim
-  · have hcoeff : MvPolynomial.coeff α p = 0 := by
+  · have hcoeff : legacyMvCoeff α p = 0 := by
       by_contra hc
       exact hα (MvPolynomial.mem_support_iff.mpr hc)
     rw [hcoeff]
@@ -1052,7 +1058,7 @@ private lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 3) ℝ}
     intro j _
     by_cases hαj : Finsupp.single j 1 = α
     · rw [← hαj]
-      have hcoeffj : MvPolynomial.coeff (Finsupp.single j 1) p = 0 := by
+      have hcoeffj : legacyMvCoeff (Finsupp.single j 1) p = 0 := by
         by_contra hc
         exact hα (by simpa [hαj] using MvPolynomial.mem_support_iff.mpr hc)
       simp [hcoeffj]
@@ -1060,18 +1066,18 @@ private lemma linear_eq_sum_monomial {p : MvPolynomial (Fin 3) ℝ}
 
 lemma eval_linear_eq_sum_coeff {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 1 p = p) (x : Fin 3 → ℝ) :
-    MvPolynomial.eval x p = ∑ j : Fin 3, MvPolynomial.coeff (Finsupp.single j 1) p * x j := by
+    MvPolynomial.eval x p = ∑ j : Fin 3, legacyMvCoeff (Finsupp.single j 1) p * x j := by
   calc
     MvPolynomial.eval x p =
         MvPolynomial.eval x (∑ j : Fin 3, MvPolynomial.monomial (Finsupp.single j 1)
-          (MvPolynomial.coeff (Finsupp.single j 1) p)) := by
+          (legacyMvCoeff (Finsupp.single j 1) p)) := by
           exact congrArg (MvPolynomial.eval x) (linear_eq_sum_monomial hp)
-    _ = ∑ j : Fin 3, MvPolynomial.coeff (Finsupp.single j 1) p * x j := by
+    _ = ∑ j : Fin 3, legacyMvCoeff (Finsupp.single j 1) p * x j := by
       simp [MvPolynomial.eval_monomial]
 
 lemma coeff_single_one_eq_eval_unit {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 1 p = p) (j : Fin 3) :
-    MvPolynomial.coeff (Finsupp.single j 1) p = MvPolynomial.eval (unit3 j) p := by
+    legacyMvCoeff (Finsupp.single j 1) p = MvPolynomial.eval (unit3 j) p := by
   have h := eval_linear_eq_sum_coeff hp (unit3 j)
   fin_cases j <;> simp [unit3] at h ⊢ <;> linarith
 
@@ -1191,7 +1197,7 @@ private lemma degree_two_eq_single_of_other_coords_zero (d : Fin 3 →₀ ℕ) (
   · subst k
     rw [Finsupp.single_eq_same]
     have hsum : d.sum (fun _ e => e) = 2 := by
-      simpa [Finsupp.degree_apply] using hd
+      simpa [Finsupp.degree_apply, Finsupp.sum] using hd
     rw [Finsupp.sum_fintype] at hsum
     · fin_cases j <;> simp [hzero, Fin.sum_univ_three] at hsum ⊢ <;> omega
     · intro i
@@ -1224,10 +1230,9 @@ private lemma unit_single_two_support_prod_eq_one (j : Fin 3) :
   rw [Finset.prod_eq_single j]
   · simp [unit3]
   · intro b hb hbj
-    simp [Finsupp.mem_support_iff] at hb
-    simp [Finsupp.single_eq_of_ne hbj] at hb
+    exact (hbj (by simpa using hb)).elim
   · intro hj
-    exact (hj (by simp [Finsupp.mem_support_iff])).elim
+    exact (hj (by simp)).elim
 
 private lemma pair_single_two_support_prod_eq_one (i j : Fin 3) :
     ∏ k ∈ (Finsupp.single i 2 : Fin 3 →₀ ℕ).support,
@@ -1235,10 +1240,9 @@ private lemma pair_single_two_support_prod_eq_one (i j : Fin 3) :
   rw [Finset.prod_eq_single i]
   · simp [pair4]
   · intro b hb hbi
-    simp [Finsupp.mem_support_iff] at hb
-    simp [Finsupp.single_eq_of_ne hbi] at hb
+    exact (hbi (by simpa using hb)).elim
   · intro hi
-    exact (hi (by simp [Finsupp.mem_support_iff])).elim
+    exact (hi (by simp)).elim
 
 private lemma pair_single_two_support_prod_eq_one_right (i j : Fin 3) :
     ∏ k ∈ (Finsupp.single j 2 : Fin 3 →₀ ℕ).support,
@@ -1246,10 +1250,9 @@ private lemma pair_single_two_support_prod_eq_one_right (i j : Fin 3) :
   rw [Finset.prod_eq_single j]
   · simp [pair4]
   · intro b hb hbj
-    simp [Finsupp.mem_support_iff] at hb
-    simp [Finsupp.single_eq_of_ne hbj] at hb
+    exact (hbj (by simpa using hb)).elim
   · intro hj
-    exact (hj (by simp [Finsupp.mem_support_iff])).elim
+    exact (hj (by simp)).elim
 
 private lemma pair_mixed_support_prod_eq_one (i j : Fin 3) :
     ∏ k ∈ (Finsupp.single i 1 + Finsupp.single j 1 : Fin 3 →₀ ℕ).support,
@@ -1306,7 +1309,7 @@ private lemma sum_eq_sum_target_of_zero {α : Type*} {s T : Finset α} {f : α �
 
 lemma eval_unit_quadratic_eq_coeff_single_two {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 2 p = p) (j : Fin 3) :
-    MvPolynomial.eval (unit3 j) p = MvPolynomial.coeff (Finsupp.single j 2) p := by
+    MvPolynomial.eval (unit3 j) p = legacyMvCoeff (Finsupp.single j 2) p := by
   rw [MvPolynomial.eval_eq]
   rw [Finset.sum_eq_single (Finsupp.single j 2)]
   · rw [unit_single_two_support_prod_eq_one]
@@ -1314,32 +1317,36 @@ lemma eval_unit_quadratic_eq_coeff_single_two {p : MvPolynomial (Fin 3) ℝ}
   · intro d hdmem hneq
     have hhom := isHomogeneous_of_homogeneousPart3_eq hp
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hdmem)
-    have hddeg : d.degree = 2 := by simpa [Finsupp.degree_eq_weight_one] using hweight
+    have hddeg : d.degree = 2 := by
+      rw [Finsupp.degree_eq_weight_one]
+      convert hweight using 1 <;> simp
     rw [degree_two_unit_support_prod_eq_zero_of_ne_single d j hddeg hneq]
     ring
   · intro hnot
-    have hcoeff : MvPolynomial.coeff (Finsupp.single j 2) p = 0 := by
+    have hcoeff : legacyMvCoeff (Finsupp.single j 2) p = 0 := by
       exact MvPolynomial.notMem_support_iff.mp hnot
     simp [hcoeff]
 
 lemma eval_pair_quadratic_eq_coeffs {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 2 p = p) {i j : Fin 3} (hij : i ≠ j) :
     MvPolynomial.eval (pair4 i j) p =
-      MvPolynomial.coeff (Finsupp.single i 2) p +
-      MvPolynomial.coeff (Finsupp.single j 2) p +
-      MvPolynomial.coeff (Finsupp.single i 1 + Finsupp.single j 1) p := by
+      legacyMvCoeff (Finsupp.single i 2) p +
+      legacyMvCoeff (Finsupp.single j 2) p +
+      legacyMvCoeff (Finsupp.single i 1 + Finsupp.single j 1) p := by
   let T : Finset (Fin 3 →₀ ℕ) :=
     {Finsupp.single i 2, Finsupp.single j 2, Finsupp.single i 1 + Finsupp.single j 1}
   rw [MvPolynomial.eval_eq]
   have hsum :
       (∑ d ∈ p.support,
-        MvPolynomial.coeff d p * ∏ k ∈ d.support, pair4 i j k ^ d k) =
-      ∑ d ∈ T, MvPolynomial.coeff d p * ∏ k ∈ d.support, pair4 i j k ^ d k := by
+        legacyMvCoeff d p * ∏ k ∈ d.support, pair4 i j k ^ d k) =
+      ∑ d ∈ T, legacyMvCoeff d p * ∏ k ∈ d.support, pair4 i j k ^ d k := by
     apply sum_eq_sum_target_of_zero
     · intro d hdmem hdT
       have hhom := isHomogeneous_of_homogeneousPart3_eq hp
       have hweight := hhom (MvPolynomial.mem_support_iff.mp hdmem)
-      have hddeg : d.degree = 2 := by simpa [Finsupp.degree_eq_weight_one] using hweight
+      have hddeg : d.degree = 2 := by
+        rw [Finsupp.degree_eq_weight_one]
+        convert hweight using 1 <;> simp
       have hne_i : d ≠ Finsupp.single i 2 := by
         intro h; exact hdT (by simp [T, h])
       have hne_j : d ≠ Finsupp.single j 2 := by
@@ -1349,7 +1356,7 @@ lemma eval_pair_quadratic_eq_coeffs {p : MvPolynomial (Fin 3) ℝ}
       rw [degree_two_pair_support_prod_eq_zero_of_ne_terms d i j hddeg hne_i hne_j hne_ij]
       ring
     · intro d hdT hdnot
-      have hcoeff : MvPolynomial.coeff d p = 0 := MvPolynomial.notMem_support_iff.mp hdnot
+      have hcoeff : legacyMvCoeff d p = 0 := MvPolynomial.notMem_support_iff.mp hdnot
       simp [hcoeff]
   rw [hsum]
   dsimp [T]
@@ -1405,7 +1412,7 @@ private lemma finset_sum_image_le_sum_of_nonneg {α β : Type*} [DecidableEq β]
 private lemma motzkinCoeffNorm_quadratic_le_ordered_sum_coeff {p : MvPolynomial (Fin 3) ℝ}
     (hp : homogeneousPart3 2 p = p) :
     motzkinCoeffNorm p ≤ ∑ ij : Fin 3 × Fin 3,
-      |MvPolynomial.coeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) p| := by
+      |legacyMvCoeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) p| := by
   classical
   unfold motzkinCoeffNorm
   let f : Fin 3 × Fin 3 → Fin 3 →₀ ℕ := fun ij =>
@@ -1415,34 +1422,35 @@ private lemma motzkinCoeffNorm_quadratic_le_ordered_sum_coeff {p : MvPolynomial 
     have hhom := isHomogeneous_of_homogeneousPart3_eq hp
     have hweight := hhom (MvPolynomial.mem_support_iff.mp hα)
     have hdeg : Finsupp.degree α = 2 := by
-      simpa [Finsupp.degree_eq_weight_one] using hweight
+      rw [Finsupp.degree_eq_weight_one]
+      convert hweight using 1 <;> simp
     rcases finsupp_degree_two_as_sum_single hdeg with ⟨i, j, rfl⟩
     exact Finset.mem_image.mpr ⟨(i, j), Finset.mem_univ _, rfl⟩
   calc
-    ∑ α ∈ p.support, |MvPolynomial.coeff α p|
-        ≤ ∑ α ∈ Finset.univ.image f, |MvPolynomial.coeff α p| := by
+    ∑ α ∈ p.support, |legacyMvCoeff α p|
+        ≤ ∑ α ∈ Finset.univ.image f, |legacyMvCoeff α p| := by
           apply Finset.sum_le_sum_of_subset_of_nonneg hsubset
           intro x _ _
           exact abs_nonneg _
-    _ ≤ ∑ ij : Fin 3 × Fin 3, |MvPolynomial.coeff (f ij) p| := by
+    _ ≤ ∑ ij : Fin 3 × Fin 3, |legacyMvCoeff (f ij) p| := by
       exact finset_sum_image_le_sum_of_nonneg Finset.univ f
-        (fun α => |MvPolynomial.coeff α p|) (fun _ _ => abs_nonneg _)
+        (fun α => |legacyMvCoeff α p|) (fun _ _ => abs_nonneg _)
 
 lemma motzkinVecCoeffNorm_quadratic_le_ordered_sum_coeff_vectors {N : ℕ}
     (H : Fin N → MvPolynomial (Fin 3) ℝ)
     (hhom : ∀ i, homogeneousPart3 2 (H i) = H i) :
     motzkinVecCoeffNorm H ≤ ∑ ij : Fin 3 × Fin 3, interiorVecNorm
       (fun i : Fin N =>
-        MvPolynomial.coeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) (H i)) := by
+        legacyMvCoeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) (H i)) := by
   let f : Fin 3 × Fin 3 → Fin 3 →₀ ℕ := fun ij =>
     Finsupp.single ij.1 1 + Finsupp.single ij.2 1
   have hpoint : ∀ i : Fin N, motzkinCoeffNorm (H i) ≤
-      ∑ ij : Fin 3 × Fin 3, |MvPolynomial.coeff (f ij) (H i)| := by
+      ∑ ij : Fin 3 × Fin 3, |legacyMvCoeff (f ij) (H i)| := by
     intro i
     exact motzkinCoeffNorm_quadratic_le_ordered_sum_coeff (hhom i)
   have hnorm_point : motzkinVecCoeffNorm H ≤
       interiorVecNorm (fun i : Fin N => ∑ ij : Fin 3 × Fin 3,
-        |MvPolynomial.coeff (f ij) (H i)|) := by
+        |legacyMvCoeff (f ij) (H i)|) := by
     unfold motzkinVecCoeffNorm interiorVecNorm interiorVecSqNorm
     apply Real.sqrt_le_sqrt
     apply Finset.sum_le_sum
@@ -1453,14 +1461,14 @@ lemma motzkinVecCoeffNorm_quadratic_le_ordered_sum_coeff_vectors {N : ℕ}
     exact hpoint i
   calc
     motzkinVecCoeffNorm H ≤ interiorVecNorm (fun i : Fin N => ∑ ij : Fin 3 × Fin 3,
-        |MvPolynomial.coeff (f ij) (H i)|) := hnorm_point
+        |legacyMvCoeff (f ij) (H i)|) := hnorm_point
     _ ≤ ∑ ij : Fin 3 × Fin 3, interiorVecNorm
-        (fun i : Fin N => |MvPolynomial.coeff (f ij) (H i)|) := by
+        (fun i : Fin N => |legacyMvCoeff (f ij) (H i)|) := by
           simpa using interiorVecNorm_finset_sum_le_sum_norm
             (Finset.univ : Finset (Fin 3 × Fin 3))
-            (fun ij i => |MvPolynomial.coeff (f ij) (H i)|)
+            (fun ij i => |legacyMvCoeff (f ij) (H i)|)
     _ = ∑ ij : Fin 3 × Fin 3, interiorVecNorm
-        (fun i : Fin N => MvPolynomial.coeff (f ij) (H i)) := by
+        (fun i : Fin N => legacyMvCoeff (f ij) (H i)) := by
           apply Finset.sum_congr rfl
           intro ij _
           exact interiorVecNorm_abs _
@@ -1470,14 +1478,14 @@ lemma motzkinVecCoeffNorm_linear_le_sum_coeff_vectors {N : ℕ}
     (hhom : ∀ i, homogeneousPart3 1 (H i) = H i) :
     motzkinVecCoeffNorm H ≤
       ∑ j : Fin 3, interiorVecNorm
-        (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 1) (H i)) := by
+        (fun i : Fin N => legacyMvCoeff (Finsupp.single j 1) (H i)) := by
   have hpoint : ∀ i : Fin N, motzkinCoeffNorm (H i) ≤
-      ∑ j : Fin 3, |MvPolynomial.coeff (Finsupp.single j 1) (H i)| := by
+      ∑ j : Fin 3, |legacyMvCoeff (Finsupp.single j 1) (H i)| := by
     intro i
     exact motzkinCoeffNorm_linear_le_sum_coeff (hhom i)
   have hnorm_point : motzkinVecCoeffNorm H ≤
       interiorVecNorm (fun i : Fin N => ∑ j : Fin 3,
-        |MvPolynomial.coeff (Finsupp.single j 1) (H i)|) := by
+        |legacyMvCoeff (Finsupp.single j 1) (H i)|) := by
     unfold motzkinVecCoeffNorm interiorVecNorm interiorVecSqNorm
     apply Real.sqrt_le_sqrt
     apply Finset.sum_le_sum
@@ -1488,14 +1496,14 @@ lemma motzkinVecCoeffNorm_linear_le_sum_coeff_vectors {N : ℕ}
     exact hpoint i
   calc
     motzkinVecCoeffNorm H ≤ interiorVecNorm (fun i : Fin N => ∑ j : Fin 3,
-        |MvPolynomial.coeff (Finsupp.single j 1) (H i)|) := hnorm_point
+        |legacyMvCoeff (Finsupp.single j 1) (H i)|) := hnorm_point
     _ ≤ ∑ j : Fin 3, interiorVecNorm
-        (fun i : Fin N => |MvPolynomial.coeff (Finsupp.single j 1) (H i)|) := by
+        (fun i : Fin N => |legacyMvCoeff (Finsupp.single j 1) (H i)|) := by
           simpa using interiorVecNorm_finset_sum_le_sum_norm
             (Finset.univ : Finset (Fin 3))
-            (fun j i => |MvPolynomial.coeff (Finsupp.single j 1) (H i)|)
+            (fun j i => |legacyMvCoeff (Finsupp.single j 1) (H i)|)
     _ = ∑ j : Fin 3, interiorVecNorm
-        (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 1) (H i)) := by
+        (fun i : Fin N => legacyMvCoeff (Finsupp.single j 1) (H i)) := by
           apply Finset.sum_congr rfl
           intro j _
           exact interiorVecNorm_abs _
@@ -1520,13 +1528,13 @@ theorem coeff_norm_from_spherical_sup_norm_degree_one_uniform
     exact interiorVecNorm_eval_le_motzkinVecCoeffNorm_of_motzkinSqNorm_eq_one H hv
   have hcoeff := motzkinVecCoeffNorm_linear_le_sum_coeff_vectors H hhom
   have hunit_le : ∀ j : Fin 3,
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 1) (H i)) ≤
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff (Finsupp.single j 1) (H i)) ≤
         sSup S := by
     intro j
     have hmem : interiorVecNorm (fun i : Fin N => MvPolynomial.eval (unit3 j) (H i)) ∈ S :=
       ⟨unit3 j, motzkinSqNorm_unit3 j, rfl⟩
     calc
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 1) (H i)) =
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff (Finsupp.single j 1) (H i)) =
           interiorVecNorm (fun i : Fin N => MvPolynomial.eval (unit3 j) (H i)) := by
             congr 1
             funext i
@@ -1535,7 +1543,7 @@ theorem coeff_norm_from_spherical_sup_norm_degree_one_uniform
   calc
     motzkinVecCoeffNorm H ≤
         ∑ j : Fin 3, interiorVecNorm
-          (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 1) (H i)) := hcoeff
+          (fun i : Fin N => legacyMvCoeff (Finsupp.single j 1) (H i)) := hcoeff
     _ ≤ ∑ _j : Fin 3, sSup S := by
       exact Finset.sum_le_sum (fun j _ => hunit_le j)
     _ = 3 * sSup S := by
@@ -1563,13 +1571,13 @@ theorem coeff_norm_from_spherical_sup_norm_degree_two_uniform
     exact (interiorVecNorm_nonneg _).trans (le_csSup hbdd hmem)
   have hcoeff := motzkinVecCoeffNorm_quadratic_le_ordered_sum_coeff_vectors H hhom
   have hdiag_le : ∀ j : Fin 3,
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 2) (H i)) ≤
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff (Finsupp.single j 2) (H i)) ≤
         sSup S := by
     intro j
     have hmem : interiorVecNorm (fun i : Fin N => MvPolynomial.eval (unit3 j) (H i)) ∈ S :=
       ⟨unit3 j, motzkinSqNorm_unit3 j, rfl⟩
     calc
-      interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (Finsupp.single j 2) (H i)) =
+      interiorVecNorm (fun i : Fin N => legacyMvCoeff (Finsupp.single j 2) (H i)) =
           interiorVecNorm (fun i : Fin N => MvPolynomial.eval (unit3 j) (H i)) := by
             congr 1
             funext i
@@ -1617,7 +1625,7 @@ theorem coeff_norm_from_spherical_sup_norm_degree_two_uniform
   have hordered_le : ∀ ij : Fin 3 × Fin 3,
       interiorVecNorm
         (fun i : Fin N =>
-          MvPolynomial.coeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) (H i)) ≤
+          legacyMvCoeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) (H i)) ≤
         4 * sSup S := by
     intro ij
     rcases ij with ⟨a, b⟩
@@ -1625,8 +1633,8 @@ theorem coeff_norm_from_spherical_sup_norm_degree_two_uniform
     · subst b
       calc
         interiorVecNorm
-            (fun i : Fin N => MvPolynomial.coeff (Finsupp.single a 1 + Finsupp.single a 1) (H i)) =
-            interiorVecNorm (fun i : Fin N => MvPolynomial.coeff (Finsupp.single a 2) (H i)) := by
+            (fun i : Fin N => legacyMvCoeff (Finsupp.single a 1 + Finsupp.single a 1) (H i)) =
+            interiorVecNorm (fun i : Fin N => legacyMvCoeff (Finsupp.single a 2) (H i)) := by
               congr 1
               funext i
               rw [single_one_add_self]
@@ -1634,11 +1642,11 @@ theorem coeff_norm_from_spherical_sup_norm_degree_two_uniform
         _ ≤ 4 * sSup S := by nlinarith
     · have hcoeff_eq :
         (fun n : Fin N =>
-          MvPolynomial.coeff (Finsupp.single a 1 + Finsupp.single b 1) (H n)) =
+          legacyMvCoeff (Finsupp.single a 1 + Finsupp.single b 1) (H n)) =
         fun n : Fin N =>
           MvPolynomial.eval (pair4 a b) (H n) -
-            MvPolynomial.coeff (Finsupp.single a 2) (H n) -
-            MvPolynomial.coeff (Finsupp.single b 2) (H n) := by
+            legacyMvCoeff (Finsupp.single a 2) (H n) -
+            legacyMvCoeff (Finsupp.single b 2) (H n) := by
         funext n
         have h := eval_pair_quadratic_eq_coeffs (hhom n) hij
         linarith
@@ -1647,27 +1655,27 @@ theorem coeff_norm_from_spherical_sup_norm_degree_two_uniform
         interiorVecNorm
             (fun n : Fin N =>
               MvPolynomial.eval (pair4 a b) (H n) -
-                MvPolynomial.coeff (Finsupp.single a 2) (H n) -
-                MvPolynomial.coeff (Finsupp.single b 2) (H n)) ≤
+                legacyMvCoeff (Finsupp.single a 2) (H n) -
+                legacyMvCoeff (Finsupp.single b 2) (H n)) ≤
             interiorVecNorm (fun n : Fin N =>
               MvPolynomial.eval (pair4 a b) (H n) -
-                MvPolynomial.coeff (Finsupp.single a 2) (H n)) +
+                legacyMvCoeff (Finsupp.single a 2) (H n)) +
             interiorVecNorm (fun n : Fin N =>
-              MvPolynomial.coeff (Finsupp.single b 2) (H n)) := by
+              legacyMvCoeff (Finsupp.single b 2) (H n)) := by
               simpa [sub_eq_add_neg] using interiorVecNorm_sub_le
                 (fun n : Fin N =>
                   MvPolynomial.eval (pair4 a b) (H n) -
-                    MvPolynomial.coeff (Finsupp.single a 2) (H n))
-                (fun n : Fin N => MvPolynomial.coeff (Finsupp.single b 2) (H n))
+                    legacyMvCoeff (Finsupp.single a 2) (H n))
+                (fun n : Fin N => legacyMvCoeff (Finsupp.single b 2) (H n))
         _ ≤ (interiorVecNorm (fun n : Fin N => MvPolynomial.eval (pair4 a b) (H n)) +
               interiorVecNorm (fun n : Fin N =>
-                MvPolynomial.coeff (Finsupp.single a 2) (H n))) +
+                legacyMvCoeff (Finsupp.single a 2) (H n))) +
             interiorVecNorm (fun n : Fin N =>
-              MvPolynomial.coeff (Finsupp.single b 2) (H n)) := by
+              legacyMvCoeff (Finsupp.single b 2) (H n)) := by
               gcongr
               simpa [sub_eq_add_neg] using interiorVecNorm_sub_le
                 (fun n : Fin N => MvPolynomial.eval (pair4 a b) (H n))
-                (fun n : Fin N => MvPolynomial.coeff (Finsupp.single a 2) (H n))
+                (fun n : Fin N => legacyMvCoeff (Finsupp.single a 2) (H n))
         _ ≤ 4 * sSup S := by
               have hp := hpair_eval_le a b hij
               have hdi := hdiag_le a
@@ -1676,7 +1684,7 @@ theorem coeff_norm_from_spherical_sup_norm_degree_two_uniform
   calc
     motzkinVecCoeffNorm H ≤ ∑ ij : Fin 3 × Fin 3, interiorVecNorm
         (fun i : Fin N =>
-          MvPolynomial.coeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) (H i)) :=
+          legacyMvCoeff (Finsupp.single ij.1 1 + Finsupp.single ij.2 1) (H i)) :=
       hcoeff
     _ ≤ ∑ _ij : Fin 3 × Fin 3, 4 * sSup S := by
       exact Finset.sum_le_sum (fun ij _ => hordered_le ij)
@@ -1756,7 +1764,7 @@ lemma homogeneousPart3_six_mul (p q : MvPolynomial (Fin 3) ℝ) :
   ext α
   rw [coeff_homogeneousPart3]
   by_cases hα : α.sum (fun _ e => e) = 6
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     symm
     repeat' rw [← Finset.sum_add_distrib]
@@ -1785,7 +1793,7 @@ lemma homogeneousPart3_six_mul (p q : MvPolynomial (Fin 3) ℝ) :
       simp [h2]
     · have h2 : x.2.sum (fun _ e => e) = 0 := by omega
       simp [h2]
-  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, MvPolynomial.coeff_add,
+  · simp only [hα, coeff_homogeneousPart3, ↓reduceIte, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
       MvPolynomial.coeff_mul]
     repeat' rw [← Finset.sum_add_distrib]
     symm

@@ -1,4 +1,5 @@
-import Mathlib.Data.Nat.Lattice
+import Mathlib.Data.Finset.Attr
+import Mathlib.Tactic.Common
 import OptimalConvergenceRates.BasicNotions.BoxCones
 import OptimalConvergenceRates.BasicNotions.GeneralCones
 

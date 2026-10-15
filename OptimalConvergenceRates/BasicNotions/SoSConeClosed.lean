@@ -70,7 +70,7 @@ noncomputable instance expLEFintype (n d : ℕ) : Fintype (ExpLE n d) := by
 
 /-- Coefficients of a polynomial on monomials of total degree at most `d`. -/
 def coeffVec {n : ℕ} (d : ℕ) (P : MvPolynomial (Fin n) ℝ) : ExpLE n d → ℝ :=
-  fun α => MvPolynomial.coeff α.1 P
+  fun α => P.coeff α.1
 
 /-- Reconstruct a polynomial from a finite coefficient vector. -/
 noncomputable def polyOfVec {n : ℕ} (d : ℕ) (c : ExpLE n d → ℝ) :
@@ -103,7 +103,7 @@ lemma expDegree_of_mem_support_le_totalDegree {n : ℕ} {P : MvPolynomial (Fin n
 
 lemma coeff_eq_zero_of_totalDegree_lt_expDegree {n : ℕ} {P : MvPolynomial (Fin n) ℝ}
     {α : Fin n →₀ ℕ} (hα : P.totalDegree < expDegree α) :
-    MvPolynomial.coeff α P = 0 := by
+    P.coeff α = 0 := by
   classical
   by_contra hne
   have hmem : α ∈ P.support := by
@@ -120,7 +120,7 @@ lemma polyOfVec_coeffVec {n d : ℕ} {P : MvPolynomial (Fin n) ℝ}
   · have hcoeff := congrFun (coeffVec_polyOfVec (n := n) (d := d) (coeffVec d P)) ⟨α, hα⟩
     simpa [coeffVec] using hcoeff
   · have hgt : d < expDegree α := Nat.lt_of_not_ge hα
-    have hz : MvPolynomial.coeff α P = 0 :=
+    have hz : P.coeff α = 0 :=
       coeff_eq_zero_of_totalDegree_lt_expDegree (P := P) (lt_of_le_of_lt hP hgt)
     rw [hz]
     unfold polyOfVec
@@ -228,7 +228,7 @@ lemma gramPoly_vecMulVec {n r : ℕ} (c : RootExp n r → ℝ) :
   unfold gramPoly polyOfVec
   rw [pow_two]
   rw [Finset.sum_mul_sum]
-  simp [MvPolynomial.monomial_mul, Matrix.vecMulVec]
+  simp [MvPolynomial.monomial_mul_monomial, Matrix.vecMulVec]
 
 /-- A degree-bounded SOS polynomial is equivalently represented by a PSD Gram matrix. -/
 theorem degreeBoundedSOS_iff_exists_psd_gram {n r : ℕ}
@@ -284,13 +284,13 @@ lemma coeffL1Distance_nonneg {n : ℕ} (P S : MvPolynomial (Fin n) ℝ) :
 
 lemma abs_coeff_sub_le_coeffL1Distance {n : ℕ}
     (P S : MvPolynomial (Fin n) ℝ) (α : Fin n →₀ ℕ) :
-    |MvPolynomial.coeff α (P - S)| ≤ coeffL1Distance P S := by
+    |(P - S).coeff α| ≤ coeffL1Distance P S := by
   classical
   unfold coeffL1Distance
   by_cases hα : α ∈ (P - S).support
   · exact Finset.single_le_sum
-      (fun β _ => abs_nonneg (MvPolynomial.coeff β (P - S))) hα
-  · have hz : MvPolynomial.coeff α (P - S) = 0 := by
+      (fun β _ => abs_nonneg ((P - S).coeff β)) hα
+  · have hz : (P - S).coeff α = 0 := by
       simpa [MvPolynomial.mem_support_iff] using hα
     rw [hz, abs_zero]
     exact Finset.sum_nonneg (fun _ _ => abs_nonneg _)
@@ -301,16 +301,16 @@ lemma norm_coeffVec_sub_le_coeffL1Distance {n d : ℕ}
     ‖coeffVec d P - coeffVec d S‖ ≤ coeffL1Distance P S := by
   classical
   rw [Pi.norm_def]
-  change ↑(Finset.univ.sup fun b ↦ ‖(coeffVec d P - coeffVec d S) b‖₊) ≤
-    ↑((⟨coeffL1Distance P S, coeffL1Distance_nonneg P S⟩) : NNReal)
+  let D : NNReal := ⟨coeffL1Distance P S, coeffL1Distance_nonneg P S⟩
+  change (↑(Finset.univ.sup fun b ↦ ‖(coeffVec d P - coeffVec d S) b‖₊) : ℝ) ≤ ↑D
   apply NNReal.coe_le_coe.mpr
-  rw [Finset.sup_le_iff]
+  apply Finset.sup_le
   intro α _
   apply NNReal.coe_le_coe.mp
   change ‖(coeffVec d P - coeffVec d S) α‖ ≤ coeffL1Distance P S
   simp only [Pi.sub_apply, coeffVec, Real.norm_eq_abs]
-  calc |MvPolynomial.coeff α.1 P - MvPolynomial.coeff α.1 S|
-      = |MvPolynomial.coeff α.1 (P - S)| := by simp
+  calc |P.coeff α.1 - S.coeff α.1|
+      = |(P - S).coeff α.1| := by simp
     _ ≤ coeffL1Distance P S := abs_coeff_sub_le_coeffL1Distance P S α.1
 
 /-- Zero as a degree-bounded SOS polynomial. -/
@@ -329,7 +329,7 @@ lemma gramPoly_add {n r : ℕ}
   classical
   ext γ
   unfold gramPoly
-  simp only [Matrix.add_apply, MvPolynomial.coeff_sum, MvPolynomial.coeff_add,
+  simp only [Matrix.add_apply, MvPolynomial.coeff_sum, AddMonoidAlgebra.coeff_add, Finsupp.add_apply,
     MvPolynomial.coeff_monomial]
   calc
     (∑ x : RootExp n r, ∑ y : RootExp n r,
@@ -415,7 +415,7 @@ lemma eval_gramPoly {n r : ℕ}
 
 lemma coeff_gramRowPoly {n r : ℕ}
     (Q : Matrix (RootExp n r) (RootExp n r) ℝ) (α β : RootExp n r) :
-    MvPolynomial.coeff β.1 (gramRowPoly Q α) = Q α β := by
+    (gramRowPoly Q α).coeff β.1 = Q α β := by
   classical
   unfold gramRowPoly
   rw [MvPolynomial.coeff_sum]
@@ -436,10 +436,14 @@ lemma psd_eq_zero_of_gramMap_eq_zero {n r : ℕ}
   classical
   have hpoly : gramPoly Q = 0 := by
     apply eq_of_coeffVec_eq (gramPoly_totalDegree_le Q) (by simp)
+    have hzero : coeffVec (2 * r) (0 : MvPolynomial (Fin n) ℝ) = 0 := by
+      funext α
+      simp [coeffVec]
+    rw [hzero]
     simpa [gramMap] using hmap
   have hmul : ∀ x : Fin n → ℝ, Q.mulVec (monomialVec x) = 0 := by
     intro x
-    apply (hQ.dotProduct_mulVec_zero_iff (monomialVec x)).mp
+    apply ((hQ.dotProduct_mulVec_zero_iff)).mp
     rw [← eval_gramPoly Q x, hpoly]
     simp
   ext α β
@@ -452,7 +456,7 @@ lemma psd_eq_zero_of_gramMap_eq_zero {n r : ℕ}
     apply MvPolynomial.funext
     intro x
     simp [hp_eval x]
-  have hcoeff := congrArg (MvPolynomial.coeff β.1) hp_zero
+  have hcoeff := congrArg (fun p : MvPolynomial (Fin n) ℝ => p.coeff β.1) hp_zero
   simpa [p, coeff_gramRowPoly] using hcoeff
 
 /-- The Gram coefficient map as a continuous linear map. -/
@@ -685,7 +689,8 @@ theorem isClosed_degreeBoundedSOSCoeffCone (n r : ℕ) :
   · intro a Q ha hQ
     exact hQ.smul ha
   · intro Q hQ hmap
-    exact psd_eq_zero_of_gramMap_eq_zero hQ (by simpa [gramMapCLM_apply] using hmap)
+    change gramMap Q = 0 at hmap
+    exact psd_eq_zero_of_gramMap_eq_zero hQ hmap
 
 /-- Closedness of the degree-bounded SOS cone in coefficient `L1` topology.
 

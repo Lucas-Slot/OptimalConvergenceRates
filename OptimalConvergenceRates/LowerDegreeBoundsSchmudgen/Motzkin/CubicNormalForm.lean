@@ -12,6 +12,11 @@ namespace Motzkin
 private def exp3 (a b c : ℕ) : Fin 3 →₀ ℕ :=
   Finsupp.single 0 a + Finsupp.single 1 b + Finsupp.single 2 c
 
+@[simp] private lemma coeff_add_apply (m : Fin 3 →₀ ℕ)
+    (p q : MvPolynomial (Fin 3) ℝ) :
+    coeff m (p + q) = coeff m p + coeff m q := by
+  exact DFunLike.congr_fun (AddMonoidAlgebra.coeff_add p q) m
+
 private lemma finsupp_eq_exp3 (d : Fin 3 →₀ ℕ) : d = exp3 (d 0) (d 1) (d 2) := by
   ext i
   fin_cases i <;> simp [exp3]
@@ -90,7 +95,7 @@ theorem eq_cubicNormalForm_of_homogeneousPart3_eq
       simp only [h0, h1, h2] at hdexp
       subst d
       simp [cubicNormalForm]
-  · have hcoeff : coeff d q = 0 :=
+  · have hcoeff : q.coeff d = 0 :=
       (isHomogeneous_of_homogeneousPart3_eq hq).coeff_eq_zero hd
     have hne (a b c : ℕ) (hsum : a + b + c = 3) : d ≠ exp3 a b c := by
       intro h
@@ -169,8 +174,8 @@ lemma coeff_sq_exp402_of_homogeneous_cubic
   rw [eq_cubicNormalForm_of_homogeneousPart3_eq hq]
   simp only [cubicNormalForm, pow_two]
   ring_nf
-  simp [MvPolynomial.coeff_add, mul_comm,
-    MvPolynomial.monomial_pow, MvPolynomial.monomial_mul,
+  simp [coeff_add_apply, mul_comm,
+    MvPolynomial.monomial_pow, MvPolynomial.monomial_mul_monomial,
     MvPolynomial.coeff_monomial]
 
 lemma coeff_sq_exp042_of_homogeneous_cubic
@@ -181,8 +186,8 @@ lemma coeff_sq_exp042_of_homogeneous_cubic
   rw [eq_cubicNormalForm_of_homogeneousPart3_eq hq]
   simp only [cubicNormalForm, pow_two]
   ring_nf
-  simp [MvPolynomial.coeff_add, mul_comm,
-    MvPolynomial.monomial_pow, MvPolynomial.monomial_mul,
+  simp [coeff_add_apply, mul_comm,
+    MvPolynomial.monomial_pow, MvPolynomial.monomial_mul_monomial,
     MvPolynomial.coeff_monomial]
 
 lemma coeff_sq_exp006_of_homogeneous_cubic
@@ -191,8 +196,8 @@ lemma coeff_sq_exp006_of_homogeneous_cubic
   rw [eq_cubicNormalForm_of_homogeneousPart3_eq hq]
   simp only [cubicNormalForm, pow_two]
   ring_nf
-  simp [MvPolynomial.coeff_add, mul_comm,
-    MvPolynomial.monomial_pow, MvPolynomial.monomial_mul,
+  simp [coeff_add_apply, mul_comm,
+    MvPolynomial.monomial_pow, MvPolynomial.monomial_mul_monomial,
     MvPolynomial.coeff_monomial]
 
 
@@ -207,11 +212,11 @@ private lemma motzkinSextic_eq_monomials :
     change C 3 * monomial (Finsupp.single (0 : Fin 3) 2) 1 *
         monomial (Finsupp.single (1 : Fin 3) 2) 1 *
         monomial (Finsupp.single (2 : Fin 3) 2) 1 = _
-    rw [MvPolynomial.C_mul_monomial, MvPolynomial.monomial_mul,
-      MvPolynomial.monomial_mul]
+    rw [MvPolynomial.C_mul_monomial, MvPolynomial.monomial_mul_monomial,
+      MvPolynomial.monomial_mul_monomial]
     simp [exp3]
   rw [motzkinSextic, hcross]
-  simp [MvPolynomial.X_pow_eq_monomial, MvPolynomial.monomial_mul, exp3]
+  simp [MvPolynomial.X_pow_eq_monomial, MvPolynomial.monomial_mul_monomial, exp3]
 
 /-- The Motzkin sextic is not a sum of squares of real polynomials. -/
 theorem motzkinSextic_not_sos : ¬ IsSOS motzkinSextic := by
@@ -244,11 +249,11 @@ theorem motzkinSextic_not_sos : ¬ IsSOS motzkinSextic := by
   have hy3 (i : Fin N) : coeff (exp3 0 3 0) (P i) = 0 := by
     rw [← eval_axisY_of_homogeneous_cubic (hPhom i)]
     exact hzeroEval motzkinAxisY motzkinSextic_eval_axisY i
-  have hcoeff402 : coeff (exp3 4 0 2) motzkinSextic = 0 := by
+  have hcoeff402 : motzkinSextic.coeff (exp3 4 0 2) = 0 := by
     rw [motzkinSextic_eq_monomials]
     simp [MvPolynomial.coeff_monomial]
   have hsum_x2z : ∑ i : Fin N, coeff (exp3 2 0 1) (P i) ^ 2 = 0 := by
-    have h := congrArg (coeff (exp3 4 0 2)) hP
+    have h := congrArg (fun q => q.coeff (exp3 4 0 2)) hP
     rw [hcoeff402, MvPolynomial.coeff_sum] at h
     simp_rw [coeff_sq_exp402_of_homogeneous_cubic (hPhom _), hx3] at h
     norm_num at h
@@ -258,11 +263,11 @@ theorem motzkinSextic_not_sos : ¬ IsSOS motzkinSextic := by
       (fun j _ ↦ sq_nonneg (coeff (exp3 2 0 1) (P j)))).mp
       hsum_x2z i (Finset.mem_univ i)
     nlinarith
-  have hcoeff042 : coeff (exp3 0 4 2) motzkinSextic = 0 := by
+  have hcoeff042 : motzkinSextic.coeff (exp3 0 4 2) = 0 := by
     rw [motzkinSextic_eq_monomials]
     simp [MvPolynomial.coeff_monomial]
   have hsum_y2z : ∑ i : Fin N, coeff (exp3 0 2 1) (P i) ^ 2 = 0 := by
-    have h := congrArg (coeff (exp3 0 4 2)) hP
+    have h := congrArg (fun q => q.coeff (exp3 0 4 2)) hP
     rw [hcoeff042, MvPolynomial.coeff_sum] at h
     simp_rw [coeff_sq_exp042_of_homogeneous_cubic (hPhom _), hy3] at h
     norm_num at h
@@ -285,10 +290,10 @@ theorem motzkinSextic_not_sos : ¬ IsSOS motzkinSextic := by
     rw [h00, h01, h10, h11, hx2z i, hy2z i] at hw
     norm_num at hw ⊢
     linarith
-  have hcoeff006 : coeff (exp3 0 0 6) motzkinSextic = 1 := by
+  have hcoeff006 : motzkinSextic.coeff (exp3 0 0 6) = 1 := by
     rw [motzkinSextic_eq_monomials]
     simp [MvPolynomial.coeff_monomial]
-  have h := congrArg (coeff (exp3 0 0 6)) hP
+  have h := congrArg (fun q => q.coeff (exp3 0 0 6)) hP
   rw [hcoeff006, MvPolynomial.coeff_sum] at h
   simp only [coeff_sq_exp006_of_homogeneous_cubic (hPhom _), hz3] at h
   norm_num at h

@@ -18,7 +18,7 @@ variable {F : Type u} [Field F] [LinearOrder F] [IsStrictOrderedRing F]
 
 /-- Signature of a matrix, defined through its associated quadratic form. -/
 def matrixSignature {n : ℕ} (M : Matrix (Fin n) (Fin n) F) : ℤ :=
-  signature M.toQuadraticMap'
+  signature M.toQuadraticForm'
 
 
 /-- The intrinsic matrix signature of a diagonal matrix is the sum of
@@ -28,9 +28,9 @@ theorem matrixSignature_diagonal {n : ℕ} (d : Fin n → F) :
   rw [matrixSignature, ← signature_weightedSumSquares]
   apply signature_congr (LinearEquiv.refl F (Fin n → F))
   intro x
-  simp only [weightedSumSquares_apply, smul_eq_mul, Matrix.toQuadraticMap',
-    LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply',
-    dotProduct, Matrix.mulVec_diagonal, LinearEquiv.refl_apply]
+  simp [weightedSumSquares_apply, Matrix.toQuadraticForm', Matrix.toQuadraticForm',
+    LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply,
+    Matrix.diagonal_apply]
   apply Finset.sum_congr rfl
   intro i _
   ring
@@ -42,9 +42,10 @@ theorem matrixSignature_reindex {n m : ℕ} (e : Fin n ≃ Fin m)
   apply signature_congr
     (LinearEquiv.piCongrLeft F (fun _ : Fin n ↦ F) e.symm)
   intro x
-  simp only [Matrix.toQuadraticMap', LinearMap.BilinMap.toQuadraticMap_apply,
-    Matrix.toLinearMap₂'_apply', dotProduct, Matrix.mulVec, Matrix.reindex_apply,
-    Matrix.submatrix_apply, LinearEquiv.piCongrLeft, LinearEquiv.piCongrLeft'_symm_apply]
+  simp only [Matrix.toQuadraticForm', Matrix.toQuadraticForm',
+    LinearMap.BilinMap.toQuadraticMap_apply, Matrix.toLinearMap₂'_apply,
+    smul_eq_mul, Matrix.reindex_apply, Matrix.submatrix_apply,
+    LinearEquiv.piCongrLeft, LinearEquiv.piCongrLeft'_symm_apply]
   rw [← e.sum_comp]
   apply Finset.sum_congr rfl
   intro i _
@@ -58,7 +59,7 @@ theorem exists_diagonalization_with_signature {n : ℕ}
     ∃ (diagonal : Fin (Module.finrank F (Fin n → F)) → F)
       (e : (Fin n → F) ≃ₗ[F]
         (Fin (Module.finrank F (Fin n → F)) → F)),
-      (∀ x, weightedSumSquares F diagonal (e x) = M.toQuadraticMap' x) ∧
+      (∀ x, weightedSumSquares F diagonal (e x) = M.toQuadraticForm' x) ∧
         diagonalSignature diagonal = matrixSignature M := by
   obtain ⟨diagonal, e, he⟩ := exists_matrix_diagonalization M hM
   refine ⟨diagonal, e, he, ?_⟩
@@ -71,7 +72,7 @@ diagonalization. -/
 theorem diagonalSignature_eq_matrixSignature_of_isometry {n m : ℕ}
     (M : Matrix (Fin n) (Fin n) F) (diagonal : Fin m → F)
     (e : (Fin n → F) ≃ₗ[F] (Fin m → F))
-    (he : ∀ x, weightedSumSquares F diagonal (e x) = M.toQuadraticMap' x) :
+    (he : ∀ x, weightedSumSquares F diagonal (e x) = M.toQuadraticForm' x) :
     diagonalSignature diagonal = matrixSignature M := by
   rw [matrixSignature]
   exact ((signature_congr e he).trans
@@ -114,7 +115,7 @@ theorem signature_bounds (Q : QuadraticForm F V) :
 `[-d,d]`. No symmetry hypothesis is needed for this intrinsic bound. -/
 theorem matrixSignature_bounds {d : ℕ} (M : Matrix (Fin d) (Fin d) F) :
     -(d : ℤ) ≤ matrixSignature M ∧ matrixSignature M ≤ (d : ℤ) := by
-  simpa [matrixSignature] using signature_bounds M.toQuadraticMap'
+  simpa [matrixSignature] using signature_bounds M.toQuadraticForm'
 
 end OptimalConvergenceRates.KrivineStengle
 

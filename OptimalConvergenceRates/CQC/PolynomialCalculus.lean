@@ -21,7 +21,7 @@ theorem continuous_mvPolynomialEvalFDeriv {n : ℕ}
     (P : MvPolynomial (Fin n) ℝ) :
     Continuous (QuarticConvergence.mvPolynomialEvalFDeriv P) := by
   unfold QuarticConvergence.mvPolynomialEvalFDeriv
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro i _
   exact (continuous_eval (MvPolynomial.pderiv i P)).smul continuous_const
 

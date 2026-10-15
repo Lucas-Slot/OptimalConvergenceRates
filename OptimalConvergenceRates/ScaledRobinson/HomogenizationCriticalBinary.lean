@@ -324,8 +324,8 @@ theorem binaryOddImag_Rcoeff_zero (r : ℕ) :
       (-criticalTCoeffVar) ^ r := by
   unfold binaryOddImag
   have hA := binaryEvenReal_Rcoeff_zero r
-  simp [criticalRVar, criticalTVar, criticalTCoeffVar, MvPolynomial.finSuccEquiv_X_zero]
-  simpa using hA
+  simpa [criticalRVar, criticalTVar, criticalTCoeffVar,
+    MvPolynomial.finSuccEquiv_X_zero] using hA
 
 /-- Constant term in `R` of the odd real binary component. -/
 theorem binaryOddReal_Rcoeff_zero (r : ℕ) :
@@ -1036,10 +1036,10 @@ theorem criticalAlpha_diff_Rcoeff_one (m : ℕ) :
     rw [← map_mul]
     norm_num
   change L * MvPolynomial.C (2⁻¹ : ℝ) * A + A +
-      (A * (-1 + L * MvPolynomial.C (2⁻¹ : ℝ)) - A * L) = 0
+      A * (-1 + L * MvPolynomial.C (2⁻¹ : ℝ)) - A * L = 0
   calc
     L * MvPolynomial.C (2⁻¹ : ℝ) * A + A +
-        (A * (-1 + L * MvPolynomial.C (2⁻¹ : ℝ)) - A * L) =
+        A * (-1 + L * MvPolynomial.C (2⁻¹ : ℝ)) - A * L =
         A * L * ((2 : MvPolynomial (Fin 1) ℝ) * MvPolynomial.C (2⁻¹ : ℝ) - 1) := by
           ring
     _ = 0 := by
@@ -1201,7 +1201,7 @@ theorem criticalR_ne_zero : criticalR ≠ 0 := by
   unfold criticalR criticalX criticalY
   intro h
   have hcoeff := congrArg
-    (fun p : MvPolynomial (Fin 3) ℝ => MvPolynomial.coeff (Finsupp.single (0 : Fin 3) 2) p) h
+    (fun p : MvPolynomial (Fin 3) ℝ => legacyMvCoeff (Finsupp.single (0 : Fin 3) 2) p) h
   norm_num [MvPolynomial.coeff_X_pow, Finsupp.single_eq_single_iff] at hcoeff
 
 /-- The interpolating slope is determined by the alpha and beta endpoint quotients. -/

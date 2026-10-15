@@ -19,8 +19,9 @@ lean4export_dir="$cache_root/lean4export"
 nanoda_dir="$cache_root/nanoda"
 
 comparator_commit=575674928e239f5bc452aab72d1dd7b0f1326494
-lean4export_commit=d065b0009aed0520e9e99752847a33b337661690
-lean4export_tag=v4.28.0
+lean4export_commit=076e8e57707e813375e8f9da8bf989799ace9680
+lean4export_source_tag=v4.34.0
+project_lean_tag=v4.34.1
 landrun_commit=811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
 nanoda_commit=68d5ca9db226849b41a6fff59d796ff19d0a8840
 
@@ -28,7 +29,20 @@ configs=(
   Comparator/AllResults/comparator.json
 )
 
-for required_command in cargo git go lake; do
+use_landrun=${COMPARATOR_USE_LANDRUN:-false}
+case "$use_landrun" in
+  true|false) ;;
+  *)
+    echo "error: COMPARATOR_USE_LANDRUN must be true or false" >&2
+    exit 1
+    ;;
+esac
+
+required_commands=(cargo elan git lake)
+if $use_landrun; then
+  required_commands+=(go)
+fi
+for required_command in "${required_commands[@]}"; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "error: $required_command is required to run Comparator" >&2
     exit 1
@@ -53,13 +67,12 @@ checkout_exact https://github.com/leanprover/lean4export.git \
 
 project_toolchain=$(tr -d '[:space:]' < "$repository_root/lean-toolchain")
 lean4export_toolchain=$(tr -d '[:space:]' < "$lean4export_dir/lean-toolchain")
-if [ "$project_toolchain" != "$lean4export_toolchain" ]; then
-  echo "error: project toolchain $project_toolchain does not match" >&2
-  echo "the pinned lean4export toolchain $lean4export_toolchain" >&2
+if [ "$project_toolchain" != "leanprover/lean4:$project_lean_tag" ]; then
+  echo "error: project toolchain does not match the verified release $project_lean_tag" >&2
   exit 1
 fi
-if [ "$project_toolchain" != "leanprover/lean4:$lean4export_tag" ]; then
-  echo "error: project toolchain does not match lean4export release $lean4export_tag" >&2
+if [ "$lean4export_toolchain" != "leanprover/lean4:$lean4export_source_tag" ]; then
+  echo "error: pinned lean4export source does not match release $lean4export_source_tag" >&2
   exit 1
 fi
 
@@ -68,11 +81,19 @@ checkout_exact https://github.com/leanprover/comparator.git \
 checkout_exact https://github.com/robsimmons/nanoda_lib.git \
   "$nanoda_dir" "$nanoda_commit"
 
-CGO_ENABLED=0 GOBIN="$bin_dir" \
-  go install "github.com/zouuup/landrun/cmd/landrun@$landrun_commit"
+comparator_landrun="$comparator_dir/scripts/fake-landrun.sh"
+comparator_landrun_bin=
+if $use_landrun; then
+  CGO_ENABLED=0 GOBIN="$bin_dir" \
+    go install "github.com/zouuup/landrun/cmd/landrun@$landrun_commit"
+  comparator_landrun="$repository_root/scripts/landrun-wrapper.sh"
+  comparator_landrun_bin="$bin_dir/landrun"
+fi
 
 (cd "$comparator_dir" && lake build comparator)
-(cd "$lean4export_dir" && lake build lean4export)
+# Upstream has no v4.34.1 source tag. Build the exact v4.34.0 exporter source
+# with the project's v4.34.1 patch toolchain so it reads the project's oleans.
+(cd "$lean4export_dir" && elan run "$project_toolchain" lake build lean4export)
 (cd "$nanoda_dir" && cargo build --release --locked)
 
 cd "$repository_root"
@@ -82,9 +103,9 @@ for config in "${configs[@]}"; do
   GIT_CONFIG_NOSYSTEM=1 \
   GIT_TERMINAL_PROMPT=0 \
   LEAN_ABORT_ON_PANIC=1 \
-  COMPARATOR_LANDRUN_BIN="$bin_dir/landrun" \
+  COMPARATOR_LANDRUN_BIN="$comparator_landrun_bin" \
   COMPARATOR_LEAN4EXPORT="$lean4export_dir/.lake/build/bin/lean4export" \
   COMPARATOR_NANODA="$nanoda_dir/target/release/nanoda_bin" \
-  COMPARATOR_LANDRUN="$repository_root/scripts/landrun-wrapper.sh" \
+  COMPARATOR_LANDRUN="$comparator_landrun" \
     lake env "$comparator_dir/.lake/build/bin/comparator" "$config"
 done

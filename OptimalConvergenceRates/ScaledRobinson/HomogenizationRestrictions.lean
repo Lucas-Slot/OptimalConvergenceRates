@@ -218,7 +218,7 @@ theorem IsSOSUni.eval_zero_of_witness
     ∀ i : Fin N, (Q i).eval t = 0 := by
   have hsum : (∑ i : Fin N, (Q i).eval t ^ 2) = 0 := by
     rw [hQ] at ht
-    simpa only [Polynomial.eval_finset_sum, Polynomial.eval_pow] using ht
+    simpa only [Polynomial.eval_finsetSum, Polynomial.eval_pow] using ht
   exact (sum_sq_eq_zero_iff (fun i : Fin N => (Q i).eval t)).mp hsum
 
 /-- A univariate SOS is pointwise nonnegative. -/
@@ -226,7 +226,7 @@ theorem IsSOSUni.eval_nonneg {p : Polynomial ℝ} (hp : IsSOSUni p) (t : ℝ) :
     0 ≤ p.eval t := by
   obtain ⟨N, Q, hQ⟩ := hp
   rw [hQ]
-  simp only [Polynomial.eval_finset_sum, Polynomial.eval_pow]
+  simp only [Polynomial.eval_finsetSum, Polynomial.eval_pow]
   exact Finset.sum_nonneg fun i _hi => sq_nonneg ((Q i).eval t)
 
 /-- A real root gives the corresponding linear factor. -/
@@ -336,7 +336,7 @@ theorem sosUni_eval_eq_vecSqNorm
     p.eval t = vecSqNorm (fun i => (P i).eval t) := by
   rw [hp]
   unfold vecSqNorm
-  simp only [Polynomial.eval_finset_sum, Polynomial.eval_pow]
+  simp only [Polynomial.eval_finsetSum, Polynomial.eval_pow]
 
 /-- Multiplying a divisor by a nonzero real scalar preserves divisibility over `ℝ`. -/
 theorem Polynomial.C_mul_dvd_of_dvd {p q : Polynomial ℝ} {a : ℝ} (ha : a ≠ 0)
@@ -813,7 +813,7 @@ theorem sum_sq_derivative_eval_zero {N : ℕ} (F : Fin N → Polynomial ℝ) :
       2 * vecDot (fun i : Fin N => (F i).eval 0)
         (fun i : Fin N => (Polynomial.derivative (F i)).eval 0) := by
   rw [Polynomial.derivative_sum]
-  simp only [Polynomial.derivative_pow, Nat.reduceSub, Polynomial.eval_finset_sum,
+  simp only [Polynomial.derivative_pow, Nat.reduceSub, Polynomial.eval_finsetSum,
     Polynomial.eval_mul, Polynomial.eval_C]
   unfold vecDot
   rw [Finset.mul_sum]
@@ -829,7 +829,7 @@ theorem sum_sq_second_derivative_eval_zero {N : ℕ} (F : Fin N → Polynomial �
           (fun i : Fin N =>
             (Polynomial.derivative (Polynomial.derivative (F i))).eval 0) := by
   rw [Polynomial.derivative_sum, Polynomial.derivative_sum]
-  simp only [Polynomial.derivative_pow, Nat.reduceSub, Polynomial.eval_finset_sum,
+  simp only [Polynomial.derivative_pow, Nat.reduceSub, Polynomial.eval_finsetSum,
     Polynomial.eval_mul, Polynomial.eval_C, Polynomial.derivative_mul, Polynomial.eval_add]
   unfold vecSqNorm vecDot
   rw [Finset.mul_sum, Finset.mul_sum, Finset.sum_add_distrib]
@@ -902,7 +902,7 @@ theorem axisRestriction_stripped_vecSqNorm_zero
     vecSqNorm (fun i : Fin N => (F i).eval 0) = 1 := by
   have h := congrArg (fun p : Polynomial ℝ => p.eval 0) hNorm
   unfold vecSqNorm
-  simpa [Polynomial.eval_finset_sum, Polynomial.eval_pow] using h
+  simpa [Polynomial.eval_finsetSum, Polynomial.eval_pow] using h
 
 /-- The diagonal stripped vector has squared norm one at zero. -/
 theorem diagonalRestriction_stripped_vecSqNorm_zero
@@ -911,7 +911,7 @@ theorem diagonalRestriction_stripped_vecSqNorm_zero
     vecSqNorm (fun i : Fin N => (F i).eval 0) = 1 := by
   have h := congrArg (fun p : Polynomial ℝ => p.eval 0) hNorm
   unfold vecSqNorm
-  simpa [Polynomial.eval_finset_sum, Polynomial.eval_pow] using h
+  simpa [Polynomial.eval_finsetSum, Polynomial.eval_pow] using h
 
 /-- A vector with squared norm one has norm one. -/
 theorem vecNorm_eq_one_of_vecSqNorm_eq_one {N : ℕ} {v : Fin N → ℝ}

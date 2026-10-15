@@ -124,10 +124,10 @@ theorem totalDegree_aeval_le_mul_general {σ τ : Type*} {d : ℕ}
   intro exponent hexponent
   rw [MvPolynomial.aeval_monomial]
   calc
-    (algebraMap ℝ (MvPolynomial τ ℝ) (MvPolynomial.coeff exponent p) *
+    (algebraMap ℝ (MvPolynomial τ ℝ) (legacyMvCoeff exponent p) *
         exponent.prod fun i k ↦ f i ^ k).totalDegree ≤
         (algebraMap ℝ (MvPolynomial τ ℝ)
-          (MvPolynomial.coeff exponent p)).totalDegree +
+          (legacyMvCoeff exponent p)).totalDegree +
           (exponent.prod fun i k ↦ f i ^ k).totalDegree :=
       MvPolynomial.totalDegree_mul _ _
     _ = (exponent.prod fun i k ↦ f i ^ k).totalDegree := by
@@ -135,7 +135,7 @@ theorem totalDegree_aeval_le_mul_general {σ τ : Type*} {d : ℕ}
       simp
     _ ≤ ∑ i ∈ exponent.support, (f i ^ exponent i).totalDegree := by
       simp only [Finsupp.prod]
-      exact MvPolynomial.totalDegree_finset_prod exponent.support _
+      exact MvPolynomial.totalDegree_finsetProd exponent.support _
     _ ≤ ∑ i ∈ exponent.support, d * exponent i := by
       apply Finset.sum_le_sum
       intro i _

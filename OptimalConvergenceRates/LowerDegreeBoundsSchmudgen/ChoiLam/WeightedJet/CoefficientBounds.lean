@@ -57,7 +57,9 @@ lemma homogeneousPart4_choiLamQuartic : homogeneousPart4 4 choiLamQuartic = choi
     simpa [add_assoc] using (((h0.mul h1).mul h2).mul h3)
   have hmix : ((4 : MvPolynomial (Fin 4) ℝ) * X (0 : Fin 4) * X (1 : Fin 4) *
       X (2 : Fin 4) * X (3 : Fin 4)).IsHomogeneous 4 := by
-    simpa using hmix0
+    rw [show (4 : MvPolynomial (Fin 4) ℝ) = MvPolynomial.C (4 : ℝ) from
+      (MvPolynomial.C_eq_coe_nat 4).symm]
+    exact hmix0
   exact (((hX0.add hX12).add hX23).add hX31).sub hmix
 
 lemma homogeneousPart4_C_four (epsilon : ℝ) :
@@ -138,7 +140,7 @@ theorem choiLam_sos_contradiction_of_coeffNorm_lt
 lemma coeff_eq_zero_of_totalDegree_lt_n4
     {p : MvPolynomial (Fin 4) ℝ} {m : Fin 4 →₀ ℕ} {d : ℕ}
     (hp : p.totalDegree ≤ d) (hm : d < m.sum fun _ e => e) :
-    MvPolynomial.coeff m p = 0 := by
+    legacyMvCoeff m p = 0 := by
   by_contra hcoeff
   have hmem : m ∈ p.support := by
     rw [MvPolynomial.mem_support_iff]
@@ -154,7 +156,7 @@ lemma X_pow_eq_monomial_weightedJet (i : Fin 4) (k : ℕ) :
       rw [pow_succ, ih]
       change MvPolynomial.monomial (Finsupp.single i k) (1 : ℝ) *
           MvPolynomial.monomial (Finsupp.single i 1) (1 : ℝ) = _
-      rw [MvPolynomial.monomial_mul]
+      rw [MvPolynomial.monomial_mul_monomial]
       congr
       · ext j
         by_cases h : j = i <;> simp [h]
@@ -164,7 +166,7 @@ lemma X_pow_mul_X_pow_eq_monomial_weightedJet (i j : Fin 4) (a b : ℕ) :
     ((X i : MvPolynomial (Fin 4) ℝ) ^ a * X j ^ b) =
       MvPolynomial.monomial (Finsupp.single i a + Finsupp.single j b) 1 := by
   rw [X_pow_eq_monomial_weightedJet, X_pow_eq_monomial_weightedJet,
-    MvPolynomial.monomial_mul]
+    MvPolynomial.monomial_mul_monomial]
   norm_num
 
 lemma four_X_prod_eq_monomial_weightedJet :
@@ -176,13 +178,13 @@ lemma four_X_prod_eq_monomial_weightedJet :
       MvPolynomial.monomial (Finsupp.single (1 : Fin 4) 1) 1 *
       MvPolynomial.monomial (Finsupp.single (2 : Fin 4) 1) 1 *
       MvPolynomial.monomial (Finsupp.single (3 : Fin 4) 1) 1 = _
-  repeat rw [MvPolynomial.monomial_mul]
+  repeat rw [MvPolynomial.monomial_mul_monomial]
   congr
   · ext j; fin_cases j <;> norm_num
   · norm_num
 
 lemma choiLamQuartic_coeff_single_zero_four_weightedJet :
-    MvPolynomial.coeff (Finsupp.single (0 : Fin 4) 4) choiLamQuartic = 1 := by
+    legacyMvCoeff (Finsupp.single (0 : Fin 4) 4) choiLamQuartic = 1 := by
   unfold choiLamQuartic
   rw [X_pow_eq_monomial_weightedJet]
   rw [X_pow_mul_X_pow_eq_monomial_weightedJet, X_pow_mul_X_pow_eq_monomial_weightedJet,
@@ -413,8 +415,17 @@ theorem weightedJetLemma_linear_bound_sixty_four
         interiorVecNorm (fun i : Fin N => (P i).eval t) ≤ A * Real.sqrt epsilon := by
       intro t ht
       have hline := hzeroLines zi t ht
-      simpa [P, univariateRestriction_eval, Pi.smul_apply, smul_eq_mul, mul_assoc]
-        using hline
+      have heval : (fun i : Fin N => (P i).eval t) =
+          fun i : Fin N => MvPolynomial.eval
+            (fun j => t * choiLamZeroDirection zi j) (Q i) := by
+        funext i
+        dsimp [P]
+        rw [univariateRestriction_eval]
+        apply congrArg (fun w : Fin 4 → ℝ => MvPolynomial.eval w (Q i))
+        funext j
+        simp [Pi.smul_apply, smul_eq_mul]
+      rw [heval]
+      exact hline
     have hbern := interior_bernstein_vector_first_derivative_schm P hMnon hdegP hbound
     let V : Fin N → ℝ := fun i =>
       MvPolynomial.eval (choiLamZeroDirection zi) (homogeneousPartVec4 1 Q i)

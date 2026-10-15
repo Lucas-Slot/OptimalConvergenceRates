@@ -200,7 +200,7 @@ theorem refinedErrorBoundTerm_le_refinedScalarBoundTerm
   have hfourth := ModuleLE.mul
     (IsSOS_mul (IsSOS_mul (IsSOS_mul (hsigma I) hPlo) hL) hThetaLo)
     hV hthird (ModuleLE.refl g _)
-  convert hfourth using 1
+  simpa only [refinedErrorBoundTerm, refinedScalarBoundTerm] using hfourth
 
 /-- Numerical coefficient of a refined scalar-denominator term. -/
 def refinedRemainderCoefficient

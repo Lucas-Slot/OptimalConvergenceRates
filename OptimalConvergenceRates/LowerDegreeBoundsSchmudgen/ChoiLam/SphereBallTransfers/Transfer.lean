@@ -203,9 +203,9 @@ private theorem totalDegree_aeval_le_of_linear {n m : ℕ}
   intro d hd
   rw [MvPolynomial.aeval_monomial]
   calc
-    (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (MvPolynomial.coeff d p) *
+    (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (p.coeff d) *
         d.prod fun i k => f i ^ k).totalDegree
-        ≤ (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (MvPolynomial.coeff d p)).totalDegree +
+        ≤ (algebraMap ℝ (MvPolynomial (Fin m) ℝ) (p.coeff d)).totalDegree +
             (d.prod fun i k => f i ^ k).totalDegree :=
           MvPolynomial.totalDegree_mul _ _
     _ = (d.prod fun i k => f i ^ k).totalDegree := by
@@ -213,7 +213,7 @@ private theorem totalDegree_aeval_le_of_linear {n m : ℕ}
           simp
     _ ≤ ∑ i ∈ d.support, (f i ^ d i).totalDegree := by
           simp only [Finsupp.prod]
-          exact MvPolynomial.totalDegree_finset_prod d.support _
+          exact MvPolynomial.totalDegree_finsetProd d.support _
     _ ≤ ∑ i ∈ d.support, d i := by
           apply Finset.sum_le_sum
           intro i _

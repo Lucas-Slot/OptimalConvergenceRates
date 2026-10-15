@@ -62,7 +62,7 @@ theorem intrinsicRescaledPatch_iteratedFDeriv_le {n j : ℕ}
   have hprod : (∏ _ : Fin j, ‖L‖) ≤ R ^ j := by
     calc
       (∏ _ : Fin j, ‖L‖) ≤ ∏ _ : Fin j, R :=
-        Finset.prod_le_prod (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
+        Finset.prod_le_prod₀ (fun _ _ ↦ norm_nonneg L) (fun _ _ ↦ hnormL)
       _ = R ^ j := by simp
   calc
     (R ^ 4)⁻¹ * ‖(iteratedFDeriv ℝ j u (c + L z)).compContinuousLinearMap
@@ -72,7 +72,7 @@ theorem intrinsicRescaledPatch_iteratedFDeriv_le {n j : ℕ}
       exact ContinuousMultilinearMap.norm_compContinuousLinearMap_le _ _
     _ ≤ (R ^ 4)⁻¹ * (‖iteratedFDeriv ℝ j u (c + L z)‖ * R ^ j) := by gcongr
     _ = (R ^ 4)⁻¹ * ‖iteratedFDeriv ℝ j u (c + R • z)‖ * R ^ j := by
-      simp only [L, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply]
+      simp only [L, smul_apply, ContinuousLinearMap.id_apply]
       ring
 
 theorem intrinsicRescaledPatch_iteratedFDeriv_le_of_scaled {n j : ℕ}

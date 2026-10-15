@@ -65,7 +65,7 @@ def zeroSphereAtomFamily {n : ℕ} (hn : 0 < n) (C : ℝ) (hC : 0 ≤ C) :
   dilated_overlap := by simp
   scaled_jets := by
     intro i j hj x
-    rw [iteratedFDeriv_zero_fun]
+    rw [iteratedFDeriv_fun_zero]
     simpa using hC
 
 /-- The zero sphere family has the expected pointwise `tsum` identity. -/
@@ -99,7 +99,7 @@ def sphereZeroAtomFamily {n : ℕ} (hn : 0 < n)
   dilated_overlap := by simp
   scaled_jets := by
     intro i j hj x
-    rw [iteratedFDeriv_zero_fun]
+    rw [iteratedFDeriv_fun_zero]
     simpa using hC
 
 /-- The sphere geometry needed to reinterpret one Euclidean atom family on the algebraic sphere.
@@ -174,7 +174,7 @@ theorem EuclideanAtomFamily.root_sphereCenter_ne_zero_of_visible {n : ℕ} (hn :
     {u : (Fin n → ℝ) → ℝ} {A radiusCap C : ℝ} {B : ℕ}
     (atoms : EuclideanAtomFamily u A radiusCap C B) {i : ℕ}
     (hi : atoms.SphereVisible i) : atoms.root i (atoms.sphereCenter hn i).1 ≠ 0 := by
-  simp only [EuclideanAtomFamily.sphereCenter, dif_pos hi]
+  simp only [EuclideanAtomFamily.sphereCenter, dite_eq_left hi]
   exact Classical.choose_spec (Classical.choose_spec hi)
 
 /-- The squared chordal distance is bounded by the dimension times the square of the ambient
@@ -205,7 +205,7 @@ theorem dist_le_of_sphereChordalSq_le_sq {n : ℕ} {x y : Fin n → ℝ} {r : �
     unfold sphereChordalSq
     exact Finset.single_le_sum (fun j _ ↦ sq_nonneg (x j - y j)) (Finset.mem_univ i)
   have hsq : (x i - y i) ^ 2 ≤ r ^ 2 := hterm.trans hxy
-  exact (sq_le_sq₀ (abs_nonneg _) hr).mp (by simpa only [sq_abs] using hsq)
+  exact (sq_le_sq₀ (abs_nonneg _) hr).mp (by simpa only [Pi.sub_apply, sq_abs] using hsq)
 
 
 
@@ -302,7 +302,7 @@ noncomputable def EuclideanAtomFamily.sphereFilteredWidened {n : ℕ}
     · have hia : i ∉ atoms.active := by
         intro hia
         exact hi ⟨hia, hvis⟩
-      rw [EuclideanAtomFamily.sphereFilteredRoot, if_pos hvis,
+      rw [EuclideanAtomFamily.sphereFilteredRoot, ite_eq_left hvis,
         atoms.root_eq_zero_of_not_active i hia]
       ext x
       simp
@@ -324,7 +324,7 @@ noncomputable def EuclideanAtomFamily.sphereFilteredWidened {n : ℕ}
       exact contDiff_const
   · intro i
     by_cases hvis : atoms.SphereVisible i
-    · rw [EuclideanAtomFamily.sphereFilteredRoot, if_pos hvis]
+    · rw [EuclideanAtomFamily.sphereFilteredRoot, ite_eq_left hvis]
       change HasCompactSupport (s • atoms.root i)
       exact (atoms.root_compact_support i).smul_left
     · simp [EuclideanAtomFamily.sphereFilteredRoot, hvis, HasCompactSupport]
@@ -392,7 +392,7 @@ noncomputable def EuclideanAtomFamily.sphereFilteredWidened {n : ℕ}
       rw [hz]
       change ‖iteratedFDeriv ℝ j (fun _ : Fin n → ℝ ↦ (0 : ℝ)) x‖ *
         (L * atoms.radius i) ^ j ≤ s * C * L ^ 2 * (L * atoms.radius i) ^ 2
-      rw [iteratedFDeriv_zero_fun]
+      rw [iteratedFDeriv_fun_zero]
       simp only [Pi.zero_apply, norm_zero, zero_mul]
       exact mul_nonneg (mul_nonneg (mul_nonneg hs.le hC) (sq_nonneg L))
         (sq_nonneg (L * atoms.radius i))
@@ -699,9 +699,9 @@ theorem radialAnnularCutoff_hasCompactSupport (n : ℕ) :
 theorem compactRadialExtension_hasCompactSupport {n : ℕ}
     (F : MvPolynomial (Fin n) ℝ) : HasCompactSupport (compactRadialExtension F) := by
   have hcut : HasCompactSupport (fun x ↦ radialAnnularCutoff n x ^ 2) := by
-    simpa only [pow_two] using
-      (radialAnnularCutoff_hasCompactSupport n).mul_right
-        (f' := radialAnnularCutoff n)
+    have hbase := radialAnnularCutoff_hasCompactSupport n
+    rw [hasCompactSupport_iff_eventuallyEq] at hbase ⊢
+    exact hbase.mono fun x hx ↦ by simp [hx]
   exact hcut.mul_right
 
 /-- In each fixed dimension, the squared annular cutoff and all derivatives through order six
@@ -714,9 +714,9 @@ theorem radialAnnularCutoffSquare_uniform_deriv_bound (n : ℕ) :
   have hsmooth : ContDiff ℝ 6 cutoffSquare := (radialAnnularCutoff_contDiff n).pow 2
   have hcompact : HasCompactSupport cutoffSquare := by
     dsimp [cutoffSquare]
-    simpa only [pow_two] using
-      (radialAnnularCutoff_hasCompactSupport n).mul_right
-        (f' := radialAnnularCutoff n)
+    have hbase := radialAnnularCutoff_hasCompactSupport n
+    rw [hasCompactSupport_iff_eventuallyEq] at hbase ⊢
+    exact hbase.mono fun x hx ↦ by simp [hx]
   let J := {j : ℕ // j ≤ 6}
   letI : Fintype J := Fintype.ofFinite J
   have hbound : ∀ j : J, ∃ M : ℝ, ∀ x,
@@ -896,9 +896,9 @@ theorem hasFDerivAt_mvPolynomial_eval {n : ℕ} (F : MvPolynomial (Fin n) ℝ)
       · ext v
         simp only [mvPolynomialEvalFDeriv, Derivation.leibniz, pderiv_X, Pi.single_apply,
           smul_eq_mul, mul_ite, mul_one, mul_zero, map_add, map_mul, eval_X,
-          ContinuousLinearMap.coe_sum', ContinuousLinearMap.coe_smul', Finset.sum_apply,
+          FunLike.coe_sum, FunLike.coe_smul, Finset.sum_apply,
           Pi.smul_apply, ContinuousLinearMap.proj_apply, add_mul, Finset.sum_add_distrib,
-          ContinuousLinearMap.add_apply, Finset.mul_sum]
+          add_apply, Finset.mul_sum]
         rw [Finset.sum_eq_single i]
         · simp [mul_assoc]
         · intro b hb hbi
@@ -913,7 +913,7 @@ theorem mvPolynomialEvalFDeriv_sphereQuadratic_apply {n : ℕ}
     Nat.add_one_sub_one, pow_one, pderiv_X, Pi.single_apply, smul_eq_mul, mul_ite,
     mul_one, mul_zero, smul_ite, nsmul_eq_mul, Nat.cast_ofNat,
     Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte, map_mul, eval_ofNat, eval_X,
-    ContinuousLinearMap.coe_sum', ContinuousLinearMap.coe_smul', Finset.sum_apply,
+    FunLike.coe_sum, FunLike.coe_smul, Finset.sum_apply,
     Pi.smul_apply, ContinuousLinearMap.proj_apply]
   rw [Finset.mul_sum]
   apply Finset.sum_congr rfl
@@ -945,9 +945,9 @@ theorem fderiv_radialDirection_apply {n : ℕ} {x : Fin n → ℝ}
   rw [hradial.fderiv]
   ext i
   simp only [Function.comp_apply, one_div, mul_inv_rev, ContinuousLinearMap.comp_smulₛₗ,
-    RingHom.id_apply, id_eq, ContinuousLinearMap.add_apply, ContinuousLinearMap.coe_smul',
+    RingHom.id_apply, id_eq, add_apply, FunLike.coe_smul,
     ContinuousLinearMap.coe_id', Pi.smul_apply, ContinuousLinearMap.smulRight_apply,
-    ContinuousLinearMap.coe_comp', mvPolynomialEvalFDeriv_sphereQuadratic_apply,
+    ContinuousLinearMap.coe_comp, mvPolynomialEvalFDeriv_sphereQuadratic_apply,
     ContinuousLinearMap.toSpanSingleton_apply, smul_eq_mul, mul_neg, neg_smul,
     Pi.add_apply, Pi.neg_apply, Pi.sub_apply]
   rw [Real.sq_sqrt hx.le]
@@ -1002,8 +1002,8 @@ theorem mvPolynomialEvalFDeriv_tangent_eq_rotation_sum {n : ℕ}
   have hleft :
       mvPolynomialEvalFDeriv F y (v - dot • y) =
         (∑ i, d i * v i) - dot * ∑ i, d i * y i := by
-    simp only [mvPolynomialEvalFDeriv, ContinuousLinearMap.coe_sum',
-      ContinuousLinearMap.coe_smul', Finset.sum_apply, Pi.smul_apply,
+    simp only [mvPolynomialEvalFDeriv, FunLike.coe_sum,
+      FunLike.coe_smul, Finset.sum_apply, Pi.smul_apply,
       ContinuousLinearMap.proj_apply, Pi.sub_apply, smul_eq_mul, Finset.mul_sum, dot, d]
     rw [← Finset.sum_sub_distrib]
     apply Finset.sum_congr rfl
@@ -1093,8 +1093,8 @@ theorem fderiv_radialPullback_eq_firstExpansion {n : ℕ} {x : Fin n → ℝ}
       radialPullbackFirstExpansion F x := by
   ext v
   rw [fderiv_radialPullback_apply hx F v]
-  simp only [radialPullbackFirstExpansion, ContinuousLinearMap.sum_apply,
-    ContinuousLinearMap.coe_smul', radialTangentCoefficient]
+  simp only [radialPullbackFirstExpansion, _root_.sum_apply,
+    FunLike.coe_smul, radialTangentCoefficient]
   rw [Finset.mul_sum]
   apply Finset.sum_congr rfl
   intro i hi
@@ -1454,7 +1454,7 @@ theorem iteratedFDeriv_finset_sum_apply_of_contDiffAt
     iteratedFDeriv ℝ m (fun y ↦ ∑ i ∈ u, f i y) x =
       ∑ i ∈ u, iteratedFDeriv ℝ m (f i) x := by
   simp_rw [← iteratedFDerivWithin_univ]
-  exact iteratedFDerivWithin_sum_apply uniqueDiffOn_univ (Set.mem_univ x)
+  exact iteratedFDerivWithin_fun_sum_apply uniqueDiffOn_univ (Set.mem_univ x)
     (fun i hi ↦ (h i hi).contDiffWithinAt)
 
 /-- Coordinate projection has operator norm at most one for the product sup norm. -/
@@ -1872,7 +1872,7 @@ theorem compactRadialExtension_deriv_le_sphereC6Norm {n : ℕ} (hn : 3 ≤ n) :
   · have hxhalf : radialNormSq x < 1 / 2 := by linarith
     have heq :=
       compactRadialExtension_eventuallyEq_zero_of_radialNormSq_lt_half F hxhalf
-    rw [(heq.iteratedFDeriv ℝ j).self_of_nhds, iteratedFDeriv_zero_fun]
+    rw [(heq.iteratedFDeriv ℝ j).self_of_nhds, iteratedFDeriv_fun_zero]
     simp only [Pi.zero_apply, norm_zero]
     exact mul_nonneg (zero_le_one.trans (le_max_left _ _))
       (sphereC6Norm_nonneg hnpos F)
@@ -1880,7 +1880,7 @@ theorem compactRadialExtension_deriv_le_sphereC6Norm {n : ℕ} (hn : 3 ≤ n) :
     · have hxouter : 3 / 2 < radialNormSq x := by linarith
       have heq :=
         compactRadialExtension_eventuallyEq_zero_of_three_halves_lt_radialNormSq F hxouter
-      rw [(heq.iteratedFDeriv ℝ j).self_of_nhds, iteratedFDeriv_zero_fun]
+      rw [(heq.iteratedFDeriv ℝ j).self_of_nhds, iteratedFDeriv_fun_zero]
       simp only [Pi.zero_apply, norm_zero]
       exact mul_nonneg (zero_le_one.trans (le_max_left _ _))
         (sphereC6Norm_nonneg hnpos F)
@@ -1923,7 +1923,9 @@ theorem compactRadialExtension_deriv_le_sphereC6Norm {n : ℕ} (hn : 3 ≤ n) :
       have hraw :
           ‖iteratedFDeriv ℝ j (compactRadialExtension F) x‖ ≤
             64 * A * (K * sphereC6Norm F) := by
-        simpa [compactRadialExtension, cutoffSquare, pullback] using hproduct
+        change ‖iteratedFDeriv ℝ j (fun y ↦
+          radialAnnularCutoff n y ^ 2 * MvPolynomial.eval (radialDirection y) F) x‖ ≤ _
+        simpa [cutoffSquare, pullback] using hproduct
       calc
         ‖iteratedFDeriv ℝ j (compactRadialExtension F) x‖ ≤
             64 * A * (K * sphereC6Norm F) := hraw

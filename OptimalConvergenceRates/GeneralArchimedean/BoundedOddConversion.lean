@@ -203,9 +203,8 @@ theorem bounded_convertedOdd_le_oddAbsorptionCoefficient_at
       (convertedOdd (fun _ => pkg) a sigma)
       (C (oddAbsorptionCoefficient s H B' theta δ) *
         denominatorProduct (fun _ => pkg) a) := by
-    convert couter using 1
-    simp only [oddAbsorptionCoefficient,
-      map_sum, Finset.sum_mul, Sall]
+    simpa only [convertedOdd, oddAbsorptionCoefficient,
+      map_sum, Finset.sum_mul, Sall] using couter
   exact ⟨by
     simpa [boundedConvertedOddBudget, conversionSubsetCount, Sall,
       HT, Hint, Kfactor] using cfinal⟩

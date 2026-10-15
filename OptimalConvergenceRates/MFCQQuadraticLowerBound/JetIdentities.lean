@@ -77,7 +77,7 @@ theorem restricted_certificate_coeff_two
     (fun p : MvPolynomial (Fin 3) ℝ ↦ (restrictScaledArc j p).coeff 2)
     certificate.identity
   simp only [restrictScaledArc, map_add, map_sum, map_mul,
-    MvPolynomial.aeval_C, Polynomial.coeff_add, Polynomial.finset_sum_coeff] at hidentity
+    MvPolynomial.aeval_C, Polynomial.coeff_add, Polynomial.finsetSum_coeff] at hidentity
   change
     (restrictScaledArc j objective).coeff 2 + (Polynomial.C epsilon).coeff 2 =
       (restrictScaledArc j certificate.sigmaZero).coeff 2 +
@@ -104,7 +104,7 @@ theorem root_sum_coeff_two
     (fun p : MvPolynomial (Fin 3) ℝ ↦ (restrictScaledArc j p).coeff 2)
     certificate.rootDecomp
   simp only [restrictScaledArc, map_add, map_sum, map_pow,
-    Polynomial.coeff_add, Polynomial.finset_sum_coeff] at hroot
+    Polynomial.coeff_add, Polynomial.finsetSum_coeff] at hroot
   simp_rw [pow_two, coeff_two_mul] at hroot
   change
     (restrictScaledArc j certificate.sigmaZero).coeff 2 +

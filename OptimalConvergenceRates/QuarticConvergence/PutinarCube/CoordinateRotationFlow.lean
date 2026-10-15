@@ -33,7 +33,7 @@ def coordinateHalfAngleAxis {n : ℕ} (i j : Fin n) (hij : i ≠ j)
   ⟨fun q ↦ if q = i then Real.cos (t / 2)
       else if q = j then Real.sin (t / 2) else 0, by
     simp only [sphereSet, sphereQuadratic, map_sum, map_pow, eval_X,
-      Set.mem_setOf_eq]
+      Set.mem_ofPred_eq]
     calc
       (∑ q : Fin n,
           (if q = i then Real.cos (t / 2)
@@ -139,13 +139,13 @@ theorem coordinateRotationFlow_eq_sphereTwoReflectionRotation {n : ℕ}
       _ = _ := Real.sin_two_mul (t / 2)
   by_cases hqi : q = i
   · subst q
-    simp only [if_pos]
+    simp only [ite_eq_left]
     rw [hcos, hsin]
     have hunit := Real.sin_sq_add_cos_sq (t / 2)
     linear_combination (x.1 i) * hunit
   · by_cases hqj : q = j
     · subst q
-      simp only [if_neg hij.symm, if_pos]
+      simp only [ite_eq_right hij.symm, ite_eq_left]
       rw [hcos, hsin]
       have hunit := Real.sin_sq_add_cos_sq (t / 2)
       linear_combination -(x.1 j) * hunit
@@ -197,17 +197,17 @@ theorem hasDerivAt_coordinateRotationFlow_zero {n : ℕ}
   intro q
   by_cases hqi : q = i
   · subst q
-    simp only [coordinateRotationFlow_apply, if_pos]
+    simp only [coordinateRotationFlow_apply, ite_eq_left]
     convert ((Real.hasDerivAt_cos 0).mul_const (x.1 i)).sub
       ((Real.hasDerivAt_sin 0).mul_const (x.1 j)) using 1
     all_goals simp [coordinateRotationVector, hij]
   · by_cases hqj : q = j
     · subst q
-      simp only [coordinateRotationFlow_apply, if_neg hij.symm, if_pos]
+      simp only [coordinateRotationFlow_apply, ite_eq_right hij.symm, ite_eq_left]
       convert ((Real.hasDerivAt_sin 0).mul_const (x.1 i)).add
         ((Real.hasDerivAt_cos 0).mul_const (x.1 j)) using 1
       all_goals simp [coordinateRotationVector, hij]
-    · simp only [coordinateRotationFlow_apply, if_neg hqi, if_neg hqj]
+    · simp only [coordinateRotationFlow_apply, ite_eq_right hqi, ite_eq_right hqj]
       convert hasDerivAt_const (x := (0 : ℝ)) (x.1 q) using 1
       simp [coordinateRotationVector, hqi, hqj]
 
@@ -221,7 +221,7 @@ theorem hasDerivAt_coordinateRotationFlow {n : ℕ}
   intro q
   by_cases hqi : q = i
   · subst q
-    simp only [coordinateRotationFlow_apply, if_pos]
+    simp only [coordinateRotationFlow_apply, ite_eq_left]
     convert ((Real.hasDerivAt_cos t₀).mul_const (x.1 i)).sub
       ((Real.hasDerivAt_sin t₀).mul_const (x.1 j)) using 1
     all_goals
@@ -229,13 +229,13 @@ theorem hasDerivAt_coordinateRotationFlow {n : ℕ}
       ring
   · by_cases hqj : q = j
     · subst q
-      simp only [coordinateRotationFlow_apply, if_neg hij.symm, if_pos]
+      simp only [coordinateRotationFlow_apply, ite_eq_right hij.symm, ite_eq_left]
       convert ((Real.hasDerivAt_sin t₀).mul_const (x.1 i)).add
         ((Real.hasDerivAt_cos t₀).mul_const (x.1 j)) using 1
       all_goals
         simp [coordinateRotationVector, hij.symm]
         ring
-    · simp only [coordinateRotationFlow_apply, if_neg hqi, if_neg hqj]
+    · simp only [coordinateRotationFlow_apply, ite_eq_right hqi, ite_eq_right hqj]
       convert hasDerivAt_const (x := t₀) (x.1 q) using 1
       simp [coordinateRotationVector, hqi, hqj]
 

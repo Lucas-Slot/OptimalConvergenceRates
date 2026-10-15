@@ -214,7 +214,7 @@ theorem schmuedgen_motzkin_lower_degree_bound_sixth
     (hmem : motzkinPerturbed epsilon ∈ BoxPreordering 3 r) :
     motzkinLowerBoundConst * epsilon ^ (-(1 : ℝ) / 6) ≤ (r : ℝ) := by
   by_contra hcontra
-  push_neg at hcontra
+  push Not at hcontra
   exact box_preordering_motzkin_too_close_sixth heps heps0
     (le_of_lt hcontra) hmem
 
