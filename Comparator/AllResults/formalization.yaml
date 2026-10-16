@@ -33,10 +33,11 @@ sources:
 status:
   scope: >-
     The Comparator surface contains twenty-two theorems covering all ten result
-    groups in README.md, together with two definitions for the separation
-    constants used in the Choi--Lam and Motzkin lower bounds. Supporting
-    definitions, lemmas, equivalent consequences, and results not listed in
-    README.md are outside the compared surface.
+    groups in README.md, positivity theorems for the two separation constants
+    used in the Choi--Lam and Motzkin lower bounds, and the two corresponding
+    definitions. Supporting definitions, lemmas, equivalent consequences, and
+    results not listed in README.md are outside the compared surface unless
+    needed to ensure those lower bounds are nonvacuous.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Quot.sound", "Classical.choice"]
@@ -149,6 +150,11 @@ alignment:
       status: "proved"
       note: "Equivalent Lasserre-gap obstruction for the corner polynomial."
     - source: "Hypercube, lower degree bound II (unlabelled in the announcement)"
+      lean: "OptimalConvergenceRates.Motzkin.motzkinLowerBoundConst_pos"
+      module: "Comparator.AllResults.Solution"
+      status: "proved"
+      note: "Positivity of the constant in the Motzkin sixth-power lower bound."
+    - source: "Hypercube, lower degree bound II (unlabelled in the announcement)"
       lean: "OptimalConvergenceRates.lowerBoundMembershipBoxPreoMotzkin_sixth"
       module: "Comparator.AllResults.Solution"
       status: "proved"
@@ -158,6 +164,11 @@ alignment:
       module: "Comparator.AllResults.Solution"
       status: "proved"
       note: "Matching sixth-power upper certificate bound for perturbed Motzkin."
+    - source: "Hypercube, lower degree bound III (unlabelled in the announcement)"
+      lean: "OptimalConvergenceRates.schmInteriorLowerBoundConst4_pos"
+      module: "Comparator.AllResults.Solution"
+      status: "proved"
+      note: "Positivity of the constant in the Choi--Lam quarter-power lower bound."
     - source: "Hypercube, lower degree bound III (unlabelled in the announcement)"
       lean: "OptimalConvergenceRates.lowerBoundMembershipBoxPreoChoiLam_quarter"
       module: "Comparator.AllResults.Solution"

@@ -17,7 +17,8 @@ repository-local definition needed to state those theorems. It imports only Math
 
 The theorem proofs are intentional challenge holes. The only definition holes are
 `schmInteriorLowerBoundConst4` and `Motzkin.motzkinLowerBoundConst`, matching the existing
-challenge treatment of the two separation-derived constants.
+challenge treatment of the two separation-derived constants. Their positivity is stated as
+separate theorem holes so that the compared lower bounds cannot be made vacuous.
 -/
 
 /- Reset generated auxiliary-lemma names at copied production-module boundaries. -/
@@ -415,6 +416,10 @@ def schmInteriorEpsilon0 : ℝ := (schmInteriorLowerBoundConst / 4) ^ 4
 noncomputable def schmInteriorLowerBoundConst4 : ℝ := by
   sorry
 
+/-- The separation-derived Choi--Lam lower-bound constant is positive. -/
+theorem schmInteriorLowerBoundConst4_pos : 0 < schmInteriorLowerBoundConst4 := by
+  sorry
+
 namespace Motzkin
 
 /-- The homogeneous ternary Motzkin sextic. -/
@@ -428,6 +433,10 @@ def motzkinPerturbed (epsilon : ℝ) : MvPolynomial (Fin 3) ℝ :=
 
 /-- Intentional definition hole for the separation-derived Motzkin constant. -/
 noncomputable def motzkinLowerBoundConst : ℝ := by
+  sorry
+
+/-- The separation-derived Motzkin lower-bound constant is positive. -/
+theorem motzkinLowerBoundConst_pos : 0 < motzkinLowerBoundConst := by
   sorry
 
 /-- The small-perturbation threshold for the Motzkin lower bound. -/
