@@ -21,8 +21,8 @@
     "OptimalConvergenceRates.schmInteriorLowerBoundConst4_pos",
     "OptimalConvergenceRates.lowerBoundMembershipBoxPreoChoiLam_quarter",
     "OptimalConvergenceRates.lowerBoundMembershipBoxPreoChoiLam_quarter_contra",
-    "OptimalConvergenceRates.putinarQuarticRate",
-    "OptimalConvergenceRates.putinarQuarticDegreeBound",
+    "OptimalConvergenceRates.putinarQuarticRateWithEqualities",
+    "OptimalConvergenceRates.putinarQuarticDegreeBoundWithEqualities",
     "OptimalConvergenceRates.MFCQQuadraticLowerBound.certificate_lower_bound",
     "OptimalConvergenceRates.MFCQQuadraticLowerBound.certificate_order_lower_bound",
     "OptimalConvergenceRates.MFCQQuadraticLowerBound.hierarchy_error_lower_bound"

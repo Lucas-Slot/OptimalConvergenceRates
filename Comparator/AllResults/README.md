@@ -4,6 +4,8 @@ This Comparator entry covers all 22 theorems presented in the repository
 README, plus positivity theorems for the two constants in the Motzkin and
 Choi--Lam lower bounds. Its standalone `Challenge.lean` imports only Mathlib
 and includes the repository-local definitions needed to state those results.
+The CQC targets use `CQCWithEqualities`, which treats exact opposite-generator
+pairs as equality constraints while retaining ordinary active inequalities.
 
 The theorem bodies are challenge holes. The only definition holes are
 `OptimalConvergenceRates.schmInteriorLowerBoundConst4` and

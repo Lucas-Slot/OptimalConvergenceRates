@@ -394,9 +394,10 @@ theorem lowerBoundMembershipBoxPreoChoiLam_quarter_contra
     epsilon heps heps0 r hr
 ```
 
-## 9. LICQ upper bound
+## 9. CQC with encoded equalities upper bound
 
-**Result.** Let `g` define a nonempty Archimedean basic closed set and satisfy LICQ/CQC.
+**Result.** Let `g` define a nonempty Archimedean basic closed set and satisfy
+equality-aware CQC, allowing equalities encoded by opposite generator pairs.
 For every polynomial `p` nonnegative on the set, there are constants `C`, `k₀`, and `ε₀`
 such that
 
@@ -412,33 +413,33 @@ in the respective asymptotic ranges.
 - **TeX label:** `thm:LICQupper`
 - **Folder:** [`OptimalConvergenceRates/CQC`](OptimalConvergenceRates/CQC)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/CQC/MainResults.lean)
-- **Lean declarations:** `putinarQuarticRate`, `putinarQuarticDegreeBound`
+- **Lean declarations:** `putinarQuarticRateWithEqualities`, `putinarQuarticDegreeBoundWithEqualities`
 
 > **Hypothesis note.** Lean states nonemptiness and positive dimension/cardinality
-> assumptions explicitly. Its predicate `CQC g` is the formalized constraint qualification
-> used for this result.
+> assumptions explicitly. Its predicate `CQCWithEqualities g` treats each exact signed class
+> containing `q` and `-q` as one equality constraint while retaining ordinary active inequalities.
 
 ```lean
-theorem putinarQuarticRate
+theorem putinarQuarticRateWithEqualities
     {n m : ℕ} (hn : 0 < n) (_hm : 0 < m)
     {g : Fin m → MvPolynomial (Fin n) ℝ}
     {p : MvPolynomial (Fin n) ℝ}
     (hne : (KrivineStengle.basicClosedSet g).Nonempty)
     (harch : GeneralArchimedean.IsArchimedean g)
-    (hcqc : CQC g)
+    (hcqc : CQCWithEqualities g)
     (hp : IsNonnegOn p (KrivineStengle.basicClosedSet g)) :
     ∃ A : ℝ, ∃ r₀ : ℕ, 0 < A ∧ 0 < r₀ ∧
       ∀ r, r₀ ≤ r →
         p + C (A / (r : ℝ) ^ 4) ∈ GenQuadraticModule g r :=
-  CQCMainResultsProofs.putinarQuarticRate hn hne harch hcqc hp
+  CQCMainResultsProofs.putinarQuarticRateWithEqualities hn hne harch hcqc hp
 
-theorem putinarQuarticDegreeBound
+theorem putinarQuarticDegreeBoundWithEqualities
     {n m : ℕ} (hn : 0 < n) (_hm : 0 < m)
     {g : Fin m → MvPolynomial (Fin n) ℝ}
     {p : MvPolynomial (Fin n) ℝ}
     (hne : (KrivineStengle.basicClosedSet g).Nonempty)
     (harch : GeneralArchimedean.IsArchimedean g)
-    (hcqc : CQC g)
+    (hcqc : CQCWithEqualities g)
     (hp : IsNonnegOn p (KrivineStengle.basicClosedSet g)) :
     ∃ A : ℝ, ∃ r₀ : ℕ, 0 < A ∧ 0 < r₀ ∧
       ∀ epsilon : ℝ, 0 < epsilon →
@@ -446,7 +447,7 @@ theorem putinarQuarticDegreeBound
           (r : ℝ) < (r₀ : ℝ) +
               (A / epsilon) ^ ((1 : ℝ) / 4) + 1 ∧
             p + C epsilon ∈ GenQuadraticModule g r :=
-  CQCMainResultsProofs.putinarQuarticDegreeBound hn hne harch hcqc hp
+  CQCMainResultsProofs.putinarQuarticDegreeBoundWithEqualities hn hne harch hcqc hp
 ```
 
 ## 10. MFCQ quadratic lower bound

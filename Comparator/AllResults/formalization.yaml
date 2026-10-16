@@ -6,7 +6,7 @@ project:
     A Lean 4 development presenting proofs of the ten result groups announced
     in a forthcoming companion manuscript. The results give asymptotically
     optimal upper and lower certificate-degree bounds for Archimedean quadratic
-    modules and compact preorderings, quartic hypercube and LICQ upper bounds,
+    modules and compact preorderings, quartic hypercube and equality-aware CQC upper bounds,
     sharp lower bounds for explicit hypercube witnesses, and a quadratic lower
     bound under MFCQ.
   authors:
@@ -180,12 +180,12 @@ alignment:
       status: "proved"
       note: "Equivalent nonmembership form of the Choi--Lam lower bound."
     - source: "LICQ upper bound (thm:LICQupper)"
-      lean: "OptimalConvergenceRates.putinarQuarticRate"
+      lean: "OptimalConvergenceRates.putinarQuarticRateWithEqualities"
       module: "Comparator.AllResults.Solution"
       status: "proved"
-      note: "Quartic Putinar rate under the formalized constraint qualification."
+      note: "Quartic Putinar rate under the equality-aware constraint qualification for opposite-generator equality encodings."
     - source: "LICQ upper bound (thm:LICQupper)"
-      lean: "OptimalConvergenceRates.putinarQuarticDegreeBound"
+      lean: "OptimalConvergenceRates.putinarQuarticDegreeBoundWithEqualities"
       module: "Comparator.AllResults.Solution"
       status: "proved"
       note: "Inverse epsilon-certificate degree bound under the constraint qualification."
