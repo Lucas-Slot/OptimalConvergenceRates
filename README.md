@@ -1,7 +1,10 @@
 # Lean companion to "Optimal degree bounds for sum-of-squares representations"
 
-This repository serves as a Lean formalization of the claims made in 
-> **TODO:** Insert a PDF or arXiv link to a document containing a summary of all results.
+This repository serves as a Lean formalization of the claims in the forthcoming
+companion announcement.
+
+- **arXiv/DOI:** Not yet available.
+- **Announcement PDF:** [Optimal degree bounds for sum-of-squares representations](Announcement.pdf)
 
 Below is a list of every formalized theorem in the order used in that announcement.
 Each entry gives the mathematical statement, its Lean formalization, and the location of its formalization within this repo.
@@ -82,7 +85,6 @@ k_{p,\varepsilon,\mathrm{QM}(g)}
 $$
 
 - **TeX name:** `Archimedean, upper degree bound`
-- **TeX label:** `THM:generalputinarupper`
 - **Folder:** [`OptimalConvergenceRates/GeneralArchimedean`](OptimalConvergenceRates/GeneralArchimedean)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/GeneralArchimedean/MainResults.lean)
 - **Lean declarations:** `generalArchimedeanUpperRate`,
@@ -131,7 +133,6 @@ $$
 for all sufficiently large `k` and sufficiently small positive `ε`.
 
 - **TeX name:** `Archimedean, lower degree bound`
-- **TeX label:** `THM:generalputinarlower`
 - **Folder:** [`OptimalConvergenceRates/GeneralArchimedean`](OptimalConvergenceRates/GeneralArchimedean)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/GeneralArchimedean/MainResults.lean)
 - **Lean declarations:** `sharpArchimedeanRate`, `sharpArchimedeanDegreeLowerBound`
@@ -175,7 +176,6 @@ k_{p,\varepsilon,\mathrm{PO}(g)}
 $$
 
 - **TeX name:** `Compact, upper degree bound`
-- **TeX label:** `THM:generalschmudgenupper`
 - **Folder:** [`OptimalConvergenceRates/GeneralCompact`](OptimalConvergenceRates/GeneralCompact)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/GeneralCompact/MainResults.lean)
 - **Lean declarations:** `generalCompactUpperRate`, `generalCompactEpsilonCertificate`
@@ -223,7 +223,6 @@ $$
 for all sufficiently large `k` and sufficiently small positive `ε`.
 
 - **TeX name:** `Compact, lower degree bound`
-- **TeX label:** none
 - **Folder:** [`OptimalConvergenceRates/GeneralCompact`](OptimalConvergenceRates/GeneralCompact)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/GeneralCompact/MainResults.lean)
 - **Lean declarations:** `sharpCompactRate`, `sharpCompactDegreeLowerBound`
@@ -257,7 +256,6 @@ degree at most `d` that is nonnegative on `[-1,1]ⁿ` has a Putinar certificate 
 holds for the larger Schmüdgen preordering.
 
 - **TeX name:** `Hypercube, upper degree bound`
-- **TeX label:** `THM:cubeupper`
 - **Folder:** [`OptimalConvergenceRates/QuarticConvergence`](OptimalConvergenceRates/QuarticConvergence)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/QuarticConvergence/MainResults.lean)
 - **Lean declarations:** `putinarCubeQuarticRate_membership`,
@@ -308,7 +306,6 @@ two-dimensional box require degree `Ω(ε⁻¹/⁴)`. Equivalently, the relaxati
 `Ω(k⁻⁴)`.
 
 - **TeX name:** `Hypercube, lower degree bound I`
-- **TeX label:** `THM:cubelowerI`
 - **Folder:** [`OptimalConvergenceRates/LowerDegreeBoundsPutinar`](OptimalConvergenceRates/LowerDegreeBoundsPutinar)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/LowerDegreeBoundsPutinar/MainResults.lean)
 - **Lean declarations:** `improvedLowerBoundMembershipBoxQM`,
@@ -336,7 +333,6 @@ theorem improved_lasserre_box_qm_gap
 degree is `Θ(ε⁻¹/⁶)`, equivalently the optimal error rate is `Θ(k⁻⁶)`.
 
 - **TeX name:** `Hypercube, lower degree bound II`
-- **TeX label:** none (the label is commented out in the TeX source)
 - **Folder:** [`OptimalConvergenceRates/LowerDegreeBoundsSchmudgen`](OptimalConvergenceRates/LowerDegreeBoundsSchmudgen)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/LowerDegreeBoundsSchmudgen/MainResults.lean)
 - **Lean declarations:** `lowerBoundMembershipBoxPreoMotzkin_sixth`,
@@ -367,7 +363,6 @@ for `p + ε` require degree `Ω(ε⁻¹/⁴)`, equivalently the relaxation error
 The same lower bound follows for the smaller Putinar quadratic module.
 
 - **TeX name:** `Hypercube, lower degree bound III`
-- **TeX label:** none (the label is commented out in the TeX source)
 - **Folder:** [`OptimalConvergenceRates/LowerDegreeBoundsSchmudgen`](OptimalConvergenceRates/LowerDegreeBoundsSchmudgen)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/LowerDegreeBoundsSchmudgen/MainResults.lean)
 - **Lean declarations:** `lowerBoundMembershipBoxPreoChoiLam_quarter`,
@@ -391,7 +386,7 @@ theorem lowerBoundMembershipBoxPreoChoiLam_quarter_contra
     epsilon heps heps0 r hr
 ```
 
-## 9. CQC with encoded equalities upper bound
+## 9. LICQ upper bound
 
 **Result.** Let `g` define a nonempty Archimedean basic closed set and satisfy
 equality-aware CQC, allowing equalities encoded by opposite generator pairs.
@@ -406,8 +401,6 @@ $$
 
 in the respective asymptotic ranges.
 
-- **TeX name:** none; the theorem option contains only `\lean`
-- **TeX label:** `thm:LICQupper`
 - **Folder:** [`OptimalConvergenceRates/CQC`](OptimalConvergenceRates/CQC)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/CQC/MainResults.lean)
 - **Lean declarations:** `putinarQuarticRateWithEqualities`, `putinarQuarticDegreeBoundWithEqualities`
@@ -452,8 +445,6 @@ theorem putinarQuarticDegreeBoundWithEqualities
 **Result.** For the three-variable MFCQ example and objective `p = x₃`, certificates for
 `p + ε` require order `Ω(ε⁻¹/²)`, equivalently the hierarchy error is `Ω(k⁻²)`.
 
-- **TeX name:** none; the theorem option contains only `\lean`
-- **TeX label:** none
 - **Folder:** [`OptimalConvergenceRates/MFCQQuadraticLowerBound`](OptimalConvergenceRates/MFCQQuadraticLowerBound)
 - **File:** [`MainResults.lean`](OptimalConvergenceRates/MFCQQuadraticLowerBound/MainResults.lean)
 - **Lean declarations:** `certificate_lower_bound`, `certificate_order_lower_bound`,
