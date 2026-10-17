@@ -4,9 +4,10 @@
 `Challenge.lean`, a production-backed `Solution.lean`, a Comparator
 configuration, and project metadata.
 
-The entry compares 22 theorem holes and the two intentional definition holes
-for the Choi--Lam and Motzkin separation constants. Comparator permits only
-`propext`, `Quot.sound`, and `Classical.choice`, with NanoDa replay enabled.
+The entry compares the 22 README theorem holes, positivity theorem holes for the
+Choi--Lam and Motzkin separation constants, and the two corresponding intentional
+definition holes. Comparator permits only `propext`, `Quot.sound`, and
+`Classical.choice`, with NanoDa replay enabled.
 
 Run the pinned checks locally with:
 

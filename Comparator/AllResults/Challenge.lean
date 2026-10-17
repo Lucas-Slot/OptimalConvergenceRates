@@ -17,7 +17,8 @@ repository-local definition needed to state those theorems. It imports only Math
 
 The theorem proofs are intentional challenge holes. The only definition holes are
 `schmInteriorLowerBoundConst4` and `Motzkin.motzkinLowerBoundConst`, matching the existing
-challenge treatment of the two separation-derived constants.
+challenge treatment of the two separation-derived constants. Their positivity is stated as
+separate theorem holes so that the compared lower bounds cannot be made vacuous.
 -/
 
 /- Reset generated auxiliary-lemma names at copied production-module boundaries. -/
@@ -415,6 +416,10 @@ def schmInteriorEpsilon0 : ℝ := (schmInteriorLowerBoundConst / 4) ^ 4
 noncomputable def schmInteriorLowerBoundConst4 : ℝ := by
   sorry
 
+/-- The separation-derived Choi--Lam lower-bound constant is positive. -/
+theorem schmInteriorLowerBoundConst4_pos : 0 < schmInteriorLowerBoundConst4 := by
+  sorry
+
 namespace Motzkin
 
 /-- The homogeneous ternary Motzkin sextic. -/
@@ -428,6 +433,10 @@ def motzkinPerturbed (epsilon : ℝ) : MvPolynomial (Fin 3) ℝ :=
 
 /-- Intentional definition hole for the separation-derived Motzkin constant. -/
 noncomputable def motzkinLowerBoundConst : ℝ := by
+  sorry
+
+/-- The separation-derived Motzkin lower-bound constant is positive. -/
+theorem motzkinLowerBoundConst_pos : 0 < motzkinLowerBoundConst := by
   sorry
 
 /-- The small-perturbation threshold for the Motzkin lower bound. -/
@@ -473,6 +482,27 @@ theorem lowerBoundMembershipBoxPreoChoiLam_quarter_contra
 set_option linter.hashCommand false in
 #challengeResetAuxLemmas
 
+/-- An inequality generator has an explicit opposite when a distinct member of
+the same family is exactly its negation. -/
+def HasOppositeConstraint {n m : ℕ}
+    (g : Fin m → MvPolynomial (Fin n) ℝ) (i : Fin m) : Prop :=
+  ∃ j, j ≠ i ∧ g j = -g i
+
+/-- The canonical representative of an equality encoded by a signed generator
+pair is the least index in its entire class up to sign. -/
+def IsEqualityRepresentative {n m : ℕ}
+    (g : Fin m → MvPolynomial (Fin n) ℝ) (i : Fin m) : Prop :=
+  HasOppositeConstraint g i ∧
+    ∀ j, (g j = g i ∨ g j = -g i) → i ≤ j
+
+/-- Active ordinary inequalities together with one canonical representative
+for every encoded equality. -/
+def IsActiveWithEqualities {n m : ℕ}
+    (g : Fin m → MvPolynomial (Fin n) ℝ)
+    (x : Fin n → ℝ) (i : Fin m) : Prop :=
+  MvPolynomial.eval x (g i) = 0 ∧
+    (¬HasOppositeConstraint g i ∨ IsEqualityRepresentative g i)
+
 /-- Linear independence of active constraint gradients at every feasible point. -/
 def CQC {n m : ℕ} (g : Fin m → MvPolynomial (Fin n) ℝ) : Prop :=
   letI : NormedSpace ℝ ℝ := NormedField.toNormedSpace
@@ -481,30 +511,40 @@ def CQC {n m : ℕ} (g : Fin m → MvPolynomial (Fin n) ℝ) : Prop :=
       (fun i : {i : Fin m // MvPolynomial.eval x (g i) = 0} ↦
         fun j : Fin n ↦ MvPolynomial.eval x (MvPolynomial.pderiv j (g i)))
 
+/-- Equality-aware CQC for inequality-only presentations that encode equality
+constraints by including both a polynomial and its negation. -/
+def CQCWithEqualities {n m : ℕ}
+    (g : Fin m → MvPolynomial (Fin n) ℝ) : Prop :=
+  letI : NormedSpace ℝ ℝ := NormedField.toNormedSpace
+  ∀ x ∈ KrivineStengle.basicClosedSet g,
+    LinearIndependent ℝ
+      (fun i : {i : Fin m // IsActiveWithEqualities g x i} ↦
+        fun j : Fin n ↦ MvPolynomial.eval x (MvPolynomial.pderiv j (g i)))
+
 -- Mirror `CQC/MainResults.lean`.
 set_option linter.hashCommand false in
 #challengeResetAuxLemmas
 
-theorem putinarQuarticRate
+theorem putinarQuarticRateWithEqualities
     {n m : ℕ} (hn : 0 < n) (_hm : 0 < m)
     {g : Fin m → MvPolynomial (Fin n) ℝ}
     {p : MvPolynomial (Fin n) ℝ}
     (hne : (KrivineStengle.basicClosedSet g).Nonempty)
     (harch : GeneralArchimedean.IsArchimedean g)
-    (hcqc : CQC g)
+    (hcqc : CQCWithEqualities g)
     (hp : IsNonnegOn p (KrivineStengle.basicClosedSet g)) :
     ∃ A : ℝ, ∃ r₀ : ℕ, 0 < A ∧ 0 < r₀ ∧
       ∀ r, r₀ ≤ r →
         p + C (A / (r : ℝ) ^ 4) ∈ GenQuadraticModule g r := by
   sorry
 
-theorem putinarQuarticDegreeBound
+theorem putinarQuarticDegreeBoundWithEqualities
     {n m : ℕ} (hn : 0 < n) (_hm : 0 < m)
     {g : Fin m → MvPolynomial (Fin n) ℝ}
     {p : MvPolynomial (Fin n) ℝ}
     (hne : (KrivineStengle.basicClosedSet g).Nonempty)
     (harch : GeneralArchimedean.IsArchimedean g)
-    (hcqc : CQC g)
+    (hcqc : CQCWithEqualities g)
     (hp : IsNonnegOn p (KrivineStengle.basicClosedSet g)) :
     ∃ A : ℝ, ∃ r₀ : ℕ, 0 < A ∧ 0 < r₀ ∧
       ∀ epsilon : ℝ, 0 < epsilon →
