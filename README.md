@@ -1,7 +1,6 @@
-# Lean companion to "Optimal degree bounds for sum-of-squares representations"
+# Optimal degree bounds for sum-of-squares representations
 
-This repository serves as a Lean formalization of the claims in the forthcoming
-companion announcement.
+This repository contains a Lean formalization of the claims made in the following research announcement by Taveira Blomenhofer, Gribling, Henrion, Korda, Kumar, Magron, Slot, Vargas, and Vera:
 
 - **arXiv/DOI:** Not yet available.
 - **Announcement PDF:** [Optimal degree bounds for sum-of-squares representations](Announcement.pdf)
