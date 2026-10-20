@@ -2,7 +2,7 @@
 
 This repository contains a Lean formalization of the claims made in the following research announcement by Taveira Blomenhofer, Gribling, Henrion, Korda, Kumar, Magron, Slot, Vargas, and Vera:
 
-- **arXiv/DOI:** Not yet available.
+- **arXiv/DOI:** https://arxiv.org/abs/2610.24638.
 - **Announcement PDF:** [Optimal degree bounds for sum-of-squares representations](Announcement.pdf)
 
 Below is a list of every formalized theorem in the order used in that announcement.
