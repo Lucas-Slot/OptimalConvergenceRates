@@ -27,6 +27,7 @@ nanoda_commit=68d5ca9db226849b41a6fff59d796ff19d0a8840
 
 configs=(
   Comparator/AllResults/comparator.json
+  Comparator/SphereDimensionBounds/comparator.json
 )
 
 use_landrun=${COMPARATOR_USE_LANDRUN:-false}

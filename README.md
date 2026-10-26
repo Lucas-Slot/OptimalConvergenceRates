@@ -7,6 +7,7 @@ This repository contains a Lean formalization of the claims made in the followin
 
 Below is a list of every formalized theorem in the order used in that announcement.
 Each entry gives the mathematical statement, its Lean formalization, and the location of its formalization within this repo.
+The final section gives additional sphere bounds with explicit dependence on dimension and degree.
 
 ## Building and navigating the project
 
@@ -49,6 +50,16 @@ Run the full local Comparator verification with:
 This downloads and builds pinned verification tools, so it is substantially slower than
 `lake build`.
 
+The three dimension-dependent sphere statements have a separate Mathlib-only challenge in
+[`Comparator/SphereDimensionBounds`](Comparator/SphereDimensionBounds). The verification
+script checks both configurations. With Lean 4.35's bundled Comparator, each configuration
+can also be checked directly, including its configured NanoDa replay:
+
+```sh
+lake comparator --config Comparator/AllResults/comparator.json
+lake comparator --config Comparator/SphereDimensionBounds/comparator.json
+```
+
 ## Contents
 
 1. [Archimedean, upper degree bound](#1-archimedean-upper-degree-bound)
@@ -61,12 +72,15 @@ This downloads and builds pinned verification tools, so it is substantially slow
 8. [Hypercube, lower degree bound III](#8-hypercube-lower-degree-bound-iii)
 9. [LICQ upper bound](#9-licq-upper-bound)
 10. [MFCQ quadratic lower bound](#10-mfcq-quadratic-lower-bound)
+11. [Dimension-dependent sphere bounds](#11-dimension-dependent-sphere-bounds)
 
 ## Notes
 The announcement writes `k` for a relaxation order whose certificates have degree at most
 `2k`. Most of the Lean development instead uses `r` for the complete certificate degree.
 This changes fixed constants, but not any of the asymptotic rates below. In the displayed
 formulas, `QM` denotes the quadratic module and `PO` the preordering.
+Section 11 uses `r` for the square-root degree, as in the existing `SphereSOSMod` definition;
+its SOS part therefore has degree at most `2r`.
 
 ## 1. Archimedean, upper degree bound
 
@@ -468,3 +482,50 @@ theorem hierarchy_error_lower_bound (r : ℕ) (hr : 1 ≤ r) :
     (1 : ℝ) / (2 ^ 14 * (r : ℝ) ^ 2) ≤ hierarchyError r :=
   hierarchy_error_lower_bound_proof r hr
 ```
+
+## 11. Dimension-dependent sphere bounds
+
+These results concern homogeneous forms of every even degree `d ≥ 4` on the full unit
+sphere in `ℝⁿ`. They expose dimension and degree dependence using the existing
+`SphereSOSMod`, `spherePolyMin`, `spherePolyMax`, and `sphereSOSBound` definitions.
+Write `p_min` and `p_max` for the sphere extrema and `p_r` for the SOS lower bound at
+square-root degree `r`.
+
+**Upper bound.** For `n ≥ 3` and `r ≥ 8nd`, every homogeneous degree-`d` form satisfies
+
+$$
+0\le p_{\min}-p_r
+\le C\frac{d^4 n^4(1+\lceil\log_2 n\rceil)^3}{r^4}
+  (p_{\max}-p_{\min}),
+\qquad C=192\pi^4\cdot5476140000.
+$$
+
+The membership theorem supplies the SOS certificate for `p - p_min` plus the displayed
+error. The gap theorem also asserts that `sphereSOSBound p r` is a real value, so its
+feasible set is nonempty. The kernel construction reuses the repository's normalized
+Euclidean sphere measure.
+
+**Lower bound.** There are absolute `c > 0` and `n₀` such that, for every `n ≥ n₀` and
+every even `d ≥ 4`, there is a globally nonnegative homogeneous degree-`d` form `p` with
+`p_min = 0` and `p_max = 1` satisfying
+
+$$
+p_{\min}-p_r\ge c\min\left\{\frac1n,\frac{d^4 n^3}{r^4}\right\}
+\qquad(r\ge d/2).
+$$
+
+One form works simultaneously for all these orders, and each hierarchy value is real.
+The upper and lower bounds have matching powers of `d` and `r` in the decay regime;
+their dimension dependence still differs by a factor of `n(1+⌈log₂ n⌉)³`.
+
+- **Main file:** [`SphereDimensionBounds/MainResults.lean`](OptimalConvergenceRates/SphereDimensionBounds/MainResults.lean)
+- **Namespace:** `OptimalConvergenceRates.SphereDimensionBounds`
+- **Lean declarations:** `sphereDimensionUpperRate_membership`,
+  `sphereDimensionUpperRate_gap`, `sphereDimensionLowerRate`
+- **Hierarchy compatibility:** [`SphereDimensionBounds/Compatibility.lean`](OptimalConvergenceRates/SphereDimensionBounds/Compatibility.lean)
+- **Independent statements:** [`Comparator/SphereDimensionBounds/Challenge.lean`](Comparator/SphereDimensionBounds/Challenge.lean)
+
+The compatibility lemmas identify the internal bounded free-multiplier convention with
+the existing sphere certificates at the same order. They also identify the sphere
+extrema and SOS bounds; the public statements use the existing repository definitions
+throughout.

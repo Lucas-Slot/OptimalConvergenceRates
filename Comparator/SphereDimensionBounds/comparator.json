@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Comparator.SphereDimensionBounds.Challenge",
+  "solution_module": "Comparator.SphereDimensionBounds.Solution",
+  "theorem_names": [
+    "OptimalConvergenceRates.SphereDimensionBounds.sphereDimensionUpperRate_membership",
+    "OptimalConvergenceRates.SphereDimensionBounds.sphereDimensionUpperRate_gap",
+    "OptimalConvergenceRates.SphereDimensionBounds.sphereDimensionLowerRate"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

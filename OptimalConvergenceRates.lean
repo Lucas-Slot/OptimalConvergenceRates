@@ -92,3 +92,4 @@ import OptimalConvergenceRates.GeneralArchimedean
 import OptimalConvergenceRates.GeneralCompact
 import OptimalConvergenceRates.CQC
 import OptimalConvergenceRates.MFCQQuadraticLowerBound
+import OptimalConvergenceRates.SphereDimensionBounds
