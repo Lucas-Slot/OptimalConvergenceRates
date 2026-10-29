@@ -1,4 +1,5 @@
 import OptimalConvergenceRates.QuarticConvergence.MainResults
+import OptimalConvergenceRates.QuarticConvergence.Sphere.HomogeneousExplicitConstants
 
 /-!
 # Quartic convergence
