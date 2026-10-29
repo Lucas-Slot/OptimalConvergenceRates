@@ -1,3 +1,4 @@
+import OptimalConvergenceRates.BasicNotions.ClosedConeImage
 /-
   OptimalConvergenceRates/BasicNotions/SoSConeClosed.lean
 
@@ -490,59 +491,11 @@ lemma exists_cone_lower_bound_of_compact_unit
     (hKsmul : ∀ {a : ℝ} {x : E}, 0 ≤ a → x ∈ K → a • x ∈ K)
     (hker : ∀ x ∈ K, L x = 0 → x = 0) :
     ∃ C : ℝ, 0 < C ∧ ∀ x ∈ K, C * ‖x‖ ≤ ‖L x‖ := by
-  classical
-  let S : Set E := K ∩ Metric.sphere (0 : E) 1
-  by_cases hSne : S.Nonempty
-  · have hSclosed : IsClosed S := hKclosed.inter Metric.isClosed_sphere
-    letI : ProperSpace E := FiniteDimensional.proper_real E
-    have hSbounded : Bornology.IsBounded S := by
-      exact Metric.isBounded_sphere.subset (by intro x hx; exact hx.2)
-    have hScompact : IsCompact S := Metric.isCompact_of_isClosed_isBounded hSclosed hSbounded
-    have hcont : ContinuousOn (fun x : E => ‖L x‖) S := L.continuous.norm.continuousOn
-    have hpos : ∀ x ∈ S, (0 : ℝ) < ‖L x‖ := by
-      intro x hx
-      have hxK : x ∈ K := hx.1
-      have hxnorm : ‖x‖ = 1 := by simpa [Metric.sphere, dist_eq_norm] using hx.2
-      have hxne : x ≠ 0 := by
-        intro hzero
-        simp [hzero] at hxnorm
-      have hLne : L x ≠ 0 := by
-        intro hL
-        exact hxne (hker x hxK hL)
-      exact norm_pos_iff.mpr hLne
-    rcases hScompact.exists_forall_le' hcont hpos with ⟨C, hCpos, hCle⟩
-    refine ⟨C, hCpos, ?_⟩
-    intro x hxK
-    by_cases hx0 : x = 0
-    · simp [hx0]
-    · have hnormpos : 0 < ‖x‖ := norm_pos_iff.mpr hx0
-      have hscale_nonneg : 0 ≤ (‖x‖)⁻¹ := inv_nonneg.mpr (le_of_lt hnormpos)
-      have hxS : (‖x‖)⁻¹ • x ∈ S := by
-        refine ⟨hKsmul hscale_nonneg hxK, ?_⟩
-        simp [Metric.sphere, dist_eq_norm, norm_smul,
-          inv_mul_cancel₀ (ne_of_gt hnormpos)]
-      have hle := hCle ((‖x‖)⁻¹ • x) hxS
-      have hLscale : ‖L ((‖x‖)⁻¹ • x)‖ = (‖x‖)⁻¹ * ‖L x‖ := by
-        simp [map_smul, norm_smul]
-      rw [hLscale] at hle
-      have := mul_le_mul_of_nonneg_right hle (le_of_lt hnormpos)
-      calc
-        C * ‖x‖ ≤ (‖x‖)⁻¹ * ‖L x‖ * ‖x‖ := by simpa [mul_assoc] using this
-        _ = ‖L x‖ := by
-          calc
-            (‖x‖)⁻¹ * ‖L x‖ * ‖x‖ = (‖x‖)⁻¹ * ‖x‖ * ‖L x‖ := by ring
-            _ = ‖L x‖ := by rw [inv_mul_cancel₀ (ne_of_gt hnormpos), one_mul]
-  · refine ⟨1, by norm_num, ?_⟩
-    intro x hxK
-    by_cases hx0 : x = 0
-    · simp [hx0]
-    · exfalso
-      have hnormpos : 0 < ‖x‖ := norm_pos_iff.mpr hx0
-      have hscale_nonneg : 0 ≤ (‖x‖)⁻¹ := inv_nonneg.mpr (le_of_lt hnormpos)
-      exact hSne ⟨(‖x‖)⁻¹ • x,
-        ⟨hKsmul hscale_nonneg hxK, by
-          simp [Metric.sphere, dist_eq_norm, norm_smul,
-            inv_mul_cancel₀ (ne_of_gt hnormpos)]⟩⟩
+  obtain ⟨C, hC, hbound⟩ := ClosedConeImage.cone_norm_bound K hKclosed
+    (fun x hx a ha ↦ hKsmul ha.le hx) L hker
+  refine ⟨C⁻¹, inv_pos.mpr hC, ?_⟩
+  intro x hx
+  exact (inv_mul_le_iff₀ hC).mpr (hbound x hx)
 
 lemma isClosed_image_of_closed_cone_with_lower_bound
     {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
@@ -551,67 +504,9 @@ lemma isClosed_image_of_closed_cone_with_lower_bound
     (hKclosed : IsClosed K)
     (hKsmul : ∀ {a : ℝ} {x : E}, 0 ≤ a → x ∈ K → a • x ∈ K)
     (hker : ∀ x ∈ K, L x = 0 → x = 0) :
-    IsClosed (L '' K) := by
-  classical
-  rcases exists_cone_lower_bound_of_compact_unit L K hKclosed hKsmul hker with
-    ⟨C, hCpos, hCbound⟩
-  apply isClosed_of_closure_subset
-  intro y hy
-  have hyseq : ∀ n : ℕ, ∃ x ∈ K, dist y (L x) < 1 / ((n : ℝ) + 1) := by
-    intro n
-    have hε : 0 < 1 / ((n : ℝ) + 1) := by positivity
-    rcases (Metric.mem_closure_iff.mp hy) _ hε with ⟨z, hz, hdist⟩
-    rcases hz with ⟨x, hxK, rfl⟩
-    exact ⟨x, hxK, hdist⟩
-  choose x hxK hxdist using hyseq
-  let R : ℝ := (‖y‖ + 1) / C
-  have hxbound : ∀ n, ‖x n‖ ≤ R := by
-    intro n
-    have hLy : ‖L (x n)‖ ≤ ‖y‖ + 1 := by
-      have hdistlt : dist y (L (x n)) < 1 := by
-        have hle : 1 / ((n : ℝ) + 1) ≤ 1 := by
-          have h := Nat.cast_inv_le_one (α := ℝ) (n + 1)
-          simpa [one_div, Nat.cast_add, Nat.cast_one] using h
-        exact lt_of_lt_of_le (hxdist n) hle
-      have hnorm : ‖L (x n) - y‖ < 1 := by
-        simpa [dist_eq_norm, norm_sub_rev] using hdistlt
-      calc
-        ‖L (x n)‖ = ‖(L (x n) - y) + y‖ := by
-          congr
-          abel
-        _ ≤ ‖L (x n) - y‖ + ‖y‖ := norm_add_le _ _
-        _ ≤ ‖y‖ + 1 := by linarith
-    have hlower := hCbound (x n) (hxK n)
-    have hdiv : ‖x n‖ ≤ ‖L (x n)‖ / C :=
-      (le_div_iff₀ hCpos).mpr (by simpa [mul_comm] using hlower)
-    exact le_trans hdiv (by
-      simpa [R, add_comm] using div_le_div_of_nonneg_right hLy (le_of_lt hCpos))
-  let B : Set E := K ∩ Metric.closedBall (0 : E) R
-  letI : ProperSpace E := FiniteDimensional.proper_real E
-  have hBcompact : IsCompact B := by
-    apply Metric.isCompact_of_isClosed_isBounded
-    · exact hKclosed.inter Metric.isClosed_closedBall
-    · exact Metric.isBounded_closedBall.subset (by intro x hx; exact hx.2)
-  have hxB : ∀ n, x n ∈ B := by
-    intro n
-    exact ⟨hxK n, by simpa [Metric.mem_closedBall, dist_eq_norm] using hxbound n⟩
-  rcases hBcompact.tendsto_subseq hxB with ⟨xlim, hxlimB, φ, hφmono, hφtend⟩
-  refine ⟨xlim, hxlimB.1, ?_⟩
-  have hLlim : Tendsto (fun n => L (x (φ n))) atTop (nhds (L xlim)) :=
-    L.continuous.tendsto xlim |>.comp hφtend
-  have hdist_tend : Tendsto (fun n => dist (L (x (φ n))) y) atTop (nhds 0) := by
-    apply squeeze_zero
-    · intro n; exact dist_nonneg
-    · intro n
-      have h := hxdist (φ n)
-      have h' : dist (L (x (φ n))) y < 1 / ((φ n : ℝ) + 1) := by
-        simpa [dist_comm] using h
-      exact le_of_lt h'
-    · exact tendsto_one_div_add_atTop_nhds_zero_nat.comp hφmono.tendsto_atTop
-  have hLy : Tendsto (fun n => L (x (φ n))) atTop (nhds y) := by
-    rw [tendsto_iff_dist_tendsto_zero]
-    simpa [dist_comm] using hdist_tend
-  exact tendsto_nhds_unique hLlim hLy
+    IsClosed (L '' K) :=
+  ClosedConeImage.isClosed_image_of_conic_trivial_kernel K hKclosed
+    (fun x hx a ha ↦ hKsmul ha.le hx) L hker
 
 /-- The degree-bounded SOS cone as a subset of finite coefficient space. -/
 def degreeBoundedSOSCoeffCone (n r : ℕ) : Set (OutputExp n r → ℝ) :=

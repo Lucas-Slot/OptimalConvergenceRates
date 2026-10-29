@@ -1,3 +1,4 @@
+import OptimalConvergenceRates.BasicNotions.FiniteAveraging
 /-
   OptimalConvergenceRates/QuarticConvergence/Sphere/Kernel/Quadrature.lean
 
@@ -459,95 +460,8 @@ compact set is compact. The proof parametrizes every point of the hull by
 `m + 1` simplex weights and nodes. Carathéodory bounds the support size, and
 zero weights pad a smaller support to exactly `m + 1` slots. -/
 theorem isCompact_convexHull_fin_pi (m : ℕ) {s : Set (Fin m → ℝ)}
-    (hs : IsCompact s) : IsCompact (convexHull ℝ s) := by
-  classical
-  rcases s.eq_empty_or_nonempty with rfl | hsne
-  · simp
-  letI : CompactSpace s := isCompact_iff_compactSpace.mp hs
-  let I := Fin (m + 1)
-  let P := (Convexity.StdSimplex ℝ I) × (I → s)
-  let barycenter : P → (Fin m → ℝ) := fun p ↦
-    ∑ i, p.1.weights i • (p.2 i).1
-  have hbarycenter : Continuous barycenter := by
-    dsimp [barycenter, P]
-    apply continuous_finsetSum _
-    intro i _
-    exact ((Convexity.StdSimplex.continuous_weights_apply ℝ i).comp continuous_fst).smul
-      (continuous_subtype_val.comp
-        ((continuous_apply i).comp continuous_snd))
-  have hrange : Set.range barycenter = convexHull ℝ s := by
-    apply Set.Subset.antisymm
-    · rintro x ⟨p, rfl⟩
-      exact mem_convexHull_of_exists_fintype (fun i ↦ p.1.weights i)
-        (fun i ↦ (p.2 i).1) p.1.weights_nonneg
-        ((p.1.weights.sum_fintype (fun _ r ↦ r) (fun _ ↦ rfl)).symm.trans p.1.total)
-        (fun i ↦ (p.2 i).2) rfl
-    · intro x hx
-      let t := Caratheodory.minCardFinsetOfMemConvexHull hx
-      have ht_sub : (t : Set (Fin m → ℝ)) ⊆ s :=
-        Caratheodory.minCardFinsetOfMemConvexHull_subseteq hx
-      have ht_mem : x ∈ convexHull ℝ (t : Set (Fin m → ℝ)) :=
-        Caratheodory.mem_minCardFinsetOfMemConvexHull hx
-      have ht_aff : AffineIndependent ℝ ((↑) : t → (Fin m → ℝ)) :=
-        Caratheodory.affineIndependent_minCardFinsetOfMemConvexHull hx
-      obtain ⟨w, hw_nonneg, hw_sum, hw_center⟩ := Finset.mem_convexHull'.mp ht_mem
-      have hcard : Fintype.card t ≤ m + 1 := by
-        calc
-          Fintype.card t ≤
-              Module.finrank ℝ
-                (vectorSpan ℝ (Set.range ((↑) : t → (Fin m → ℝ)))) + 1 :=
-            ht_aff.card_le_finrank_succ
-          _ ≤ Module.finrank ℝ (Fin m → ℝ) + 1 :=
-            Nat.add_le_add_right (Submodule.finrank_le _) 1
-          _ = m + 1 := by rw [Module.finrank_fin_fun]
-      have hcard' : Fintype.card t ≤ Fintype.card I := by
-        simpa [I] using hcard
-      obtain ⟨e⟩ := Function.Embedding.nonempty_of_card_le hcard'
-      let z0 : s := ⟨hsne.some, hsne.some_mem⟩
-      let W : I → ℝ := Function.extend e (fun i : t ↦ w i.1) (fun _ ↦ 0)
-      let Z : I → s := Function.extend e
-        (fun i : t ↦ ⟨i.1, ht_sub i.2⟩) (fun _ ↦ z0)
-      have hW_nonneg : ∀ i, 0 ≤ W i := by
-        intro i
-        by_cases hi : ∃ j, e j = i
-        · obtain ⟨j, rfl⟩ := hi
-          simp [W, e.injective.extend_apply, hw_nonneg j.1 j.2]
-        · simp [W, Function.extend_apply' _ _ _ hi]
-      have hW_sum : ∑ i, W i = 1 := by
-        calc
-          ∑ i, W i = ∑ j : t, w j.1 := by
-            symm
-            apply Fintype.sum_of_injective e e.injective
-              (fun j : t ↦ w j.1) W
-            · intro i hi
-              simp [W, Function.extend_apply' _ _ _ hi]
-            · intro j
-              simp [W, e.injective.extend_apply]
-          _ = 1 := (Finset.sum_finset_coe w t).trans hw_sum
-      have hcenter : ∑ i, W i • (Z i).1 = x := by
-        calc
-          ∑ i, W i • (Z i).1 = ∑ j : t, w j.1 • j.1 := by
-            symm
-            apply Fintype.sum_of_injective e e.injective
-              (fun j : t ↦ w j.1 • j.1) (fun i ↦ W i • (Z i).1)
-            · intro i hi
-              simp [W, Function.extend_apply' _ _ _ hi]
-            · intro j
-              simp [W, Z, e.injective.extend_apply]
-          _ = x := (Finset.sum_finset_coe (fun y ↦ w y • y) t).trans hw_center
-      let W' : I →₀ ℝ := Finsupp.equivFunOnFinite.symm W
-      let a : Convexity.StdSimplex ℝ I :=
-        { weights := W'
-          nonneg := by
-            intro i
-            simpa [W'] using hW_nonneg i
-          total := by
-            rw [W'.sum_fintype (fun _ r ↦ r) (fun _ ↦ rfl)]
-            simpa [W'] using hW_sum }
-      refine ⟨(a, Z), ?_⟩
-      simpa [barycenter, a, W'] using hcenter
-  rw [← hrange]
-  exact isCompact_range hbarycenter
+    (hs : IsCompact s) : IsCompact (convexHull ℝ s) :=
+  FiniteAveraging.compact_convexHull hs
 
 /-- Consequently, the convex hull of the moment-coordinate range is totally
 bounded. Closedness is the only remaining ingredient needed for compactness. -/

@@ -1,3 +1,4 @@
+import OptimalConvergenceRates.QuarticConvergence.Sphere.Kernel.NearIdentity
 /-
   OptimalConvergenceRates/QuarticConvergence/Sphere/Kernel/Repair.lean
 
@@ -20,74 +21,7 @@ open scoped Pointwise
 namespace OptimalConvergenceRates
 namespace QuarticConvergence
 
-section NearIdentity
 
-variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
-
-/-- A linear endomorphism whose error is strictly smaller than every nonzero input is
-injective. -/
-theorem linearEnd_injective_of_norm_sub_lt (T : Module.End ℝ V)
-    (hT : ∀ v, v ≠ 0 → ‖v - T v‖ < ‖v‖) : Function.Injective T := by
-  intro x y hxy
-  by_contra hne
-  have hv : x - y ≠ 0 := sub_ne_zero.mpr hne
-  have hstrict := hT (x - y) hv
-  have hzero : T (x - y) = 0 := by
-    rw [map_sub, hxy, sub_self]
-  rw [hzero, sub_zero] at hstrict
-  exact (lt_irrefl ‖x - y‖) hstrict
-
-/-- The usual operator-error estimate with constant below one implies injectivity. -/
-theorem linearEnd_injective_of_error_le (T : Module.End ℝ V) (c : ℝ) (hc : c < 1)
-    (hT : ∀ v, ‖v - T v‖ ≤ c * ‖v‖) : Function.Injective T := by
-  apply linearEnd_injective_of_norm_sub_lt T
-  intro v hv
-  calc
-    ‖v - T v‖ ≤ c * ‖v‖ := hT v
-    _ < 1 * ‖v‖ := mul_lt_mul_of_pos_right hc (norm_pos_iff.mpr hv)
-    _ = ‖v‖ := one_mul _
-
-/-- In finite dimension, a near-identity endomorphism is onto; no Neumann-series
-construction is needed. -/
-theorem linearEnd_surjective_of_error_le [FiniteDimensional ℝ V]
-    (T : Module.End ℝ V) (c : ℝ) (hc : c < 1)
-    (hT : ∀ v, ‖v - T v‖ ≤ c * ‖v‖) : Function.Surjective T :=
-  LinearMap.surjective_of_injective (linearEnd_injective_of_error_le T c hc hT)
-/-- A finite-dimensional near-identity map has a preimage whose norm is controlled by
-1 / (1-c). -/
-theorem linearEnd_exists_preimage_norm_le [FiniteDimensional ℝ V]
-    (T : Module.End ℝ V) (c : ℝ) (hc : c < 1)
-    (hT : ∀ v, ‖v - T v‖ ≤ c * ‖v‖) (y : V) :
-    ∃ x : V, T x = y ∧ ‖x‖ ≤ ‖y‖ / (1 - c) := by
-  obtain ⟨x, hx⟩ := linearEnd_surjective_of_error_le T c hc hT y
-  refine ⟨x, hx, ?_⟩
-  have hnorm : ‖x‖ ≤ c * ‖x‖ + ‖y‖ := by
-    calc
-      ‖x‖ = ‖(x - T x) + T x‖ := by
-        congr 1
-        abel
-      _ ≤ ‖x - T x‖ + ‖T x‖ := norm_add_le _ _
-      _ ≤ c * ‖x‖ + ‖T x‖ := add_le_add (hT x) le_rfl
-      _ = c * ‖x‖ + ‖y‖ := by rw [hx]
-  apply (le_div_iff₀ (sub_pos.mpr hc)).2
-  nlinarith
-
-/-- The same preimage differs from the target by at most c / (1-c) times the
-target norm. -/
-theorem linearEnd_exists_preimage_correction_le [FiniteDimensional ℝ V]
-    (T : Module.End ℝ V) (c : ℝ) (hc0 : 0 ≤ c) (hc1 : c < 1)
-    (hT : ∀ v, ‖v - T v‖ ≤ c * ‖v‖) (y : V) :
-    ∃ x : V, T x = y ∧
-      ‖x‖ ≤ ‖y‖ / (1 - c) ∧ ‖x - y‖ ≤ c / (1 - c) * ‖y‖ := by
-  obtain ⟨x, hx, hxnorm⟩ := linearEnd_exists_preimage_norm_le T c hc1 hT y
-  refine ⟨x, hx, hxnorm, ?_⟩
-  calc
-    ‖x - y‖ = ‖x - T x‖ := by rw [hx]
-    _ ≤ c * ‖x‖ := hT x
-    _ ≤ c * (‖y‖ / (1 - c)) := mul_le_mul_of_nonneg_left hxnorm hc0
-    _ = c / (1 - c) * ‖y‖ := by ring
-
-end NearIdentity
 open SphereBallTransfers
 open SpherePolynomialQuadrature
 
