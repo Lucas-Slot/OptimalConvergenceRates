@@ -4,7 +4,9 @@ project:
   name: "Formalized optimal convergence rates for sums-of-squares hierarchies"
   description: >-
     A Lean 4 development presenting proofs of the ten result groups announced
-    in a forthcoming companion manuscript. The results give asymptotically
+    in a forthcoming companion manuscript, together with explicit dimension-
+    and degree-dependent bounds for homogeneous polynomials on the sphere.
+    The announced results give asymptotically
     optimal upper and lower certificate-degree bounds for Archimedean quadratic
     modules and compact preorderings, quartic hypercube and equality-aware CQC upper bounds,
     sharp lower bounds for explicit hypercube witnesses, and a quadratic lower
@@ -38,11 +40,22 @@ sources:
       through a mix of human and AI contributions, with human oversight by all
       nine source authors. Detailed model attribution is unavailable.
       These proofs are first presented through the formalization project.
+  - title: "Dimension-aware homogeneous sphere bounds (PR #4)"
+    authors:
+      - "a44l"
+    type: "original-proof"
+    relationship: "other"
+    note: >-
+      Mathematical proofs and Lean arguments from
+      https://github.com/Lucas-Slot/OptimalConvergenceRates/pull/4,
+      commit 0b1429cba361a97ac7a9733f75bf0f5f02bda928, integrated with the
+      existing sphere certificate, extrema, and hierarchy definitions.
 status:
   scope: >-
-    The Comparator surface contains twenty-two theorems covering all ten result
-    groups in README.md, positivity theorems for the two separation constants
-    used in the Choi--Lam and Motzkin lower bounds, and the two corresponding
+    The single Comparator surface contains twenty-five advertised theorems:
+    twenty-two covering the ten announced result groups and three explicit
+    homogeneous sphere bounds. It also includes positivity theorems for the two
+    separation constants used in the Choi--Lam and Motzkin lower bounds, and the two corresponding
     definitions. Supporting definitions, lemmas, equivalent consequences, and
     results not listed in README.md are outside the compared surface unless
     needed to ensure those lower bounds are nonvacuous.
@@ -81,8 +94,10 @@ fidelity:
     dependence on the polynomial supremum norm and max(d,1)^6 explicit. Lean
     also states nonemptiness and positive dimension/cardinality hypotheses
     explicitly in the LICQ result. The MFCQ development encodes paper order r
-    as certificate degree 2r. No other known mathematical divergence affects
-    the compared statements.
+    as certificate degree 2r. The additional homogeneous sphere statements use
+    r as the degree of each SOS square root, matching the existing sphere
+    hierarchy. Their quantitative estimates supplement the announcement.
+    No other known mathematical divergence affects the compared statements.
 review:
   status: "self-assessed"
   notes: >-
@@ -213,6 +228,21 @@ alignment:
       module: "Comparator.AllResults.Solution"
       status: "proved"
       note: "Hierarchy-error lower bound for the explicit MFCQ example."
+    - source: "Homogeneous sphere bounds with explicit constants (PR #4)"
+      lean: "OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants.sphereDimensionUpperRate_membership"
+      module: "Comparator.AllResults.Solution"
+      status: "proved"
+      note: "Explicit homogeneous sphere SOS certificate with dimension and degree dependence."
+    - source: "Homogeneous sphere bounds with explicit constants (PR #4)"
+      lean: "OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants.sphereDimensionUpperRate_gap"
+      module: "Comparator.AllResults.Solution"
+      status: "proved"
+      note: "Upper gap bound for the existing sphere SOS hierarchy, including feasibility."
+    - source: "Homogeneous sphere bounds with explicit constants (PR #4)"
+      lean: "OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants.sphereDimensionLowerRate"
+      module: "Comparator.AllResults.Solution"
+      status: "proved"
+      note: "One normalized globally nonnegative homogeneous form with a lower gap at every admissible order."
 acknowledgements: >-
   Built with Lean 4 and Mathlib. Claude Code and Codex performed almost all
   mathematical-argument and Lean proof development under human direction.

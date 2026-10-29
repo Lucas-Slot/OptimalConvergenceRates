@@ -25,7 +25,10 @@
     "OptimalConvergenceRates.putinarQuarticDegreeBoundWithEqualities",
     "OptimalConvergenceRates.MFCQQuadraticLowerBound.certificate_lower_bound",
     "OptimalConvergenceRates.MFCQQuadraticLowerBound.certificate_order_lower_bound",
-    "OptimalConvergenceRates.MFCQQuadraticLowerBound.hierarchy_error_lower_bound"
+    "OptimalConvergenceRates.MFCQQuadraticLowerBound.hierarchy_error_lower_bound",
+    "OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants.sphereDimensionUpperRate_membership",
+    "OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants.sphereDimensionUpperRate_gap",
+    "OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants.sphereDimensionLowerRate"
   ],
   "definition_names": [
     "OptimalConvergenceRates.schmInteriorLowerBoundConst4",

@@ -5,3 +5,4 @@ import OptimalConvergenceRates.LowerDegreeBoundsPutinar.MainResults
 import OptimalConvergenceRates.LowerDegreeBoundsSchmudgen.MainResults
 import OptimalConvergenceRates.CQC.MainResults
 import OptimalConvergenceRates.MFCQQuadraticLowerBound.MainResults
+import OptimalConvergenceRates.QuarticConvergence.Sphere.HomogeneousExplicitConstants.MainResults

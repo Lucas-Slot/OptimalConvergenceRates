@@ -5,8 +5,9 @@ This repository contains a Lean formalization of the claims made in the followin
 - **arXiv/DOI:** https://arxiv.org/abs/2610.24638.
 - **Announcement PDF:** [Optimal degree bounds for sum-of-squares representations](Announcement.pdf)
 
-Below is a list of every formalized theorem in the order used in that announcement.
-Each entry gives the mathematical statement, its Lean formalization, and the location of its formalization within this repo.
+The first ten result sections follow the order of the announcement. Additional results
+not stated there are collected in the final section. Each entry gives the mathematical
+statement, its Lean formalization, and the location of its formalization within this repo.
 
 ## Building and navigating the project
 
@@ -29,13 +30,17 @@ module. For the announced results, start from the seven `MainResults.lean` files
 the supporting definitions, estimates, and proofs are organized in the surrounding result
 folders. The Comparator surface is under [`Comparator/AllResults`](Comparator/AllResults):
 `Challenge.lean` is the Mathlib-only statement interface, while `Solution.lean` imports the
-production `MainResults` modules that implement it.
+production `MainResults` modules that implement it. The explicit homogeneous sphere
+bounds have a separate production entry under
+[`Sphere/HomogeneousExplicitConstants`](OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants)
+and are included in the same `AllResults` challenge.
 
 ### What the Comparator checks
 
 A normal Lake build checks that the production development type-checks. The pinned Comparator
-additionally checks the 22 advertised theorems and two intentional definition targets against
-the standalone challenge interface. Its configuration is
+additionally checks 25 advertised theorems, including the three explicit homogeneous
+sphere statements, two constant-positivity theorems, and two intentional definition targets
+against the single standalone challenge interface in
 [`Comparator/AllResults/comparator.json`](Comparator/AllResults/comparator.json). The check
 permits only `propext`, `Quot.sound`, and `Classical.choice`, and replays exported proofs with
 NanoDa's independent kernel.
@@ -61,6 +66,7 @@ This downloads and builds pinned verification tools, so it is substantially slow
 8. [Hypercube, lower degree bound III](#8-hypercube-lower-degree-bound-iii)
 9. [LICQ upper bound](#9-licq-upper-bound)
 10. [MFCQ quadratic lower bound](#10-mfcq-quadratic-lower-bound)
+11. [Additional results not in the announcement](#11-additional-results-not-in-the-announcement)
 
 ## Notes
 The announcement writes `k` for a relaxation order whose certificates have degree at most
@@ -468,3 +474,110 @@ theorem hierarchy_error_lower_bound (r : ℕ) (hr : 1 ≤ r) :
     (1 : ℝ) / (2 ^ 14 * (r : ℝ) ^ 2) ≤ hierarchyError r :=
   hierarchy_error_lower_bound_proof r hr
 ```
+
+## 11. Additional results not in the announcement
+
+The following results supplement [Announcement.pdf](Announcement.pdf). The announcement
+already implies quartic convergence on the sphere through its LICQ upper bound. The
+results here make the dimension and degree dependence explicit for homogeneous
+polynomials and give a corresponding family of lower bounds. The existing sphere
+results for arbitrary polynomials remain in
+[`QuarticConvergence/MainResults.lean`](OptimalConvergenceRates/QuarticConvergence/MainResults.lean).
+
+Write `p_min` and `p_max` for the minimum and maximum of `p` on the unit sphere,
+and `b_r` for its sphere SOS hierarchy value at order `r`. Here `r` bounds the
+square-root degrees, so the SOS part has degree at most `2r`. Both gap statements
+establish a real hierarchy value by proving feasibility at every stated order.
+The Lean declarations below are shown without proof bodies and belong to the namespace
+`OptimalConvergenceRates.QuarticConvergence.HomogeneousExplicitConstants`.
+
+### Homogeneous sphere, upper bound
+
+**Result.** Let `n ≥ 3`, let `d ≥ 4` be even, and let `p` be a homogeneous polynomial
+of degree `d` in `n` variables. Set
+
+$$
+A = 192\pi^4 \cdot 5476140000,
+\qquad
+E_{n,d,r}(p) =
+  A\frac{d^4 n^4(1+\lceil\log_2 n\rceil)^3}{r^4}
+    (p_{\max}-p_{\min}).
+$$
+
+For every `r ≥ 8nd`, the polynomial `p - p_min + E_{n,d,r}(p)` has an SOS certificate
+modulo the sphere equation with square-root degrees at most `r`. Consequently,
+
+$$
+0 \le p_{\min}-b_r \le E_{n,d,r}(p).
+$$
+
+The absolute constant `A` is approximately `1.02 × 10¹⁴`.
+
+- **Folder:** [`OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants`](OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants)
+- **File:** [`MainResults.lean`](OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants/MainResults.lean)
+- **Lean declarations:** `sphereDimensionUpperRate_membership`, `sphereDimensionUpperRate_gap`
+
+```lean
+theorem sphereDimensionUpperRate_membership {n d r : ℕ}
+    (hn : 3 ≤ n) (hd : 4 ≤ d) (heven : Even d) (hr : 8 * n * d ≤ r)
+    (p : MvPolynomial (Fin n) ℝ) (hp : p.IsHomogeneous d) :
+    SphereSOSMod
+      (p - C (spherePolyMin p) +
+        C ((192 * Real.pi ^ 4 * 5476140000) *
+          ((d : ℝ) ^ 4 * (n : ℝ) ^ 4 * (1 + (Nat.clog 2 n : ℝ)) ^ 3 /
+            (r : ℝ) ^ 4) * (spherePolyMax p - spherePolyMin p))) r
+
+theorem sphereDimensionUpperRate_gap {n d r : ℕ}
+    (hn : 3 ≤ n) (hd : 4 ≤ d) (heven : Even d) (hr : 8 * n * d ≤ r)
+    (p : MvPolynomial (Fin n) ℝ) (hp : p.IsHomogeneous d) :
+    ∃ b : ℝ, sphereSOSBound p r = (b : WithBot ℝ) ∧
+      0 ≤ spherePolyMin p - b ∧
+      spherePolyMin p - b ≤
+        (192 * Real.pi ^ 4 * 5476140000) *
+          ((d : ℝ) ^ 4 * (n : ℝ) ^ 4 * (1 + (Nat.clog 2 n : ℝ)) ^ 3 /
+            (r : ℝ) ^ 4) * (spherePolyMax p - spherePolyMin p)
+```
+
+### Homogeneous sphere, lower bound
+
+**Result.** There are absolute constants `c > 0` and `n₀` such that, for every
+`n ≥ n₀` and every even `d ≥ 4`, there is a globally nonnegative homogeneous
+polynomial `p` of degree `d` with `p_min = 0` and `p_max = 1` satisfying
+
+$$
+p_{\min}-b_r \ge
+  c\min\left\{\frac{1}{n},\frac{d^4 n^3}{r^4}\right\}
+\qquad (r\ge d/2).
+$$
+
+The same polynomial works for every admissible order `r`.
+
+- **Folder:** [`OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants`](OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants)
+- **File:** [`MainResults.lean`](OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants/MainResults.lean)
+- **Lean declaration:** `sphereDimensionLowerRate`
+
+> **Range note.** The construction uses a dimension threshold at least `2⁵³ + 2`.
+> In the decay regime, the upper and lower estimates have the same powers of `d`
+> and `r`, but their dimension dependence differs by a factor
+> `n(1 + ⌈log₂ n⌉)³`, apart from absolute constants.
+
+```lean
+theorem sphereDimensionLowerRate :
+    ∃ c : ℝ, 0 < c ∧ ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n →
+      ∀ d : ℕ, 4 ≤ d → Even d →
+        ∃ p : MvPolynomial (Fin n) ℝ,
+          p.IsHomogeneous d ∧
+          (∀ x : Fin n → ℝ, 0 ≤ eval x p) ∧
+          spherePolyMin p = 0 ∧ spherePolyMax p = 1 ∧
+          ∀ r : ℕ, d / 2 ≤ r →
+            ∃ b : ℝ, sphereSOSBound p r = (b : WithBot ℝ) ∧
+              c * min (1 / (n : ℝ))
+                ((d : ℝ) ^ 4 * (n : ℝ) ^ 3 / (r : ℝ) ^ 4) ≤
+                  spherePolyMin p - b
+```
+
+These proofs integrate the arguments of [PR #4](https://github.com/Lucas-Slot/OptimalConvergenceRates/pull/4)
+with the existing sphere and SOS infrastructure. The
+[proof guide](OptimalConvergenceRates/QuarticConvergence/Sphere/HomogeneousExplicitConstants/README.md)
+records the source revision and proof organization. All three statements are included
+in the single [Comparator challenge](Comparator/AllResults/Challenge.lean).
