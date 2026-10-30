@@ -546,7 +546,7 @@ polynomial `p` of degree `d` with `p_min = 0` and `p_max = 1` satisfying
 
 $$
 p_{\min}-b_r \ge
-  c\min\left\{\frac{1}{n},\frac{d^4 n^3}{r^4}\right\}
+  c\min(\frac{1}{n},\frac{d^4 n^3}{r^4})
 \qquad (r\ge d/2).
 $$
 
